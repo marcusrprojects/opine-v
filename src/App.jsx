@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import Home from "./components/Home";
 import Categories from "./components/Categories";
 import Profile from "./components/Profile";
@@ -10,6 +10,13 @@ import "./firebaseConfig";
 function App() {
   return (
     <div className="App">
+      <nav>
+      <Link to="/">Home</Link>
+      <Link to="/categories">Categories</Link>
+      <Link to="/profile">Profile</Link>
+      <Link to="/login">Login</Link>
+      <Link to="/signup">Signup</Link>
+    </nav>
       <Router>
         <div className="App-router">
           <Routes>
