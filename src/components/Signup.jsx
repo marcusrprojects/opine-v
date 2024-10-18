@@ -4,16 +4,18 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null); // State to track error messages
   const auth = getAuth();
 
   const handleSignup = (e) => {
     e.preventDefault();
+    setError(null); // Clear previous errors before new attempt
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log("Signed up:", userCredential.user);
       })
       .catch((error) => {
-        console.error("Error signing up:", error.message);
+        setError(error.message); // Set error message to display to user
       });
   };
 
@@ -35,6 +37,8 @@ function Signup() {
         />
         <button type="submit">Sign Up</button>
       </form>
+      {/* Conditionally render error message */}
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }
