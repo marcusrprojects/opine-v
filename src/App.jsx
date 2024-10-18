@@ -10,14 +10,14 @@ import "./firebaseConfig";
 function App() {
   return (
     <div className="App">
-      <nav>
-      <Link to="/">Home</Link>
-      <Link to="/categories">Categories</Link>
-      <Link to="/profile">Profile</Link>
-      <Link to="/login">Login</Link>
-      <Link to="/signup">Signup</Link>
-    </nav>
       <Router>
+        <nav>
+          <Link to="/">Home</Link>
+          <Link to="/categories">Categories</Link>
+          <Link to="/profile">Profile</Link>
+          <Link to="/login">Login</Link>
+          <Link to="/signup">Signup</Link>
+        </nav>
         <div className="App-router">
           <Routes>
             <Route exact path="/" element={<Home />} />

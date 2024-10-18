@@ -40,3 +40,40 @@
 .read-the-docs {
   color: #888;
 }
+
+
+
+/* Center the navigation and add some space between links */
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+/* Style the links inside the navigation */
+nav a {
+  text-decoration: none;
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 200ms, color 200ms;
+}
+
+/* Hover effect to enhance interactivity */
+nav a:hover {
+  background-color: #61dafb;
+  color: white;
+}
+
+/* Active link style */
+nav a.active {
+  background-color: #007acc;
+  color: white;
+}
