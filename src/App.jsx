@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import Home from "./components/Home";
 import Categories from "./components/Categories";
+import CreateCategory from './components/CreateCategory'; // Add this route
+import AddItem from './components/AddItem'; // Add this route (for individual category view)
 import Profile from "./components/Profile";
 import "./App.css";
 import Login from "./components/Login";
@@ -22,6 +24,8 @@ function App() {
           <Routes>
             <Route exact path="/" element={<Home />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/create-category" element={<CreateCategory />} />
+            <Route path="/categories/:categoryId/add-item" element={<AddItem />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
