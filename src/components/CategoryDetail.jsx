@@ -1,18 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom'; // To capture category ID from URL
+import { useParams, useNavigate } from 'react-router-dom'; // To capture category ID from URL
 import { db } from '../firebaseConfig'; // Assuming firebaseConfig is outside the components folder
-import { collection, doc, getDoc, getDocs, addDoc } from 'firebase/firestore';
-import AddItem from './AddItem'; // A reusable form component to add items
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { FaPlusCircle } from 'react-icons/fa'; // Import a plus icon from react-icons
 
+/**
+ * CategoryDetail component displays the details of a specific category,
+ * its items, and provides a navigation option to add a new item.
+ */
 const CategoryDetail = () => {
   const { categoryId } = useParams(); // Get the categoryId from the URL
   const [items, setItems] = useState([]);
   let fields = useRef([]);
   let categoryName = useRef('');
   const [loading, setLoading] = useState(true);
-  const [showAddItemForm, setShowAddItemForm] = useState(false); // State to toggle form
+  const navigate = useNavigate();
 
+  /**
+   * useEffect hook to fetch category details and its items when
+   * the component is mounted or when the categoryId or items change.
+   */
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
@@ -37,19 +44,17 @@ const CategoryDetail = () => {
     };
 
     fetchCategoryData();
-  }, [categoryId]);
+  }, [categoryId, items]);
 
-  const handleAddItem = async (newItem) => {
-    try {
-      const categoryItemsRef = collection(db, `categories/${categoryId}/items`);
-      await addDoc(categoryItemsRef, newItem);
-      setItems(prevItems => [...prevItems, newItem]); // Update state with new item
-      setShowAddItemForm(false); // Hide form after adding item
-    } catch (error) {
-      console.error('Error adding new item: ', error);
-    }
+  /**
+   * Handle navigation when the user clicks the button to add a new item.
+   * Redirects to the add item page of the current category.
+   */
+  const handleAddItemClick = () => {
+    navigate(`/categories/${categoryId}/add-item`);
   };
 
+  // If data is still loading, show a loading message
   if (loading) {
     return <p>Loading items...</p>;
   }
@@ -75,15 +80,10 @@ const CategoryDetail = () => {
         ))}
       </div>
 
-      {/* Add new item form - controlled by state */}
-      {!showAddItemForm ? (
-        <div onClick={() => setShowAddItemForm(true)} style={{ cursor: 'pointer', display: 'inline-block' }}>
-          <FaPlusCircle size={30} /> {/* Plus icon */}
-          <span>Add New Item</span>
-        </div>
-      ) : (
-        <AddItem categoryId={categoryId} onAddItem={handleAddItem} />
-      )}
+      {/* Plus button to navigate to the AddItem page */}
+      <button onClick={handleAddItemClick}>
+        <FaPlusCircle size="2em" />
+      </button>
     </div>
   );
 };
