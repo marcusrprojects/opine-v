@@ -3,13 +3,20 @@ import Home from "./components/Home";
 import Categories from "./components/Categories";
 import CreateCategory from './components/CreateCategory';
 import CategoryDetail from './components/CategoryDetail.jsx';
-import AddItem from './components/AddItem'; // Add this route (for individual category view)
+import AddItem from './components/AddItem';
 import Profile from "./components/Profile";
 import "./App.css";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import "./firebaseConfig";
 
+
+/**
+ * App component is the main entry point for the application.
+ * It sets up routing for different components using React Router.
+ * Users can navigate between Home, Categories, Profile, Login, and Signup.
+ * It also includes routes for category management (creating and viewing categories, adding items).
+ */
 function App() {
   return (
     <div className="App">
