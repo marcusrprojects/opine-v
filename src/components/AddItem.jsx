@@ -55,61 +55,77 @@ const AddItem = () => {
     const sortedItems = itemsInRankCategory.sort((a, b) => a.rating - b.rating);
 
     setRankedItems(sortedItems); // Set sorted items for comparison
+    setHi(sortedItems.length - 1); // Upper bound is the last index
     setStep(3); // Move to comparison step
   };
 
   // Step 3: Handle comparison of the new item with existing items and place it correctly
   const handleComparisonChoice = async (isBetter) => {
-    // Calculate the middle index between lo and hi
-    const middleIndex = Math.floor((lo + hi) / 2);
-
+    // Use local variables to keep track of lo and hi updates
+    let currentLo = lo;
+    let currentHi = hi;
+  
+    // Calculate the middle index between currentLo and currentHi
+    let middleIndex = Math.floor((currentLo + currentHi) / 2);
+    console.log("at beg of HCC:", "lo:", currentLo, "hi:", currentHi, "middleIndex:", middleIndex);
+  
     // Adjust the boundaries based on the comparison
     if (isBetter) {
-      setLo(middleIndex + 1);
+      currentLo = middleIndex + 1;
     } else {
-      setHi(middleIndex - 1);
+      currentHi = middleIndex - 1;
     }
 
-    // If lo exceeds hi, we've found the position to insert the new item
-    if (lo > hi) {
-      rankedItems.splice(lo, 0, { ...formData, rankCategory });
+    middleIndex = Math.floor((currentLo + currentHi) / 2);
+    console.log("HCC post-conditional:", "lo:", currentLo, "hi:", currentHi, "middleIndex:", middleIndex);
 
-      // Calculate new ratings based on the new item's position
-      const totalRange = (1 / 3) * 10; // For example, Good category has range between 6.6 and 10
-      const minRating = rankCategory === 'Good' ? (totalRange * 2) : rankCategory === 'Okay' ? (totalRange) : 0;
+    // If currentLo exceeds currentHi, we've found the position to insert the new item
+    if (currentLo > currentHi) {
+      rankedItems.splice(currentLo, 0, { ...formData, rankCategory });
+      // Call the async function to write to Firestore
+      writeItemsToFirestore(rankedItems);
+    } else {
+      // Continue comparing with the next middle item
+      setComparisonItem(rankedItems[middleIndex]);
+    
+      // Finally, update lo and hi states once the logic has finished
+      setLo(currentLo);
+      setHi(currentHi);
+    }
+  };
 
-      rankedItems.forEach((item, index) => {
-        item.rating = minRating + (totalRange / (rankedItems.length - 1)) * index;
+  // Firestore write logic moved to its own async function
+  const writeItemsToFirestore = async (items) => {
+    const totalRange = (1 / 3) * 10;
+    const minRating = rankCategory === 'Good' ? (totalRange * 2) : rankCategory === 'Okay' ? totalRange : 0;
+
+    items.forEach((item, index) => {
+      item.rating = minRating + (totalRange / (items.length - 1)) * index;
+    });
+
+    try {
+      const batch = writeBatch(db);
+      items.forEach((item) => {
+        const itemRef = item.id
+          ? doc(db, `categories/${categoryId}/items`, item.id)
+          : doc(collection(db, `categories/${categoryId}/items`));
+        batch.set(itemRef, item, { merge: true });
       });
-
-      // Now batch write to Firestore
-      try {
-        const batch = writeBatch(db);
-        rankedItems.forEach((item) => {
-          const itemRef = item.id ? doc(db, `categories/${categoryId}/items`, item.id) : doc(collection(db, `categories/${categoryId}/items`));
-          batch.set(itemRef, item, { merge: true });
-        });
-        await batch.commit();
-        navigate(`/categories/${categoryId}`);
-      } catch (error) {
-        console.error('Error adding item or updating ratings: ', error);
-      }
-
-      return;
+      await batch.commit();
+      navigate(`/categories/${categoryId}`);
+    } catch (error) {
+      console.error('Error writing items to Firestore:', error);
     }
-
-    // Otherwise, continue comparing the new item with the new middle item
-    setComparisonItem(rankedItems[middleIndex]);
   };
 
   useEffect(() => {
     if (step === 3) {
       if (rankedItems.length > 0) {
-        setLo(0); // Start with 0 as the lower bound
-        setHi(rankedItems.length - 1); // Upper bound is the last index
-        setComparisonItem(rankedItems[Math.floor((0 + (rankedItems.length - 1)) / 2)]); // Start comparison with the middle item
+        const middleIndex = Math.floor((0 + (rankedItems.length - 1)) / 2);
+        console.log("useEffect comparison item:", rankedItems[middleIndex]);
+        setComparisonItem(rankedItems[middleIndex]); // Start comparison with the middle item
       } else {
-        handleComparisonChoice(true, 0, -1); // Automatically insert if no items to compare with
+        // handleComparisonChoice(true, 0, -1); // Automatically insert if no items to compare with
       }
     }
   }, [step, rankedItems]);
@@ -151,9 +167,9 @@ const AddItem = () => {
       {step === 3 && comparisonItem && (
         <>
           <h2>Compare your item</h2>
-          <p>Is your item better than {comparisonItem[fields[0]]}?</p> {/* Accessing the correct field */}
-          <button onClick={() => handleComparisonChoice(true)}>Yes</button> {/* No longer passing lo, hi */}
-          <button onClick={() => handleComparisonChoice(false)}>No</button>
+          <p>Which item is better?</p>
+          <button onClick={() => handleComparisonChoice(true)}>{formData[fields[0]]}</button>
+          <button onClick={() => handleComparisonChoice(false)}>{comparisonItem[fields[0]]}</button><br></br><br></br>
           <button onClick={() => navigate(`/categories/${categoryId}`)}>Back</button>
         </>
       )}
