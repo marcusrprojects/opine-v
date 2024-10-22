@@ -81,7 +81,7 @@ const CreateCategory = () => {
             required
           />
         ))}
-        <button type="button" onClick={addField}>Add Another Field</button>
+        <button type="button" onClick={addField}>Add Another Field</button><br></br><br></br>
         <button type="submit">Create Category</button>
       </form>
     </div>
