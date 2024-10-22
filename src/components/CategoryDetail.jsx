@@ -35,7 +35,8 @@ const CategoryDetail = () => {
         const categoryItemsRef = collection(db, `categories/${categoryId}/items`);
         const itemsSnapshot = await getDocs(categoryItemsRef);
         const itemList = itemsSnapshot.docs.map(doc => ({ ...doc.data() }));
-        setItems(itemList);
+        const sortedItems = itemList.sort((a, b) => b.rating - a.rating);
+        setItems(sortedItems);
 
         setLoading(false);
       } catch (error) {
@@ -68,13 +69,11 @@ const CategoryDetail = () => {
           <div key={index} className="item-tile">
             {/* Display the first field (assumed 'name') as the title */}
             <h4>{item[fields.current[0]] || "Unnamed Item"}</h4>
-            {/* Display other fields below */}
-            {Object.keys(item).map((key) => (
-              key !== fields.current[0] && (
-                <p key={key}>
-                  {key}: {item[key]}
-                </p>
-              )
+            {/* Display other fields below in the correct order */}
+            {fields.current.slice(1).map((field, fieldIndex) => (
+              <p key={fieldIndex}>
+                {field}: {item[field] || "N/A"}
+              </p>
             ))}
           </div>
         ))}
