@@ -47,9 +47,20 @@ const AddItem = () => {
     
     // Fetch the items in the selected rank category
     const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
+
     const itemsInRankCategory = itemsSnapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))
       .filter(item => item.rankCategory === rank);
+    
+    // Check if there are no items in the collection
+    if (itemsSnapshot.empty || itemsInRankCategory.length === 0) {
+      console.log('i am empty');
+      // If no items exist, create the first item directly and skip Step 3
+      const range = (1 / 3) * 10;
+      const rating = rank === 'Good' ? range * 2.5 : rank === 'Okay' ? range * 1.5 : range * 0.5; // Middle value of the range
+      const newItem = { ...formData, rankCategory: rank, rating: rating }; // Assuming max rating for the first item
+      await writeItemsToFirestore([newItem]); // Write directly to Firestore
+    }
 
     // Sort items by rating to allow binary search and placement
     const sortedItems = itemsInRankCategory.sort((a, b) => a.rating - b.rating);
@@ -97,11 +108,13 @@ const AddItem = () => {
   // Firestore write logic moved to its own async function
   const writeItemsToFirestore = async (items) => {
     const totalRange = (1 / 3) * 10;
-    const minRating = rankCategory === 'Good' ? (totalRange * 2) : rankCategory === 'Okay' ? totalRange : 0;
 
-    items.forEach((item, index) => {
-      item.rating = minRating + (totalRange / (items.length - 1)) * index;
-    });
+    if (items.length > 1) {
+      const minRating = rankCategory === 'Good' ? (totalRange * 2) : rankCategory === 'Okay' ? totalRange : 0;
+      items.forEach((item, index) => {
+        item.rating = minRating + (totalRange / (items.length - 1)) * index;
+      });
+    }
 
     try {
       const batch = writeBatch(db);
