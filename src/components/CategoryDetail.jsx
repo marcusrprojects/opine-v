@@ -62,9 +62,10 @@ const CategoryDetail = () => {
 
   return (
     <div>
-      {/* Use the category name from the document */}
-      <h2>{categoryName.current}</h2>
       <div className="item-grid">
+        {/* Use the category name from the document */}
+        <h2>{categoryName.current}</h2>
+        
         {items.map((item, index) => (
           <div key={index} className="item-tile">
             {/* Display the first field (assumed 'name') as the title */}
@@ -78,6 +79,7 @@ const CategoryDetail = () => {
           </div>
         ))}
       </div>
+      <br></br>
 
       {/* Plus button to navigate to the AddItem page */}
       <button onClick={handleAddItemClick}>
