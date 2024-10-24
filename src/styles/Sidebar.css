@@ -11,13 +11,13 @@ nav.sidebar {
     transition: transform 200ms ease, width 200ms ease;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
-  }
+}
   
-  nav.sidebar.hidden {
+nav.sidebar.hidden {
     transform: translateX(-100%);
-  }
+}
   
-  nav.sidebar a {
+nav.sidebar a {
     text-decoration: none;
     font-size: 1.1rem;
     color: #333;
@@ -26,30 +26,30 @@ nav.sidebar {
     display: block;
     border-radius: 4px;
     transition: background-color 200ms, color 200ms;
-  }
+}
   
-  .sidebar ul {
+.sidebar ul {
     list-style-type: none;
     padding-left: 0;
-  }
+}
   
-  .sidebar ul li {
+.sidebar ul li {
     margin-bottom: 15px;
-  }
+}
   
-  nav.sidebar a:hover {
+nav.sidebar a:hover {
     background-color: #61dafb;
     color: white;
-  }
+}
   
-  nav.sidebar a.active {
+nav.sidebar a.active {
     background-color: #007acc;
     color: white;
-  }
+}
   
-  @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
     nav.sidebar {
-      background-color: #333;
+        background-color: #333;
       color: white;
     }
   
@@ -61,5 +61,5 @@ nav.sidebar {
       background-color: #61dafb;
       color: white;
     }
-  }
+}
   
