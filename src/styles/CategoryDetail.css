@@ -1,0 +1,24 @@
+.item-grid h2 {
+    font-size: 3rem;
+    margin-bottom: 0.3rem;
+}
+
+/* Adjust title font size and reduce margin */
+.item-grid h4 {
+    font-size: 2rem;
+    margin-bottom: 0.2rem;
+    /* Minimal margin between title and properties */
+    margin-top: 2rem;
+}
+
+/* Adjust spacing between item properties */
+.item-grid p {
+    margin-top: 0;
+    /* Remove top margin */
+    margin-bottom: 0.2rem;
+    /* Minimal bottom margin */
+    font-size: 1.2rem;
+    /* Adjust font size if needed */
+    line-height: 1.2;
+    /* Tighter line spacing */
+}

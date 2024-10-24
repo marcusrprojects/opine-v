@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'; // To capture categor
 import { db } from '../firebaseConfig'; // Assuming firebaseConfig is outside the components folder
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { FaPlusCircle } from 'react-icons/fa'; // Import a plus icon from react-icons
+import "../styles/CategoryDetail.css";
 
 /**
  * CategoryDetail component displays the details of a specific category,
