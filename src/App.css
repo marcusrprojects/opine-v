@@ -10,9 +10,12 @@
 .App-layout {
   display: flex;
   flex-direction: row;
-  height: 100vh; /* Full viewport height */
-  width: 100vw; /* Full width */
-  overflow: hidden; /* Prevent horizontal scroll */
+  height: 100vh;
+  /* Full viewport height */
+  width: 100vw;
+  /* Full width */
+  overflow: hidden;
+  /* Prevent horizontal scroll */
 }
 
 .item-grid h2 {
@@ -23,132 +26,84 @@
 /* Adjust title font size and reduce margin */
 .item-grid h4 {
   font-size: 2rem;
-  margin-bottom: 0.2rem; /* Minimal margin between title and properties */
+  margin-bottom: 0.2rem;
+  /* Minimal margin between title and properties */
   margin-top: 2rem;
 }
 
 /* Adjust spacing between item properties */
 .item-grid p {
-  margin-top: 0; /* Remove top margin */
-  margin-bottom: 0.2rem; /* Minimal bottom margin */
-  font-size: 1.2rem; /* Adjust font size if needed */
-  line-height: 1.2; /* Tighter line spacing */
+  margin-top: 0;
+  /* Remove top margin */
+  margin-bottom: 0.2rem;
+  /* Minimal bottom margin */
+  font-size: 1.2rem;
+  /* Adjust font size if needed */
+  line-height: 1.2;
+  /* Tighter line spacing */
 }
 
 /* Button to toggle sidebar */
 .sidebar-toggle {
   position: fixed;
-  top: 2%; /* Use percentage for top spacing */
-  left: 200px; /* Align with the sidebar width when it's open */
+  top: 2%;
+  /* Use percentage for top spacing */
+  left: 200px;
+  /* Align with the sidebar width when it's open */
   color: black;
   border: none;
   padding: 0.8rem;
   border-radius: 50%;
   cursor: pointer;
   z-index: 11;
-  transition: left 200ms ease, background-color 200ms ease; /* Smooth transition for left position */
+  transition: left 200ms ease, background-color 200ms ease;
+  /* Smooth transition for left position */
 }
 
 .sidebar-toggle.hidden {
-  left: 10px; /* Move button to the far left when sidebar is hidden */
+  left: 10px;
+  /* Move button to the far left when sidebar is hidden */
 }
 
 .sidebar-toggle svg {
   font-size: 1.5rem;
 }
 
-/* Sidebar styles */
-nav.sidebar {
-  width: 200px;
-  background-color: #f5f5f5;
-  height: 100vh; /* Full viewport height */
-  padding: 2rem 1rem 1rem 1rem;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 10;
-  transition: transform 200ms ease, width 200ms ease;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow */
-  overflow-y: auto; /* Scroll if content is longer than viewport */
-}
-
-nav.sidebar.hidden {
-  transform: translateX(-100%); /* Slide sidebar completely off-screen */
-}
-
-/* Sidebar links */
-nav.sidebar a {
-  text-decoration: none;
-  font-size: 1.1rem;
-  color: #333;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  display: block;
-  border-radius: 4px;
-  transition: background-color 200ms, color 200ms;
-}
-
-.sidebar ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-
-.sidebar ul li {
-  margin-bottom: 15px;
-}
-
-nav.sidebar a:hover {
-  background-color: #61dafb;
-  color: white;
-}
-
-nav.sidebar a.active {
-  background-color: #007acc;
-  color: white;
-}
-
 /* Main content wrapper */
 .main-content {
-  flex: 1; /* Takes up all remaining space */
+  flex: 1;
+  /* Takes up all remaining space */
   padding: 2rem;
   background-color: #fff;
-  min-height: 100vh; /* Full viewport height */
-  transition: margin-left 200ms ease, width 200ms ease; /* Smooth transition */
+  min-height: 100vh;
+  /* Full viewport height */
+  transition: margin-left 200ms ease, width 200ms ease;
+  /* Smooth transition */
 }
 
 /* When the sidebar is open */
 .main-content.with-sidebar {
-  margin-left: 200px; /* Margin same as sidebar width */
-  width: calc(100vw - 200px); /* Adjust width based on sidebar */
+  margin-left: 200px;
+  /* Margin same as sidebar width */
+  width: calc(100vw - 200px);
+  /* Adjust width based on sidebar */
 }
 
 /* When the sidebar is hidden */
 .main-content.full-width {
   margin-left: 0;
-  width: 100vw; /* Full width when sidebar is hidden */
+  width: 100vw;
+  /* Full width when sidebar is hidden */
 }
 
 /* Adjust the sidebar toggle button when sidebar is hidden */
 .full-width .sidebar-toggle {
-  left: 10px; /* Move toggle button to far left when sidebar is hidden */
+  left: 10px;
+  /* Move toggle button to far left when sidebar is hidden */
 }
 
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
-  nav.sidebar {
-    background-color: #333;
-    color: white;
-  }
-
-  nav.sidebar a {
-    color: #ddd;
-  }
-
-  nav.sidebar a:hover {
-    background-color: #61dafb;
-    color: white;
-  }
-
   .main-content {
     background-color: #121212;
     color: #ddd;

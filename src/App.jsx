@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./components/Home";
 import Categories from "./components/Categories";
 import CreateCategory from './components/CreateCategory';
@@ -9,6 +9,7 @@ import Profile from "./components/Profile";
 import "./App.css";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+import Sidebar from "./components/Sidebar.jsx"
 import "./firebaseConfig";
 import { FaBars, FaChevronLeft } from "react-icons/fa";  // Import icons
 
@@ -32,21 +33,11 @@ function App() {
         <div className="App-layout">
           {/* Toggle Button */}
           <button className="sidebar-toggle" onClick={toggleSidebar}>
-            {sidebarOpen ? <FaChevronLeft /> : <FaBars />} {/* Display icons based on state */}
+            {sidebarOpen ? <FaChevronLeft /> : <FaBars />}
           </button>
 
-          {/* Sidebar Navigation, visible or hidden based on state */}
-          {sidebarOpen && (
-            <nav className="sidebar">
-              <ul>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/categories">Categories</Link></li>
-                <li><Link to="/profile">Profile</Link></li>
-                <li><Link to="/login">Login</Link></li>
-                <li><Link to="/signup">Signup</Link></li>
-              </ul>
-            </nav>
-          )}
+          {/* Sidebar Component */}
+          <Sidebar sidebarOpen={sidebarOpen} />
 
           {/* Main content area */}
           <div className={`main-content ${sidebarOpen ? 'with-sidebar' : 'full-width'}`}>
