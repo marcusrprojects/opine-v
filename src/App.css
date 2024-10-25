@@ -6,6 +6,10 @@
   text-align: center;
 }
 
+ul {
+  list-style-type: none;
+}
+
 /* Layout for the entire App */
 .App-layout {
   display: flex;
