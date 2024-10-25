@@ -46,7 +46,7 @@ nav.sidebar a {
     font-weight: 600;
     padding: var(--padding-small) var(--padding-medium);
     display: block;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius-small);
     transition: background-color 200ms, color 200ms;
 }
   
