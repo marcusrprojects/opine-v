@@ -23,7 +23,7 @@
 /* Dark Mode Variables */
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary-color: #121212; /* Dark mode background color */
+    --primary-color: #242424; /* Dark mode background color */
     --secondary-color: #ddd; /* Light text color for dark mode */
     --tertiary-color: #333; /* Darker sidebar background */
     --shadow-color: 2px 0 5px rgba(255, 255, 255, 0.1); /* Softer shadow for dark mode */

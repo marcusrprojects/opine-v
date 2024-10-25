@@ -71,17 +71,17 @@ nav.sidebar a.active {
   
 @media (prefers-color-scheme: dark) {
     .sidebar-toggle {
-        color: var(--primary-color);
-        background-color: var(--tertiary-color-dark);
+        color: var(--secondary-color);
+        background-color: var(--tertiary-color);
     }
     
     .sidebar-toggle:hover {
-        background-color: var(--hover-color-dark);
+        background-color: var(--hover-color);
     }
     
     nav.sidebar {
-        background-color: #333;
-      color: white;
+        background-color: var(--tertiary-color);
+        color: white;
     }
   
     nav.sidebar a {

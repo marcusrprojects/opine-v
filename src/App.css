@@ -36,15 +36,10 @@
   width: 100vw;
 }
 
-/* Adjust the sidebar toggle button when sidebar is hidden
-.full-width .sidebar-toggle {
-  left: 10px;
-} */
-
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   .main-content {
-    background-color: var(--primary-color-dark);
+    background-color: var(--primary-color);
     color: var(--secondary-color-light);
   }
 }
