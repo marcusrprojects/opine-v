@@ -1,24 +1,17 @@
 .item-grid h2 {
-    font-size: 3rem;
-    margin-bottom: 0.3rem;
+    font-size: var(--font-xlarge); /* Adjusting title size */
+    margin-bottom: var(--padding-small);
 }
-
-/* Adjust title font size and reduce margin */
+  
 .item-grid h4 {
-    font-size: 2rem;
-    margin-bottom: 0.2rem;
-    /* Minimal margin between title and properties */
-    margin-top: 2rem;
+    font-size: var(--font-large); /* Use large font for item titles */
+    margin-bottom: var(--padding-small);
+    margin-top: var(--padding-medium);
 }
-
-/* Adjust spacing between item properties */
+  
 .item-grid p {
+    font-size: var(--font-small); /* Use small font for item properties */
+    line-height: 1.4; /* Increase line height for readability */
     margin-top: 0;
-    /* Remove top margin */
-    margin-bottom: 0.2rem;
-    /* Minimal bottom margin */
-    font-size: 1.2rem;
-    /* Adjust font size if needed */
-    line-height: 1.2;
-    /* Tighter line spacing */
+    margin-bottom: var(--padding-small);
 }
