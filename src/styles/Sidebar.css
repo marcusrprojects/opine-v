@@ -72,11 +72,11 @@ nav.sidebar a.active {
 @media (prefers-color-scheme: dark) {
     .sidebar-toggle {
         color: var(--secondary-color);
-        background-color: var(--tertiary-color);
+        background-color: var(--quarternary-color);
     }
     
     .sidebar-toggle:hover {
-        background-color: var(--hover-color);
+        background-color: var(--tertiary-color);
     }
     
     nav.sidebar {
@@ -89,7 +89,7 @@ nav.sidebar a.active {
     }
   
     nav.sidebar a:hover {
-      background-color: #61dafb;
+      background-color: var(--quaternary-color);
       color: white;
     }
 }
