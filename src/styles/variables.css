@@ -17,7 +17,10 @@
     --padding-small: 0.5rem;
     --padding-medium: 1rem;
     --padding-large: 2rem;
-    --border-radius: 4px;
+    --padding-xlarge: 4rem;
+
+    --border-radius-small: 4px;
+    --border-radius-medium: 8px;
 }
 
 /* Dark Mode Variables */
