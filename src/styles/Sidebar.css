@@ -1,9 +1,31 @@
+/* Button to toggle sidebar */
+.sidebar-toggle {
+    position: fixed;
+    top: 2%;
+    left: 20%;
+    color: var(--secondary-color);
+    border: none;
+    padding: var(--padding-medium);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 11;
+    transition: left 200ms ease, background-color 200ms ease;
+}
+
+.sidebar-toggle.move-left {
+    left: 2%; /* Move the button further to the left when sidebar is hidden */
+}
+  
+.sidebar-toggle svg {
+    font-size: 1.5rem;
+}
+
 /* Sidebar styles */
 nav.sidebar {
     width: 200px;
     background-color: #f5f5f5;
     height: 100vh;
-    padding: 2rem 1rem 1rem 1rem;
+    padding: var(--padding-large) var(--padding-medium) var(--padding-medium) var(--padding-medium);
     position: fixed;
     top: 0;
     left: 0;
@@ -19,12 +41,12 @@ nav.sidebar.hidden {
   
 nav.sidebar a {
     text-decoration: none;
-    font-size: 1.1rem;
+    font-size: var(--font-medium);
     color: #333;
     font-weight: 600;
-    padding: 0.5rem 1rem;
+    padding: var(--padding-small) var(--padding-medium);
     display: block;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     transition: background-color 200ms, color 200ms;
 }
   
@@ -48,6 +70,15 @@ nav.sidebar a.active {
 }
   
 @media (prefers-color-scheme: dark) {
+    .sidebar-toggle {
+        color: var(--primary-color);
+        background-color: var(--tertiary-color-dark);
+    }
+    
+    .sidebar-toggle:hover {
+        background-color: var(--hover-color-dark);
+    }
+    
     nav.sidebar {
         background-color: #333;
       color: white;

@@ -11,85 +11,40 @@
   display: flex;
   flex-direction: row;
   height: 100vh;
-  /* Full viewport height */
   width: 100vw;
-  /* Full width */
   overflow: hidden;
-  /* Prevent horizontal scroll */
-}
-
-/* Button to toggle sidebar */
-.sidebar-toggle {
-  position: fixed;
-  top: 2%;
-  /* Use percentage for top spacing */
-  left: 200px;
-  /* Align with the sidebar width when it's open */
-  color: black;
-  border: none;
-  padding: 0.8rem;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 11;
-  transition: left 200ms ease, background-color 200ms ease;
-  /* Smooth transition for left position */
-}
-
-.sidebar-toggle.hidden {
-  left: 10px;
-  /* Move button to the far left when sidebar is hidden */
-}
-
-.sidebar-toggle svg {
-  font-size: 1.5rem;
 }
 
 /* Main content wrapper */
 .main-content {
   flex: 1;
-  /* Takes up all remaining space */
-  padding: 2rem;
-  background-color: #fff;
+  padding: var(--padding-large);
+  background-color: var(--primary-color);
   min-height: 100vh;
-  /* Full viewport height */
   transition: margin-left 200ms ease, width 200ms ease;
-  /* Smooth transition */
 }
 
 /* When the sidebar is open */
 .main-content.with-sidebar {
   margin-left: 200px;
-  /* Margin same as sidebar width */
   width: calc(100vw - 200px);
-  /* Adjust width based on sidebar */
 }
 
 /* When the sidebar is hidden */
 .main-content.full-width {
   margin-left: 0;
   width: 100vw;
-  /* Full width when sidebar is hidden */
 }
 
-/* Adjust the sidebar toggle button when sidebar is hidden */
+/* Adjust the sidebar toggle button when sidebar is hidden
 .full-width .sidebar-toggle {
   left: 10px;
-  /* Move toggle button to far left when sidebar is hidden */
-}
+} */
 
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   .main-content {
-    background-color: #121212;
-    color: #ddd;
-  }
-
-  .sidebar-toggle {
-    color: white;
-    background-color: #444;
-  }
-
-  .sidebar-toggle:hover {
-    background-color: #005fa3;
+    background-color: var(--primary-color-dark);
+    color: var(--secondary-color-light);
   }
 }

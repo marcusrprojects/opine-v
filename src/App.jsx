@@ -7,11 +7,11 @@ import CategoryDetail from './components/CategoryDetail.jsx';
 import AddItem from './components/AddItem';
 import Profile from "./components/Profile";
 import "./App.css";
+import './styles/variables.css';
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Sidebar from "./components/Sidebar.jsx"
 import "./firebaseConfig";
-import { FaBars, FaChevronLeft } from "react-icons/fa";  // Import icons
 
 
 /**
@@ -31,13 +31,8 @@ function App() {
     <div className="App">
       <Router>
         <div className="App-layout">
-          {/* Toggle Button */}
-          <button className="sidebar-toggle" onClick={toggleSidebar}>
-            {sidebarOpen ? <FaChevronLeft /> : <FaBars />}
-          </button>
-
-          {/* Sidebar Component */}
-          <Sidebar sidebarOpen={sidebarOpen} />
+          {/* Pass the sidebar state and toggle function as props */}
+          <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
           {/* Main content area */}
           <div className={`main-content ${sidebarOpen ? 'with-sidebar' : 'full-width'}`}>
