@@ -1,0 +1,80 @@
+.category-grid h2 {
+    font-size: var(--font-xlarge);
+}
+
+.category-grid ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); /* Makes responsive cards */
+  gap: var(--padding-xlarge);
+  padding: 0;
+  list-style-type: none; /* Remove bullets */
+}
+
+.category-grid li {
+  padding: var(--padding-medium);
+}
+
+.category-card {
+  display: block; /* Ensures the link fills the whole card */
+  padding: var(--padding-large) var(--padding-small) var(--padding-large) var(--padding-small);
+  background-color: var(--tertiary-color); /* Background color for the card */
+  border: 1px solid var(--secondary-color); /* Add border */
+  border-radius: var(--border-radius-small); /* Rounded corners */
+  text-align: center;
+  color: var(--primary-color); /* Text color */
+  transition: background-color 200ms, box-shadow 200ms; /* Smooth transitions */
+  font-size:var(--font-medium);
+}
+
+.category-card:hover {
+  background-color: var(--hover-color); /* Change background on hover */
+  color: white; /* Text color on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow on hover */
+}
+
+.category-card:active {
+  background-color: var(--active-color); /* Active/click state */
+  color: white; /* Text color on click */
+}
+
+button {
+  padding: var(--padding-medium);
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: var(--border-radius-medium);
+  cursor: pointer;
+  transition: background-color 200ms;
+}
+
+button:hover {
+  background-color: var(--hover-color);
+  color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  .category-card {
+    background-color: #333; /* Darker background for cards in dark mode */
+    color: #ddd; /* Light text for dark mode */
+    border: 1px solid #444; /* Darker border for cards in dark mode */
+  }
+
+  .category-card:hover {
+    background-color: #555; /* Darker hover background */
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Stronger shadow in dark mode */
+  }
+
+  .category-card:active {
+    background-color: #007acc; /* Active state color in dark mode */
+  }
+
+  button {
+    background-color: #444; /* Darker button background for dark mode */
+    color: #ddd;
+  }
+
+  button:hover {
+    background-color: #61dafb; /* Hover color in dark mode */
+    color: white;
+  }
+}
