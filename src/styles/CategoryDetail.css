@@ -1,34 +1,42 @@
-/* Responsive grid for wide screens, adjusting columns based on screen width */
+/* Container for the entire category detail section */
+.category-detail-container {
+    text-align: center;
+    padding: var(--padding-large);
+}
+
+/* Style for the category title */
+.category-title {
+    font-size: var(--font-xlarge);
+    margin-bottom: var(--padding-large); /* Space below title */
+    margin-top: var(--padding-small);
+}
+
+/* Grid layout for item cards, responsive */
 .item-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Flexibly fits items per row */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--padding-medium);
     padding: 0;
 }
 
 .item-card {
     padding: var(--padding-medium);
-    background-color: var(--tertiary-color); /* Card background */
-    border-radius: var(--border-radius-medium); /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    transition: background-color 200ms, box-shadow 200ms; /* Smooth transition on hover */
-    cursor: pointer; /* Pointer cursor to indicate clickability */
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-color);
+    transition: background-color 200ms, box-shadow 200ms;
+    cursor: pointer;
     text-align: center;
+    color: var(--secondary-color);
 }
 
+/* Hover and active states */
 .item-card:hover {
-    background-color: var(--quaternary-color); /* Change background on hover */
-    box-shadow: var(--shadow-color); /* Enhance shadow on hover */
+    box-shadow: var(--shadow-color);
+    color: var(--primary-color);
 }
 
 .item-card:active {
-    color: var(--primary-color); /* Text color on click */
-}
-
-.item-grid h2 {
-    font-size: var(--font-xlarge);
-    margin-bottom: var(--padding-medium);
-    text-align: center;
+    color: var(--primary-color);
 }
 
 .item-card h4 {
@@ -42,4 +50,14 @@
     line-height: 1.4;
     margin-top: 0;
     margin-bottom: var(--padding-small);
+}
+
+.add-item-button {
+    border: none;
+    background: none;
+    transition: color 200ms;
+}
+
+.add-item-button:hover {
+    color: var(--hover-color);
 }

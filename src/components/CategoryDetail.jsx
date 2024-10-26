@@ -63,26 +63,41 @@ const CategoryDetail = () => {
 
   return (
     <div>
-      <div className="item-grid">
-        {/* Use the category name from the document */}
-        <h2>{categoryName.current}</h2>
+      <div className="category-detail-container">
+
+        <h2 className="category-title">{categoryName.current}</h2>
         
-        {items.map((item, index) => (
-          <div key={index} className="item-card">
-            <h4>{item[fields.current[0]] || "Unnamed Item"}</h4>
-            {/* Display other fields below in the correct order */}
-            {fields.current.slice(1).map((field, fieldIndex) => (
-              <p key={fieldIndex}>
-                {field}: {item[field] || "N/A"}
-              </p>
-            ))}
+        <div className="item-grid">
+          {items.map((item, index) => {
+            const rating = item.rating || 1; // Default if rating is not provided
+
+            const lightness = 100 - rating * 5; // Adjust lightness inversely with rating
+
+            // NOTE: CHANGE LATER TO BE MORE APPROPRIATE. USE .rankCategory instead of .rating...
+            const cardColor =
+              rating >= 9
+                ? `hsl(120, 30%, ${lightness}%)` // Green for high ratings, desaturated
+                : rating >= 8
+                ? `hsl(60, 30%, ${lightness}%)`  // Yellow for medium ratings, desaturated 
+                : `hsl(0, 30%, ${lightness}%)`;  // Red for low ratings, desaturated
+
+            return (
+              <div key={index} className="item-card" style={{ backgroundColor: cardColor }}>
+                <h4>{item[fields.current[0]] || "Unnamed Item"}</h4>
+                {fields.current.slice(1).map((field, fieldIndex) => (
+                  <p key={fieldIndex}>
+                    {field}: {item[field] || "N/A"}
+                  </p>
+                ))}
+              </div>
+            );
+          })}
           </div>
-        ))}
       </div>
       <br></br>
 
       {/* Plus button to navigate to the AddItem page */}
-      <button onClick={handleAddItemClick}>
+      <button onClick={handleAddItemClick} className="add-item-button">
         <FaPlusCircle size="2em" />
       </button>
     </div>
