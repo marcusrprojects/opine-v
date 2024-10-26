@@ -68,8 +68,7 @@ const CategoryDetail = () => {
         <h2>{categoryName.current}</h2>
         
         {items.map((item, index) => (
-          <div key={index} className="item-tile">
-            {/* Display the first field (assumed 'name') as the title */}
+          <div key={index} className="item-card">
             <h4>{item[fields.current[0]] || "Unnamed Item"}</h4>
             {/* Display other fields below in the correct order */}
             {fields.current.slice(1).map((field, fieldIndex) => (
