@@ -68,37 +68,42 @@ const CategoryDetail = () => {
         <h2 className="category-title">{categoryName.current}</h2>
         
         <div className="item-grid">
-          {items.map((item, index) => {
-            const rating = item.rating || 1; // Default if rating is not provided
+        {items.map((item, index) => {
+          const rating = item.rating || 1; // Default if rating is not provided
 
-            const lightness = 100 - rating * 5; // Adjust lightness inversely with rating
+          const lightness = 100 - rating * 7; // Adjust lightness inversely with rating
 
-            // NOTE: CHANGE LATER TO BE MORE APPROPRIATE. USE .rankCategory instead of .rating...
-            const cardColor =
-              rating >= 9
-                ? `hsl(120, 30%, ${lightness}%)` // Green for high ratings, desaturated
-                : rating >= 8
-                ? `hsl(60, 30%, ${lightness}%)`  // Yellow for medium ratings, desaturated 
-                : `hsl(0, 30%, ${lightness}%)`;  // Red for low ratings, desaturated
+          const cardColor =
+            rating >= 9
+              ? `hsl(120, 40%, ${lightness}%)` // Green for high ratings, desaturated
+              : rating >= 8
+              ? `hsl(60, 40%, ${lightness}%)`  // Yellow for medium ratings, desaturated 
+              : `hsl(0, 40%, ${lightness}%)`;  // Red for low ratings, desaturated
 
-            return (
-              <div key={index} className="item-card" style={{ backgroundColor: cardColor }}>
-                <h4>{item[fields.current[0]] || "Unnamed Item"}</h4>
+          return (
+            <div key={index} className="item-card" style={{ borderColor: cardColor }}>
+              <div className="item-header">
+                <div className="item-rating" style={{borderColor: cardColor}}>{rating.toFixed(1)}</div>
+                <h4 className="item-title">{item[fields.current[0]] || "Unnamed Item"}</h4>
+              </div>
+              
+              {/* Content area with background color */}
+              <div className="item-content" style={{ backgroundColor: cardColor}}>
                 {fields.current.slice(1).map((field, fieldIndex) => (
                   <p key={fieldIndex}>
                     {field}: {item[field] || "N/A"}
                   </p>
                 ))}
               </div>
-            );
-          })}
-          </div>
+            </div>
+          );
+      })}
+        </div>
       </div>
-      <br></br>
 
       {/* Plus button to navigate to the AddItem page */}
       <button onClick={handleAddItemClick} className="add-item-button">
-        <FaPlusCircle size="2em" />
+        <FaPlusCircle size="3em" />
       </button>
     </div>
   );
