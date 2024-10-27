@@ -27,15 +27,13 @@
     color: var(--secondary-color);
 }
 
-/* Flex container for rating and title */
 .item-header {
     display: flex;
-    align-items: center;
-    justify-content: start;
+    align-items: center; /* Center content vertically */
     padding: var(--padding-small);
+    height: 4rem; /* Set this to the height of the tallest expected header */
 }
 
-/* Rating circle */
 .item-rating {
     background-color: var(--primary-color);
     color: var(--secondary-color);
@@ -51,13 +49,10 @@
     border: 2px solid;
 }
 
-/* Title styling */
 .item-title {
     font-size: var(--font-large);
     text-align: left;
-    margin: 0; /* Remove extra margins */
-    display: flex;
-    align-items: center; /* Center-align within the header */
+    flex-grow: 1;
 }
 
 /* Bottom of card */
