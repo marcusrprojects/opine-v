@@ -4,14 +4,15 @@ import { db } from '../firebaseConfig';
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { FaPlusCircle } from 'react-icons/fa';
 import "../styles/CategoryDetail.css";
+import { debounce } from 'lodash'; // To debounce filtering
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
-  const [filters, setFilters] = useState({}); // Store filter criteria for each field
-  let fields = useRef([]);
-  let categoryName = useRef('');
+  const [filters, setFilters] = useState({});
+  const fields = useRef([]);
+  const categoryName = useRef('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -21,20 +22,20 @@ const CategoryDetail = () => {
         const categoryDocRef = doc(db, 'categories', categoryId);
         const categorySnapshot = await getDoc(categoryDocRef);
 
-        const categoryData = categorySnapshot.data();
-        fields.current = categoryData.fields;
-        categoryName.current = categoryData.name;
+        if (categorySnapshot.exists()) {
+          const categoryData = categorySnapshot.data();
+          fields.current = categoryData.fields;
+          categoryName.current = categoryData.name;
+        }
 
-        // Fetch the items within the category
-        const categoryItemsRef = collection(db, `categories/${categoryId}/items`);
-        const itemsSnapshot = await getDocs(categoryItemsRef);
+        const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
         const itemList = itemsSnapshot.docs.map(doc => ({ ...doc.data() }));
         const sortedItems = itemList.sort((a, b) => b.rating - a.rating);
         setItems(sortedItems);
-        setFilteredItems(sortedItems); // Initialize filtered items
+        setFilteredItems(sortedItems);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching items: ', error);
+        console.error('Error fetching items:', error);
       }
     };
 
@@ -48,24 +49,20 @@ const CategoryDetail = () => {
     }));
   };
 
-  useEffect(() => {
-    const applyFilters = () => {
-      const filtered = items.filter(item => {
-        return Object.keys(filters).every(field => {
-          const filterValue = filters[field].toLowerCase();
-          const itemValue = item[field]?.toString().toLowerCase();
-          return itemValue?.includes(filterValue);
-        });
+  const applyFilters = debounce(() => {
+    const filtered = items.filter(item => {
+      return Object.keys(filters).every(field => {
+        const filterValue = filters[field].toLowerCase();
+        const itemValue = item[field]?.toString().toLowerCase();
+        return itemValue?.includes(filterValue);
       });
-      setFilteredItems(filtered);
-    };
+    });
+    setFilteredItems(filtered);
+  }, 300); // Adjust debounce timing as necessary
 
+  useEffect(() => {
     applyFilters();
-  }, [filters, items]); // Re-run filtering whenever filters or items change
-
-  const handleAddItemClick = () => {
-    navigate(`/categories/${categoryId}/add-item`);
-  };
+  }, [filters]);
 
   if (loading) {
     return <p>Loading items...</p>;
@@ -76,7 +73,6 @@ const CategoryDetail = () => {
       <div className="category-detail-container">
         <h2 className="category-title">{categoryName.current}</h2>
 
-        {/* Render filter inputs for each field */}
         <div className="filters">
           {fields.current.map((field, index) => (
             <input
@@ -91,15 +87,18 @@ const CategoryDetail = () => {
 
         <div className="item-grid">
           {filteredItems.map((item, index) => {
-            const rating = item.rating || 1;
+              const rating = item.rating || 1;
+              const rankCategory = item.rankCategory || "Okay";
+              const goodRating = (2/3*10);
+              const okRating = (2/3*10);
+              const maxLightness = 100;
 
-            const lightness = 100 - rating * 7;
-            const cardColor =
-              rating >= 9
-                ? `hsl(120, 40%, ${lightness}%)`
-                : rating >= 8
-                ? `hsl(60, 40%, ${lightness}%)`
-                : `hsl(0, 40%, ${lightness}%)`;
+              const cardColor =
+                rankCategory === "Good"
+                  ? `hsl(120, 40%, ${(maxLightness - (rating - goodRating) * 15 - 25)}%)`
+                  : rankCategory === "Okay"
+                  ? `hsl(60, 40%, ${(maxLightness - (rating - okRating) * 15 - 25)}%)`
+                  : `hsl(0, 40%, ${(maxLightness - rating * 15 - 25)}%)`;
 
             return (
               <div key={index} className="item-card" style={{ borderColor: cardColor }}>
@@ -107,7 +106,6 @@ const CategoryDetail = () => {
                   <div className="item-rating" style={{ borderColor: cardColor }}>{rating.toFixed(1)}</div>
                   <h4 className="item-title">{item[fields.current[0]] || "Unnamed Item"}</h4>
                 </div>
-
                 <div className="item-content" style={{ backgroundColor: cardColor }}>
                   {fields.current.slice(1).map((field, fieldIndex) => (
                     <p key={fieldIndex}>
@@ -121,7 +119,7 @@ const CategoryDetail = () => {
         </div>
       </div>
 
-      <button onClick={handleAddItemClick} className="add-item-button">
+      <button onClick={() => navigate(`/categories/${categoryId}/add-item`)} className="add-item-button">
         <FaPlusCircle size="3em" />
       </button>
     </div>
