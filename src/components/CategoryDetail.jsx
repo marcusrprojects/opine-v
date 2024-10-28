@@ -62,7 +62,7 @@ const CategoryDetail = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [filters]);
+  }, [filters, applyFilters]);
 
   if (loading) {
     return <p>Loading items...</p>;
