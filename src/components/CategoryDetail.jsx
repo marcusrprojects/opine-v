@@ -30,7 +30,12 @@ const CategoryDetail = () => {
 
         const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
         const itemList = itemsSnapshot.docs.map(doc => ({ ...doc.data() }));
-        const sortedItems = itemList.sort((a, b) => b.rating - a.rating);
+        const sortedItems = itemList.sort((a, b) => {
+          if (b.rating !== a.rating) {
+            return b.rating - a.rating;
+          }
+          return b.rankCategory - a.rankCategory;
+        });
         setItems(sortedItems);
         setFilteredItems(sortedItems);
         setLoading(false);
@@ -87,18 +92,15 @@ const CategoryDetail = () => {
 
         <div className="item-grid">
           {filteredItems.map((item, index) => {
-              const rating = item.rating || 1;
-              const rankCategory = item.rankCategory || "Okay";
-              const goodRating = (2/3) * 10;
-              const okRating = (1/3) * 10;
-              const maxLightness = 100;
-
-              const cardColor =
-                rankCategory === "Good"
-                  ? `hsl(120, 40%, ${(maxLightness - (rating - goodRating) * 15 - 25)}%)`
-                  : rankCategory === "Okay"
-                  ? `hsl(60, 40%, ${(maxLightness - (rating - okRating) * 15 - 25)}%)`
-                  : `hsl(0, 40%, ${(maxLightness - rating * 15 - 25)}%)`;
+            const rating = item.rating || 1;
+            const rankCategory = item.rankCategory ?? 1; // Default to 'Okay' category if undefined
+            
+            const maxLightness = 100;
+            const hues = [0, 60, 120]; // HSL hues for Bad (0), Okay (60), Good (120)
+            const thresholds = [0, (1 / 3) * 10, (2 / 3) * 10]; // Rating thresholds for each category
+            
+            const adjustedLightness = maxLightness - (rating - thresholds[rankCategory]) * 15 - 25;
+            const cardColor = `hsl(${hues[rankCategory]}, 40%, ${adjustedLightness}%)`;
 
             return (
               <div key={index} className="item-card" style={{ borderColor: cardColor }}>
