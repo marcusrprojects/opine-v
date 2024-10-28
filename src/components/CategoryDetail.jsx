@@ -89,8 +89,8 @@ const CategoryDetail = () => {
           {filteredItems.map((item, index) => {
               const rating = item.rating || 1;
               const rankCategory = item.rankCategory || "Okay";
-              const goodRating = (2/3*10);
-              const okRating = (2/3*10);
+              const goodRating = (2/3) * 10;
+              const okRating = (1/3) * 10;
               const maxLightness = 100;
 
               const cardColor =
