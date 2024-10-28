@@ -10,6 +10,36 @@
     margin-bottom: 3%;
 }
 
+/* Filters container styling */
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--padding-medium);
+    margin-bottom: var(--padding-large);
+    justify-content: center;
+}
+
+/* Individual filter input styling */
+.filters input {
+    padding: var(--padding-small);
+    border-radius: var(--border-radius-small);
+    /* border: 1px solid var(--secondary-color); */
+    border:none;
+    box-shadow: var(--shadow-color);
+    font-size: var(--font-medium);
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 11rem; /* Set a consistent width */
+    color: var(--secondary-color);
+    background-color: var(--tertiary-color);
+}
+
+/* Style the filter inputs on focus */
+.filters input:focus {
+    border-color: var(--active-color);
+    box-shadow: 0 0 5px var(--active-color);
+}
+
 /* Grid layout for item cards, responsive */
 .item-grid {
     display: grid;
@@ -44,7 +74,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    border-radius: 14px;
     margin-right: var(--padding-medium);
     border: 2px solid;
 }
@@ -87,6 +117,8 @@
     border: none;
     background: none;
     transition: color 200ms;
+    border-radius: 100%;
+    aspect-ratio: 1;
 }
 
 .add-item-button:hover {
