@@ -1,13 +1,13 @@
 /* Global Variables for Light Mode */
 :root {
-    --primary-color: #fff; /* Main background color */
-    --secondary-color: #333; /* Main text color */
+    --primary-color: #fff;
+    --secondary-color: #333;
     --tertiary-color: #f5f5f5; /* Sidebar background color */
     --quaternary-color: #e0e0e0; /* General hover color */
     --shadow-color: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sidebar shadow */
     --active-color: #007acc; /* Color for active or clicked links */
     
-    --font-family: 'Arial, sans-serif';
+    --font-family: 'Helvetica';
     --font-small: 0.875rem; /* 14px */
     --font-medium: 1.125rem; /* 18px */
     --font-large: 1.5rem; /* 24px */
@@ -26,10 +26,15 @@
 /* Dark Mode Variables */
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary-color: #242424; /* Dark mode background color */
-    --secondary-color: #ddd; /* Light text color for dark mode */
-    --tertiary-color: #333; /* Darker sidebar background */
-    --quaternary-color: #444;
+    --primary-color: #242424;
+    --secondary-color: #ddd;
+    --tertiary-color: #333;
+    --quaternary-color: #444; /* slightly lighter dark */
     --shadow-color: 2px 0 5px rgba(255, 255, 255, 0.1); /* Softer shadow for dark mode */
   }
+}
+
+body {
+  font-family: var(--font-family), sans-serif;
+  overflow-y: auto;
 }
