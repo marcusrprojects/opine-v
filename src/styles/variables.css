@@ -6,6 +6,7 @@
     --quaternary-color: #e0e0e0; /* General hover color */
     --shadow-color: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sidebar shadow */
     --active-color: #007acc; /* Color for active or clicked links */
+    --error-color: #ff4d4d;
     
     --font-family: 'Helvetica';
     --font-small: 0.875rem; /* 14px */
