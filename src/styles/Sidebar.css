@@ -61,7 +61,8 @@ nav.sidebar a {
   
 nav.sidebar a:hover {
     /* background-color: var(--quaternary-color); */
-    border: 1px solid var(--quaternary-color);
+    /* border: 1px solid var(--quaternary-color); */
+    box-shadow: var(--shadow-color);
     /* color: var(--primary-color); */
 }
   

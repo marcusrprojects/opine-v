@@ -94,6 +94,7 @@
     width: 100%;
     color: var(--primary-color);
     padding: var(--padding-small) 0;
+    text-shadow: var(--shadow-color);
 }
 
 /* Hover and active states */
