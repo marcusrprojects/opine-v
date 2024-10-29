@@ -96,12 +96,13 @@ const CategoryDetail = () => {
             const rating = item.rating || 1;
             const rankCategory = item.rankCategory ?? RankCategory.OKAY; // Default to 'Okay' category if undefined
             
-            const maxLightness = 100;
+            const maxWhite = 50;
             const hues = [0, 60, 120]; // HSL hues for Bad (0), Okay (60), Good (120)
             const thresholds = [0, (1 / 3) * 10, (2 / 3) * 10]; // Rating thresholds for each category
             
-            const adjustedLightness = maxLightness - (rating - thresholds[rankCategory]) * 7.5 - 37.5;
-            const cardColor = `hsl(${hues[rankCategory]}, 40%, ${adjustedLightness}%)`;
+            const adjustedWhiteness = maxWhite - (rating - thresholds[rankCategory]) * (50/3);
+            const cardColor = `hwb(${hues[rankCategory]} ${adjustedWhiteness}% 17.5%)`;
+            // console.log(item.title, cardColor);
 
             return (
               <div key={index} className="item-card" style={{ borderColor: cardColor }}>
