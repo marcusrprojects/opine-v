@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
-import { collection, doc, getDoc, getDocs, writeBatch } from 'firebase/firestore'; // Added writeBatch
+import { collection, doc, getDoc, getDocs, writeBatch } from 'firebase/firestore';
 import { useParams, useNavigate } from 'react-router-dom';
+import RankCategory from '../enums/RankCategory';
 
 const AddItem = () => {
   const { categoryId } = useParams(); // Get category from URL
@@ -10,7 +11,7 @@ const AddItem = () => {
   const navigate = useNavigate(); // Used for redirecting back
   const [step, setStep] = useState(1); // Tracks the current step
   const [comparisonItem, setComparisonItem] = useState(null); // Item to compare with
-  const [rankCategory, setRankCategory] = useState(''); // Store the user's chosen category (Good, Okay, or Bad)
+  const [rankCategory, setRankCategory] = useState(RankCategory.OKAY); // Store the user's chosen category (Good, Okay, or Bad)
   const [rankedItems, setRankedItems] = useState([]); // Items in the selected category for comparison
   const [lo, setLo] = useState(0); // Starting lower bound
   const [hi, setHi] = useState(0); // Starting upper bound (to be updated)
@@ -54,7 +55,6 @@ const AddItem = () => {
     
     // Check if there are no items in the collection
     if (itemsSnapshot.empty || itemsInRankCategory.length === 0) {
-      console.log('i am empty');
       // If no items exist, create the first item directly and skip Step 3
       const range = (1 / 3) * 10;
       const rating = rank === 'Good' ? range * 2.5 : rank === 'Okay' ? range * 1.5 : range * 0.5; // Middle value of the range
@@ -110,7 +110,7 @@ const AddItem = () => {
     const totalRange = (1 / 3) * 10;
 
     if (items.length > 1) {
-      const minRating = rankCategory === 'Good' ? (totalRange * 2) : rankCategory === 'Okay' ? totalRange : 0;
+      const minRating = rankCategory === RankCategory.GOOD ? (totalRange * 2) : rankCategory === RankCategory.OKAY ? totalRange : 0;
       items.forEach((item, index) => {
         item.rating = minRating + (totalRange / (items.length - 1)) * index;
       });
@@ -169,9 +169,9 @@ const AddItem = () => {
       {step === 2 && (
         <>
           <h2>How would you rate this item?</h2>
-          <button onClick={() => handleRankingChoice('Good')}>Good 😊</button>
-          <button onClick={() => handleRankingChoice('Okay')}>Okay 😐</button>
-          <button onClick={() => handleRankingChoice('Bad')}>Bad 😞</button>
+          <button onClick={() => handleRankingChoice(RankCategory.GOOD)}>Good 😊</button>
+          <button onClick={() => handleRankingChoice(RankCategory.OKAY)}>Okay 😐</button>
+          <button onClick={() => handleRankingChoice(RankCategory.BAD)}>Bad 😞</button>
           <button onClick={() => navigate(`/categories/${categoryId}`)}>Back</button>
         </>
       )}

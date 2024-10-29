@@ -5,6 +5,7 @@ import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { FaPlusCircle } from 'react-icons/fa';
 import "../styles/CategoryDetail.css";
 import { debounce } from 'lodash'; // To debounce filtering
+import RankCategory from '../enums/RankCategory';
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -93,7 +94,7 @@ const CategoryDetail = () => {
         <div className="item-grid">
           {filteredItems.map((item, index) => {
             const rating = item.rating || 1;
-            const rankCategory = item.rankCategory ?? 1; // Default to 'Okay' category if undefined
+            const rankCategory = item.rankCategory ?? RankCategory.OKAY; // Default to 'Okay' category if undefined
             
             const maxLightness = 100;
             const hues = [0, 60, 120]; // HSL hues for Bad (0), Okay (60), Good (120)
@@ -101,6 +102,7 @@ const CategoryDetail = () => {
             
             const adjustedLightness = maxLightness - (rating - thresholds[rankCategory]) * 15 - 25;
             const cardColor = `hsl(${hues[rankCategory]}, 40%, ${adjustedLightness}%)`;
+
 
             return (
               <div key={index} className="item-card" style={{ borderColor: cardColor }}>
