@@ -1,5 +1,5 @@
 .category-grid h2 {
-    font-size: var(--font-xlarge);
+  font-size: var(--font-xlarge);
 }
 
 .category-grid ul {
@@ -18,6 +18,7 @@
   display: block; /* Ensures the link fills the whole card */
   padding: var(--padding-large) var(--padding-small) var(--padding-large) var(--padding-small);
   background-color: var(--tertiary-color); /* Background color for the card */
+  box-shadow: var(--shadow-color);
   border-radius: var(--border-radius-small); /* Rounded corners */
   text-align: center;
   color: var(--secondary-color); /* Text color */
@@ -28,7 +29,7 @@
 .category-card:hover {
   background-color: var(--quaternary-color); /* Change background on hover */
   color:  var(--primary-color); /* Text color on hover */
-  box-shadow: var(--shadow-color); /* Shadow on hover */
+  /* box-shadow: var(--shadow-color); Shadow on hover */
 }
 
 .category-card:active {
