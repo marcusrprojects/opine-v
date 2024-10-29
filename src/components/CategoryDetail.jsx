@@ -100,9 +100,8 @@ const CategoryDetail = () => {
             const hues = [0, 60, 120]; // HSL hues for Bad (0), Okay (60), Good (120)
             const thresholds = [0, (1 / 3) * 10, (2 / 3) * 10]; // Rating thresholds for each category
             
-            const adjustedLightness = maxLightness - (rating - thresholds[rankCategory]) * 15 - 25;
+            const adjustedLightness = maxLightness - (rating - thresholds[rankCategory]) * 7.5 - 37.5;
             const cardColor = `hsl(${hues[rankCategory]}, 40%, ${adjustedLightness}%)`;
-
 
             return (
               <div key={index} className="item-card" style={{ borderColor: cardColor }}>
