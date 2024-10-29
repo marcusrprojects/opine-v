@@ -3,32 +3,66 @@ import { db } from '../firebaseConfig';
 import { collection, doc, getDoc, getDocs, writeBatch } from 'firebase/firestore';
 import { useParams, useNavigate } from 'react-router-dom';
 import RankCategory from '../enums/RankCategory';
+import '../styles/AddItem.css';
 
 const AddItem = () => {
-  const { categoryId } = useParams(); // Get category from URL
+  const { categoryId } = useParams();
   const [fields, setFields] = useState([]);
   const [formData, setFormData] = useState({});
-  const navigate = useNavigate(); // Used for redirecting back
-  const [step, setStep] = useState(1); // Tracks the current step
-  const [comparisonItem, setComparisonItem] = useState(null); // Item to compare with
-  const [rankCategory, setRankCategory] = useState(RankCategory.OKAY); // Store the user's chosen category (Good, Okay, or Bad)
-  const [rankedItems, setRankedItems] = useState([]); // Items in the selected category for comparison
-  const [lo, setLo] = useState(0); // Starting lower bound
-  const [hi, setHi] = useState(0); // Starting upper bound (to be updated)
+  const [error, setError] = useState(null); // State to hold any errors
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [comparisonItem, setComparisonItem] = useState(null);
+  const [rankCategory, setRankCategory] = useState(RankCategory.OKAY);
+  const [rankedItems, setRankedItems] = useState([]);
+  const [lo, setLo] = useState(0);
+  const [hi, setHi] = useState(0);
+  const CHAR_LIMIT = 32; // Character limit for the first field
+  const WORD_CHAR_LIMIT = 15; // Word character limit for each word in the first field
+
+  useEffect(() => {
+    // Scrolls the page to the top when the component is mounted
+    window.scrollTo(0, 0);
+  }, []);
 
   // Fetch category details when component mounts or when categoryId changes
   useEffect(() => {
     const fetchCategory = async () => {
       const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
       const categoryData = categoryDoc.data();
-      setFields(categoryData.fields); // Set the fields for this category
+      setFields(categoryData.fields);
     };
     fetchCategory();
   }, [categoryId]);
 
   // Handle form input changes for the new item details
   const handleChange = (field, value) => {
+    // Set limits only for the first field
+    if (field === fields[0]) {
+      if (value.length > CHAR_LIMIT) {
+        setError(`Maximum ${CHAR_LIMIT} characters allowed for ${fields[0]}`);
+        return;
+      }
+
+      const words = value.split(' ');
+      const isWordTooLong = words.some(word => word.length > WORD_CHAR_LIMIT);
+      if (isWordTooLong) {
+        setError(`Each word in the ${fields[0]} field can have up to ${WORD_CHAR_LIMIT} characters.`);
+        return;
+      }
+    }
+    
+    setError(null); // Clear error if within limit
     setFormData({ ...formData, [field]: value });
+  };
+
+  // Handle going back to the previous step or category page
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1); // Go to the previous step
+    } else {
+      navigate(`/categories/${categoryId}`); // Go back to category page
+    }
   };
 
   // Step 1: Handle form submission to add item details and move to rank selection
@@ -38,49 +72,35 @@ const AddItem = () => {
       alert('Please fill in all required fields.');
       return;
     }
-    // Proceed to Step 2: Ask for ranking choice (Good, Okay, Bad)
     setStep(2);
   };
 
-  // Step 2: Handle ranking choice and fetch items in the selected category
   const handleRankingChoice = async (rank) => {
-    setRankCategory(rank); // Store the chosen category (Good, Okay, Bad)
+    setRankCategory(rank);
     
-    // Fetch the items in the selected rank category
     const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
-
     const itemsInRankCategory = itemsSnapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))
       .filter(item => item.rankCategory === rank);
-    
-    // Check if there are no items in the collection
+
     if (itemsSnapshot.empty || itemsInRankCategory.length === 0) {
-      // If no items exist, create the first item directly and skip Step 3
       const range = (1 / 3) * 10;
-      const rating = rank === 'Good' ? range * 2.5 : rank === 'Okay' ? range * 1.5 : range * 0.5; // Middle value of the range
-      const newItem = { ...formData, rankCategory: rank, rating: rating }; // Assuming max rating for the first item
-      await writeItemsToFirestore([newItem]); // Write directly to Firestore
+      const rating = rank === RankCategory.GOOD ? range * 2.5 : rank === RankCategory.OKAY ? range * 1.5 : range * 0.5;
+      const newItem = { ...formData, rankCategory: rank, rating: rating };
+      await writeItemsToFirestore([newItem]);
     }
 
-    // Sort items by rating to allow binary search and placement
     const sortedItems = itemsInRankCategory.sort((a, b) => a.rating - b.rating);
-
-    setRankedItems(sortedItems); // Set sorted items for comparison
-    setHi(sortedItems.length - 1); // Upper bound is the last index
-    setStep(3); // Move to comparison step
+    setRankedItems(sortedItems);
+    setHi(sortedItems.length - 1);
+    setStep(3);
   };
 
-  // Step 3: Handle comparison of the new item with existing items and place it correctly
   const handleComparisonChoice = async (isBetter) => {
-    // Use local variables to keep track of lo and hi updates
     let currentLo = lo;
     let currentHi = hi;
-  
-    // Calculate the middle index between currentLo and currentHi
     let middleIndex = Math.floor((currentLo + currentHi) / 2);
-    console.log("at beg of HCC:", "lo:", currentLo, "hi:", currentHi, "middleIndex:", middleIndex);
-  
-    // Adjust the boundaries based on the comparison
+
     if (isBetter) {
       currentLo = middleIndex + 1;
     } else {
@@ -88,24 +108,17 @@ const AddItem = () => {
     }
 
     middleIndex = Math.floor((currentLo + currentHi) / 2);
-    console.log("HCC post-conditional:", "lo:", currentLo, "hi:", currentHi, "middleIndex:", middleIndex);
 
-    // If currentLo exceeds currentHi, we've found the position to insert the new item
     if (currentLo > currentHi) {
       rankedItems.splice(currentLo, 0, { ...formData, rankCategory });
-      // Call the async function to write to Firestore
       writeItemsToFirestore(rankedItems);
     } else {
-      // Continue comparing with the next middle item
       setComparisonItem(rankedItems[middleIndex]);
-    
-      // Finally, update lo and hi states once the logic has finished
       setLo(currentLo);
       setHi(currentHi);
     }
   };
 
-  // Firestore write logic moved to its own async function
   const writeItemsToFirestore = async (items) => {
     const totalRange = (1 / 3) * 10;
 
@@ -132,58 +145,59 @@ const AddItem = () => {
   };
 
   useEffect(() => {
-    if (step === 3) {
-      if (rankedItems.length > 0) {
-        const middleIndex = Math.floor((0 + (rankedItems.length - 1)) / 2);
-        console.log("useEffect comparison item:", rankedItems[middleIndex]);
-        setComparisonItem(rankedItems[middleIndex]); // Start comparison with the middle item
-      } else {
-        // handleComparisonChoice(true, 0, -1); // Automatically insert if no items to compare with
-      }
+    if (step === 3 && rankedItems.length > 0) {
+      const middleIndex = Math.floor((0 + (rankedItems.length - 1)) / 2);
+      setComparisonItem(rankedItems[middleIndex]);
     }
   }, [step, rankedItems]);
 
   return (
-    <div>
-      {/* Step 1: Input item details */}
+    <div className="add-item-container">
       {step === 1 && (
         <>
           <h2>Add a New Item</h2>
           <form onSubmit={handleSubmit}>
             {fields.map((field, index) => (
-              <input
-                key={index}
-                type="text"
-                placeholder={field}
-                value={formData[field] || ''}
-                onChange={(e) => handleChange(field, e.target.value)}
-                required
-              />
+              <div key={index}>
+                <input
+                  type="text"
+                  placeholder={field}
+                  value={formData[field] || ''}
+                  onChange={(e) => handleChange(field, e.target.value)}
+                  required
+                />
+                {index === 0 && error && <p className="error-message">{error}</p>}
+              </div>
             ))}
-            <button type="submit">Next</button>
+            <div className="button-nav-container">
+              <button className="button-nav" onClick={handleBack}>Back</button>
+              <button className="button-nav" type="submit" disabled={!!error}>Next</button>
+            </div>
           </form>
         </>
       )}
-
-      {/* Step 2: Ask for Good/Okay/Bad ranking */}
+  
       {step === 2 && (
         <>
           <h2>How would you rate this item?</h2>
-          <button onClick={() => handleRankingChoice(RankCategory.GOOD)}>Good 😊</button>
-          <button onClick={() => handleRankingChoice(RankCategory.OKAY)}>Okay 😐</button>
-          <button onClick={() => handleRankingChoice(RankCategory.BAD)}>Bad 😞</button>
-          <button onClick={() => navigate(`/categories/${categoryId}`)}>Back</button>
+          <div className="rating-buttons">
+            <button className="button-common" onClick={() => handleRankingChoice(RankCategory.GOOD)} style={{ backgroundColor: `hsl(120, 40%, 60%)` }}>Good</button>
+            <button className="button-common" onClick={() => handleRankingChoice(RankCategory.OKAY)} style={{ backgroundColor: `hsl(60, 40%, 60%)` }}>Okay</button>
+            <button className="button-common" onClick={() => handleRankingChoice(RankCategory.BAD)} style={{ backgroundColor: `hsl(0, 40%, 60%)` }}>Bad</button>
+          </div>
+          <button className="button-nav" onClick={handleBack}>Back</button>
         </>
       )}
-
-      {/* Step 3: Perform comparison */}
+  
       {step === 3 && comparisonItem && (
         <>
           <h2>Compare your item</h2>
           <p>Which item is better?</p>
-          <button onClick={() => handleComparisonChoice(true)}>{formData[fields[0]]}</button>
-          <button onClick={() => handleComparisonChoice(false)}>{comparisonItem[fields[0]]}</button><br></br><br></br>
-          <button onClick={() => navigate(`/categories/${categoryId}`)}>Back</button>
+          <div className="comparison-buttons">
+            <button className="button-common" onClick={() => handleComparisonChoice(true)}>{formData[fields[0]]}</button>
+            <button className="button-common" onClick={() => handleComparisonChoice(false)}>{comparisonItem[fields[0]]}</button>
+          </div>
+          <button className="button-nav" onClick={handleBack}>Back</button>
         </>
       )}
     </div>
