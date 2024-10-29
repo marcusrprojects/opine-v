@@ -23,7 +23,7 @@
 /* Sidebar styles */
 nav.sidebar {
     width: 200px;
-    background-color: var(--tertiary-color);
+    /* background-color: var(--tertiary-color); */
     height: 100vh;
     padding: var(--padding-large) var(--padding-medium) var(--padding-medium) var(--padding-medium);
     position: fixed;
@@ -60,8 +60,9 @@ nav.sidebar a {
 }
   
 nav.sidebar a:hover {
-    background-color: var(--quaternary-color);
-    color: var(--primary-color);
+    /* background-color: var(--quaternary-color); */
+    border: 1px solid var(--quaternary-color);
+    /* color: var(--primary-color); */
 }
   
 nav.sidebar a.active {
