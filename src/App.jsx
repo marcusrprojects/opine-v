@@ -12,6 +12,7 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Sidebar from "./components/Sidebar.jsx"
 import "./firebaseConfig";
+import ItemView from './components/ItemView';
 
 
 /**
@@ -42,6 +43,7 @@ function App() {
               <Route path="/create-category" element={<CreateCategory />} />
               <Route path="/categories/:categoryId" element={<CategoryDetail />} />
               <Route path="/categories/:categoryId/add-item" element={<AddItem />} />
+              <Route path="/categories/:categoryId/item/:itemId" element={<ItemView />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
