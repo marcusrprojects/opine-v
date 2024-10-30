@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebaseConfig';
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { FaPlusCircle } from 'react-icons/fa';
@@ -103,21 +103,25 @@ const CategoryDetail = () => {
             const adjustedWhiteness = maxWhite - (rating - thresholds[rankCategory]) * (50/3);
             const cardColor = `hwb(${hues[rankCategory]} ${adjustedWhiteness}% 17.5%)`;
             // console.log(item.title, cardColor);
+            const itemId = item.id;
+            // console.log(itemId);
 
             return (
-              <div key={index} className="item-card" style={{ borderColor: cardColor }}>
-                <div className="item-header">
-                  <div className="item-rating" style={{ borderColor: cardColor }}>{rating.toFixed(1)}</div>
-                  <h4 className="item-title">{item[fields.current[0]] || "Unnamed Item"}</h4>
+              <Link to={`./item/${item.id}`} key={itemId}>
+                <div key={index} className="item-card" style={{ borderColor: cardColor }}>
+                  <div className="item-header">
+                    <div className="item-rating" style={{ borderColor: cardColor }}>{rating.toFixed(1)}</div>
+                    <h4 className="item-title">{item[fields.current[0]] || "Unnamed Item"}</h4>
+                  </div>
+                  <div className="item-content" style={{ backgroundColor: cardColor }}>
+                    {fields.current.slice(1).map((field, fieldIndex) => (
+                      <p key={fieldIndex}>
+                        {field}: {item[field] || "N/A"}
+                      </p>
+                    ))}
+                  </div>
                 </div>
-                <div className="item-content" style={{ backgroundColor: cardColor }}>
-                  {fields.current.slice(1).map((field, fieldIndex) => (
-                    <p key={fieldIndex}>
-                      {field}: {item[field] || "N/A"}
-                    </p>
-                  ))}
-                </div>
-              </div>
+              </Link>
             );
           })}
         </div>
