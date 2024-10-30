@@ -1,6 +1,7 @@
+import { writeItemsToFirestore } from '../utils/ranking';
 import { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
-import { collection, doc, getDoc, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { useParams, useNavigate } from 'react-router-dom';
 import RankCategory from '../enums/RankCategory';
 import '../styles/AddItem.css';
@@ -116,38 +117,6 @@ const AddItem = () => {
       setComparisonItem(rankedItems[middleIndex]);
       setLo(currentLo);
       setHi(currentHi);
-    }
-  };
-
-  const writeItemsToFirestore = async (items) => {
-    const totalRange = (1 / 3) * 10;
-
-    if (items.length > 1) {
-      const minRating = rankCategory === RankCategory.GOOD ? (totalRange * 2) : rankCategory === RankCategory.OKAY ? totalRange : 0;
-      items.forEach((item, index) => {
-        item.rating = minRating + (totalRange / (items.length - 1)) * index;
-      });
-    }
-
-    try {
-      const batch = writeBatch(db);
-      items.forEach((item) => {
-        const itemRef = item.id
-          ? doc(db, `categories/${categoryId}/items`, item.id)
-          : doc(collection(db, `categories/${categoryId}/items`));
-
-        if (!item.id) {
-          // Set the unique ID for the new document as a field
-          item.id = itemRef.id;
-        }
-
-        batch.set(itemRef, item, { merge: true });
-      });
-
-      await batch.commit();
-      navigate(`/categories/${categoryId}`);
-    } catch (error) {
-      console.error('Error writing items to Firestore:', error);
     }
   };
 

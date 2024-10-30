@@ -4,6 +4,7 @@ import { db } from '../firebaseConfig';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { getRankCategoryName } from '../enums/RankCategory';
 import "../styles/ItemView.css";
+import { refreshRankedItems } from '../utils/ranking';
 
 const ItemView = () => {
   const { categoryId, itemId } = useParams();
@@ -51,18 +52,19 @@ const ItemView = () => {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this item?")) {
       await deleteDoc(doc(db, `categories/${categoryId}/items`, itemId));
+      await refreshRankedItems(categoryId, itemData.rankCategory); // Update ratings in category
       navigate(`/categories/${categoryId}`);
     }
   };
 
-  // Navigate to re-ranking functionality in CategoryDetail
-  const handleReRank = () => {
-    // navigate(`/categories/${categoryId}/re-rank/${itemId}`);
+  const handleReRank = async () => {
+    await refreshRankedItems(categoryId, itemData.rankCategory); // Recalculate and update ratings
+    navigate(`/categories/${categoryId}`); // Optionally, add re-ranking logic
   };
 
   return (
     <div className="item-view-container">
-      <h2>{itemData[fields[0]] || "Unnamed Item"}</h2> {/* Use the first field value as title */}
+      <h2>{itemData[fields[0]] || "Unnamed Item"}</h2>
       
       {Object.keys(itemData).map((field, index) => {
         // Hide the ID field
@@ -72,9 +74,9 @@ const ItemView = () => {
           <div key={index} className="item-field">
             <label>{field}:</label>
             {field === 'rating' ? (
-              <span>{parseFloat(itemData[field]).toFixed(1)}</span> // Display rounded rating
+              <span>{parseFloat(itemData[field]).toFixed(1)}</span>
             ) : field === 'rankCategory' ? (
-              <span>{getRankCategoryName(itemData[field])}</span> // Display rank category name
+              <span>{getRankCategoryName(itemData[field])}</span>
             ) : isEditing ? (
               <input
                 type="text"
