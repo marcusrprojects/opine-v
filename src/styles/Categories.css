@@ -50,30 +50,3 @@ button:hover {
   background-color: var(--quaternary-color);
   color: var(--primary-color);
 }
-
-@media (prefers-color-scheme: dark) {
-  .category-card {
-    background-color: var(--tertiary-color); /* Darker background for cards in dark mode */
-    color: var(--secondary-color); /* Light text for dark mode */
-  }
-
-  .category-card:hover {
-    background-color: var(--quaternary-color); /* Slightly lighter background on hover */
-    color: var(--primary-color); /* Text color on hover */
-    box-shadow: var(--shadow-color); /* Softer shadow in dark mode */
-  }
-
-  .category-card:active {
-    background-color: var(--active-color); /* Active state color in dark mode */
-  }
-
-  button {
-    background-color: var(--quaternary-color); /* Darker button background for dark mode */
-    color: var(--secondary-color); /* Light text for dark mode */
-  }
-
-  button:hover {
-    background-color: var(--active-color); /* Bright hover background for buttons */
-    color: var(--primary-color); /* Light text color on hover */
-  }
-}

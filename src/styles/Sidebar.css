@@ -10,6 +10,7 @@
     cursor: pointer;
     z-index: 11;
     transition: left 200ms ease, background-color 200ms ease;
+    background-color: var(--primary-color); /* new idea; check in the morning */
 }
 
 .sidebar-toggle.move-left {
@@ -73,26 +74,6 @@ nav.sidebar a.active {
   
 @media (prefers-color-scheme: dark) {
     .sidebar-toggle {
-        color: var(--secondary-color);
         background-color: var(--quarternary-color);
     }
-    
-    .sidebar-toggle:hover {
-        background-color: var(--tertiary-color);
-    }
-    
-    nav.sidebar {
-        background-color: var(--tertiary-color);
-        color: var(--primary-color);
-    }
-  
-    nav.sidebar a {
-      color: var(--secondary-color);
-    }
-  
-    nav.sidebar a:hover {
-      background-color: var(--quaternary-color);
-      color: var(--tertiary-color);
-    }
 }
-  

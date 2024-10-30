@@ -39,11 +39,3 @@ ul {
   margin-left: 0;
   width: 100vw;
 }
-
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-  .main-content {
-    background-color: var(--primary-color);
-    color: var(--secondary-color-light);
-  }
-}
