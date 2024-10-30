@@ -7,9 +7,14 @@ const RankCategory = Object.freeze({
 // Function to map enum number to the category name
 export const getRankCategoryName = (rankValue) => {
   return (
-    Object.keys(RankCategory).find((key) => RankCategory[key] === rankValue) ||
-    "Unknown"
+    toTitleCase(
+      Object.keys(RankCategory).find((key) => RankCategory[key] === rankValue)
+    ) || "Unknown"
   );
+};
+
+const toTitleCase = (str) => {
+  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 export default RankCategory;
