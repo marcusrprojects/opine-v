@@ -135,8 +135,15 @@ const AddItem = () => {
         const itemRef = item.id
           ? doc(db, `categories/${categoryId}/items`, item.id)
           : doc(collection(db, `categories/${categoryId}/items`));
+
+        if (!item.id) {
+          // Set the unique ID for the new document as a field
+          item.id = itemRef.id;
+        }
+
         batch.set(itemRef, item, { merge: true });
       });
+
       await batch.commit();
       navigate(`/categories/${categoryId}`);
     } catch (error) {
