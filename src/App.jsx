@@ -4,7 +4,7 @@ import Home from "./components/Home";
 import Categories from "./components/Categories";
 import CreateCategory from './components/CreateCategory';
 import CategoryDetail from './components/CategoryDetail.jsx';
-import AddItem from './components/AddItem';
+import AddItem from './components/AddItemFlow';
 import Profile from "./components/Profile";
 import "./App.css";
 import './styles/variables.css';
