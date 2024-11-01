@@ -1,17 +1,13 @@
 import PropTypes from 'prop-types';
 
-const LoadingComponent = ({ message }) => (
+const LoadingComponent = ({ message = "Loading..." }) => (
   <div className="loading-screen">
-    <p>{message || "Loading..."}</p>
+    <p>{message}</p>
   </div>
 );
 
 LoadingComponent.propTypes = {
   message: PropTypes.string,
-};
-
-LoadingComponent.defaultProps = {
-  message: "Loading...",
 };
 
 export default LoadingComponent;
