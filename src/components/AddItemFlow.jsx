@@ -1,22 +1,24 @@
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { useParams, useNavigate } from 'react-router-dom';
+import ItemDetailsStep from './ItemDetailsStep';
 import RankSelectionStep from './RankSelectionStep';
 import ComparisonStep from './ComparisonStep';
 import LoadingComponent from './LoadingComponent';
-import { refreshRankedItems } from '../utils/ranking';
+import { writeItemsToFirestore } from '../utils/ranking';
 import { db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import "../styles/AddItem.css";
 
-const ReRankFlow = ({ categoryId, existingItem }) => {
-  const [currentStep, setCurrentStep] = useState(2);
-  const [rankCategory, setRankCategory] = useState(existingItem.rankCategory);
-  const [fields, setFields] = useState([]);
-  const [loading, setLoading] = useState(false);
+const AddItemFlow = () => {
+  const { categoryId } = useParams();
   const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [itemData, setItemData] = useState({});
+  const [rankCategory, setRankCategory] = useState(null);
+  const [fields, setFields] = useState([]);
+  const [loading, setLoading] = useState(false); // Loading state
 
   useEffect(() => {
-    // Fetch category fields
     const fetchFields = async () => {
       const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
       if (categoryDoc.exists()) {
@@ -28,28 +30,37 @@ const ReRankFlow = ({ categoryId, existingItem }) => {
   }, [categoryId]);
 
   const handleNext = () => setCurrentStep((prev) => prev + 1);
-  const handleBack = () => {
-    if (currentStep > 2) setCurrentStep((prev) => prev - 1);
-    else navigate(`/categories/${categoryId}`); // Navigate back if on RankSelectionStep
-  };
+  const handleBack = () => setCurrentStep((prev) => prev - 1);
 
   const handleSave = async (updatedRankedItems) => {
     setLoading(true); // Start loading
-    await refreshRankedItems(categoryId, updatedRankedItems, rankCategory);
+    await writeItemsToFirestore(categoryId, updatedRankedItems, rankCategory);
     setLoading(false); // Stop loading
     navigate(`/categories/${categoryId}`);
   };
 
+  const updateItemData = (newData) => {
+    setItemData(newData);
+  };
+
   // Show loading component if `loading` is true
   if (loading) {
-    return <LoadingComponent message="Saving re-ranked items..." />;
+    return <LoadingComponent message="Saving item..." />;
   }
 
   return (
     <div className="add-item-container">
+      {currentStep === 1 && (
+        <ItemDetailsStep
+          fields={fields}
+          itemData={itemData}
+          updateItemData={updateItemData}
+          onNext={handleNext}
+          isEditable={true}
+        />
+      )}
       {currentStep === 2 && (
         <RankSelectionStep
-          itemData={existingItem}
           setRankCategory={setRankCategory}
           onNext={handleNext}
           onBack={handleBack}
@@ -58,7 +69,7 @@ const ReRankFlow = ({ categoryId, existingItem }) => {
       {currentStep === 3 && (
         <ComparisonStep
           categoryId={categoryId}
-          itemData={existingItem}
+          itemData={itemData}
           fields={fields}
           rankCategory={rankCategory}
           onBack={handleBack}
@@ -69,13 +80,4 @@ const ReRankFlow = ({ categoryId, existingItem }) => {
   );
 };
 
-// PropTypes for validation
-ReRankFlow.propTypes = {
-  categoryId: PropTypes.string.isRequired,
-  existingItem: PropTypes.shape({
-    rankCategory: PropTypes.number.isRequired,
-    // other fields as needed in the existing item structure
-  }).isRequired,
-};
-
-export default ReRankFlow;
+export default AddItemFlow;
