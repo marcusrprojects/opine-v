@@ -5,20 +5,23 @@ import LoadingComponent from './LoadingComponent';
 import { refreshRankedItems } from '../utils/ranking';
 import { db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import LoadingMessages from '../enums/LoadingMessages';
 
 const ReRankFlow = () => {
+  const { categoryId } = useParams(); // Retrieve categoryId from item data
   const location = useLocation();
   const navigate = useNavigate();
-  const { categoryId, existingItem } = location.state;
-  const [currentStep, setCurrentStep] = useState(1); // Start from 1
-  const [rankCategory, setRankCategory] = useState(existingItem.rankCategory);
+  const { existingItem } = location.state;
+  const initialRankCategory = existingItem.rankCategory; // Store initial rank category for comparison
+
+  const [currentStep, setCurrentStep] = useState(1); // Start from RankSelectionStep
+  const [rankCategory, setRankCategory] = useState(initialRankCategory); // Track new rank category if it changes
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch category fields
+    // Fetch category fields based on categoryId from item data
     const fetchFields = async () => {
       const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
       if (categoryDoc.exists()) {
@@ -32,13 +35,24 @@ const ReRankFlow = () => {
   const handleNext = () => setCurrentStep((prev) => prev + 1);
   const handleBack = () => {
     if (currentStep > 1) setCurrentStep((prev) => prev - 1);
-    else navigate(`/categories/${categoryId}`); // Navigate back if on RankSelectionStep
+    else navigate(`/categories/${categoryId}/item/${existingItem.id}`);
   };
 
   const handleSave = async (updatedRankedItems) => {
-    setLoading(true); // Start loading
+    setLoading(true);
+
+    // Check for cross-category re-ranking
+    const isCrossCategory = initialRankCategory !== rankCategory;
+
+    if (isCrossCategory) {
+      // Update the old category to remove the item
+      await refreshRankedItems(categoryId, updatedRankedItems, initialRankCategory);
+    }
+
+    // Update the new category, including the item in its new rank category
     await refreshRankedItems(categoryId, updatedRankedItems, rankCategory);
-    setLoading(false); // Stop loading
+
+    setLoading(false);
     navigate(`/categories/${categoryId}`);
   };
 

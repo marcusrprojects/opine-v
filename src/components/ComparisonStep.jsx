@@ -16,7 +16,7 @@ const ComparisonStep = ({ categoryId, itemData, fields, rankCategory, onBack, on
       const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
       const itemsInRankCategory = itemsSnapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((item) => item.rankCategory === rankCategory)
+        .filter((item) => item.rankCategory === rankCategory && item.id !== itemData.id)
         .sort((a, b) => a.rating - b.rating);
 
       setRankedItems(itemsInRankCategory);
@@ -24,7 +24,7 @@ const ComparisonStep = ({ categoryId, itemData, fields, rankCategory, onBack, on
     };
 
     fetchRankedItems();
-  }, [categoryId, rankCategory]);
+  }, [categoryId, rankCategory, itemData.id]);
 
   // Set initial comparison item
   useEffect(() => {
