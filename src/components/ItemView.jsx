@@ -57,10 +57,14 @@ const ItemView = () => {
     }
   };
 
-  const handleReRank = async () => {
-    await refreshRankedItems(categoryId, itemData.rankCategory); // Recalculate and update ratings
-    navigate(`/categories/${categoryId}`); // Optionally, add re-ranking logic
+  const handleReRank = () => {
+    navigate(`/categories/${categoryId}/items/${itemId}/rerank`, { state: { existingItem: itemData } });
   };
+
+  // const handleReRank = async () => {
+  //   await refreshRankedItems(categoryId, itemData.rankCategory); // Recalculate and update ratings
+  //   navigate(`/categories/${categoryId}`); // Optionally, add re-ranking logic
+  // };
 
   return (
     <div className="item-view-container">
