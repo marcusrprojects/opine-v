@@ -6,6 +6,8 @@ import { FaPlusCircle } from 'react-icons/fa';
 import "../styles/CategoryDetail.css";
 import { debounce } from 'lodash'; // To debounce filtering
 import RankCategory from '../enums/RankCategory';
+import LoadingMessages from '../enums/LoadingMessages';
+import LoadingComponent from './LoadingComponent';
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -71,7 +73,7 @@ const CategoryDetail = () => {
   }, [filters, applyFilters]);
 
   if (loading) {
-    return <p>Loading items...</p>;
+    return <LoadingComponent message= {LoadingMessages.FETCHING}/>;
   }
 
   return (
