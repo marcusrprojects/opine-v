@@ -13,6 +13,7 @@ import Signup from "./components/Signup";
 import Sidebar from "./components/Sidebar.jsx"
 import "./firebaseConfig";
 import ItemView from './components/ItemView';
+import ReRankFlow from './components/ReRankFlow';
 
 
 /**
@@ -44,6 +45,7 @@ function App() {
               <Route path="/categories/:categoryId" element={<CategoryDetail />} />
               <Route path="/categories/:categoryId/add-item" element={<AddItem />} />
               <Route path="/categories/:categoryId/item/:itemId" element={<ItemView />} />
+              <Route path="/categories/:categoryId/items/:itemId/rerank" element={<ReRankFlow />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
