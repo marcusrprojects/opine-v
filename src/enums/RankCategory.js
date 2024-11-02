@@ -1,3 +1,5 @@
+import { toTitleCase } from "../utils/stringUtils";
+
 const RankCategory = Object.freeze({
   BAD: 0,
   OKAY: 1,
@@ -11,10 +13,6 @@ export const getRankCategoryName = (rankValue) => {
       Object.keys(RankCategory).find((key) => RankCategory[key] === rankValue)
     ) || "Unknown"
   );
-};
-
-const toTitleCase = (str) => {
-  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 export default RankCategory;
