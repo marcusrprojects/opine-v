@@ -2,10 +2,10 @@
 :root {
     --primary-color: #fff;
     --secondary-color: #333;
-    --tertiary-color: #f5f5f5; /* Sidebar background color */
-    --quaternary-color: #e0e0e0; /* General hover color */
-    --shadow-color: 2px 0 5px rgba(0, 0, 0, 0.1); /* Sidebar shadow */
-    --active-color: #007acc; /* Color for active or clicked links */
+    --tertiary-color: #f5f5f5;
+    --quaternary-color: #e0e0e0;
+    --shadow-color: 2px 0 5px rgba(0, 0, 0, 0.1);
+    --active-color: #007acc;
     --error-color: #ff4d4d;
     
     --font-family: 'Helvetica';
@@ -30,8 +30,8 @@
     --primary-color: #242424;
     --secondary-color: #ddd;
     --tertiary-color: #333;
-    --quaternary-color: #444; /* slightly lighter dark */
-    --shadow-color: 2px 0 5px rgba(255, 255, 255, 0.1); /* Softer shadow for dark mode */
+    --quaternary-color: #444;
+    --shadow-color: 2px 0 5px rgba(255, 255, 255, 0.1);
   }
 }
 
