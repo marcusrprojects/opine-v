@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import RankSelectionStep from './RankSelectionStep';
 import ComparisonStep from './ComparisonStep';
 import LoadingComponent from './LoadingComponent';
-import { refreshRankedItems } from '../utils/ranking';
+import { refreshRankedItems, writeItemsToFirestore } from '../utils/ranking';
 import { db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
@@ -41,16 +41,16 @@ const ReRankFlow = () => {
   const handleSave = async (updatedRankedItems) => {
     setLoading(true);
 
+    // Update the new category, including the item in its new rank category
+    await writeItemsToFirestore(categoryId, updatedRankedItems, rankCategory);
+
     // Check for cross-category re-ranking
     const isCrossCategory = initialRankCategory !== rankCategory;
 
     if (isCrossCategory) {
       // Update the old category to remove the item
-      await refreshRankedItems(categoryId, updatedRankedItems, initialRankCategory);
+      await refreshRankedItems(categoryId, initialRankCategory);
     }
-
-    // Update the new category, including the item in its new rank category
-    await refreshRankedItems(categoryId, updatedRankedItems, rankCategory);
 
     setLoading(false);
     navigate(`/categories/${categoryId}`);
