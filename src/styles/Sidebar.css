@@ -23,7 +23,7 @@
 
 /* Sidebar styles */
 nav.sidebar {
-    width: 200px;
+    width: 12vw;
     /* background-color: var(--tertiary-color); */
     height: 100vh;
     padding: var(--padding-large) var(--padding-medium) var(--padding-medium) var(--padding-medium);
@@ -57,14 +57,11 @@ nav.sidebar a {
 }
   
 .sidebar ul li {
-    margin-bottom: 15px;
+    margin-bottom: var(--padding-large);
 }
   
 nav.sidebar a:hover {
-    /* background-color: var(--quaternary-color); */
-    /* border: 1px solid var(--quaternary-color); */
     box-shadow: var(--shadow-color);
-    /* color: var(--primary-color); */
 }
   
 nav.sidebar a.active {
