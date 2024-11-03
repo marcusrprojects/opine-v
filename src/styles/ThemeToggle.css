@@ -36,7 +36,7 @@
 }
 
 input:checked + .slider {
-  background-color: var(--active-color);
+  background-color: var(--quaternary-color);
 }
 
 input:checked + .slider:before {
