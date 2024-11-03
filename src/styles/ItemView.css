@@ -19,6 +19,7 @@
 }
 
 .item-actions button:hover {
-  background-color: #007acc;
-  color: white;
+  box-shadow: var(--shadow-color);
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
 }
