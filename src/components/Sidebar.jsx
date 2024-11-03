@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import '../styles/Sidebar.css';
 import PropTypes from 'prop-types';
 import { FaBars, FaChevronLeft } from "react-icons/fa";
+import ThemeToggle from './ThemeToggle';
 
 const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
   return (
@@ -19,6 +20,7 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
           <li><Link to="/profile">Profile</Link></li>
           <li><Link to="/login">Login</Link></li>
           <li><Link to="/signup">Signup</Link></li>
+          <li><ThemeToggle /></li>
         </ul>
       </nav>
     </>
