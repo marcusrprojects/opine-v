@@ -15,6 +15,7 @@ const CategoryDetail = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [filters, setFilters] = useState({});
   const fields = useRef([]);
+  const primaryField = useRef('');
   const categoryName = useRef('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const CategoryDetail = () => {
         if (categorySnapshot.exists()) {
           const categoryData = categorySnapshot.data();
           fields.current = categoryData.fields;
+          primaryField.current = categoryData.primaryField; // Fetch primaryField
           categoryName.current = categoryData.name;
         }
 
@@ -73,7 +75,7 @@ const CategoryDetail = () => {
   }, [filters, applyFilters]);
 
   if (loading) {
-    return <LoadingComponent message= {LoadingMessages.FETCHING}/>;
+    return <LoadingComponent message={LoadingMessages.FETCHING} />;
   }
 
   return (
@@ -104,19 +106,18 @@ const CategoryDetail = () => {
             
             const adjustedWhiteness = maxWhite - (rating - thresholds[rankCategory]) * (50/3);
             const cardColor = `hwb(${hues[rankCategory]} ${adjustedWhiteness}% 17.5%)`;
-            // console.log(item.title, cardColor);
             const itemId = item.id;
-            // console.log(itemId);
 
             return (
               <Link to={`./item/${item.id}`} key={itemId}>
                 <div key={index} className="item-card" style={{ borderColor: cardColor }}>
                   <div className="item-header">
                     <div className="item-rating" style={{ borderColor: cardColor }}>{rating.toFixed(1)}</div>
-                    <h4 className="item-title">{item[fields.current[0]] || "Unnamed Item"}</h4>
+                    {/* Use primaryField for the item title */}
+                    <h4 className="item-title">{item[primaryField.current] || "Unnamed Item"}</h4>
                   </div>
                   <div className="item-content" style={{ backgroundColor: cardColor }}>
-                    {fields.current.slice(1).map((field, fieldIndex) => (
+                    {fields.current.filter(field => field !== primaryField.current).map((field, fieldIndex) => (
                       <p key={fieldIndex}>
                         {field}: {item[field] || "N/A"}
                       </p>
