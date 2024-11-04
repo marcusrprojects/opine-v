@@ -1,0 +1,34 @@
+.field-container {
+  position: relative;
+  /* display: flex; */
+  align-items: center;
+}
+
+.primary-field-radio {
+  position: relative;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.primary-field-radio .tooltip {
+  visibility: hidden;
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  text-align: center;
+  padding: 5px;
+  border-radius: var(--border-radius-small);
+  position: absolute;
+  bottom: 125%; /* Position above the radio button */
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 1;
+  font-size: var(--font-small);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.primary-field-radio:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
