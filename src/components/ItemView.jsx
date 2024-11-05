@@ -12,6 +12,7 @@ const ItemView = () => {
   const [itemData, setItemData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [primaryField, setPrimaryField] = useState(null);
+  const [orderedFields, setOrderedFields] = useState([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -29,6 +30,7 @@ const ItemView = () => {
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
         setPrimaryField(categoryData.primaryField);
+        setOrderedFields(['rankCategory', 'rating', ...categoryData.fields]);
       }
     };
     fetchItem();
@@ -60,27 +62,27 @@ const ItemView = () => {
     <div className="item-view-container">
       <h2>{itemData[primaryField] || "Unnamed Item"}</h2>
       
-      {Object.keys(itemData).map((field, index) => {
+      {orderedFields.map((field, index) => {
         if (field === 'id') return null;
 
         return (
           <div key={index} className="item-field">
             <label>{field}:</label>
             {field === 'rating' ? (
-              <span>{parseFloat(itemData[field]).toFixed(1)}</span>
+              <span>{parseFloat(itemData[field] || 0).toFixed(1)}</span>
             ) : field === 'rankCategory' ? (
               <span>{getRankCategoryName(itemData[field])}</span>
             ) : isEditing ? (
               field === 'notes' ? (
                 <textarea
                   className="notes-textarea"
-                  value={itemData[field]}
+                  value={itemData[field] || ''}
                   onChange={(e) => handleChange(field, e.target.value)}
                 />
               ) : (
                 <input
                   type="text"
-                  value={itemData[field]}
+                  value={itemData[field] || ''}
                   onChange={(e) => handleChange(field, e.target.value)}
                   readOnly={field === 'rating' || field === 'rankCategory'}
                 />
