@@ -11,7 +11,7 @@ const ItemView = () => {
   const navigate = useNavigate();
   const [itemData, setItemData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
-  const [fields, setFields] = useState([]);
+  const [primaryField, setPrimaryField] = useState(null);
 
   useEffect(() => {
     // Scrolls the page to the top when the component is mounted
@@ -30,7 +30,7 @@ const ItemView = () => {
       
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
-        setFields(categoryData.fields);
+        setPrimaryField(categoryData.primaryField); // Set primaryField from category data
       }
     };
     fetchItem();
@@ -68,7 +68,7 @@ const ItemView = () => {
 
   return (
     <div className="item-view-container">
-      <h2>{itemData[fields[0]] || "Unnamed Item"}</h2>
+      <h2>{itemData[primaryField] || "Unnamed Item"}</h2>
       
       {Object.keys(itemData).map((field, index) => {
         // Hide the ID field

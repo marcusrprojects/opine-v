@@ -9,6 +9,7 @@ import '../styles/AddItem.css';
 const AddItem = () => {
   const { categoryId } = useParams();
   const [fields, setFields] = useState([]);
+  const [primaryField, setPrimaryField] = useState(''); // New state for primary field
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null); // State to hold any errors
   const navigate = useNavigate();
@@ -18,8 +19,8 @@ const AddItem = () => {
   const [rankedItems, setRankedItems] = useState([]);
   const [lo, setLo] = useState(0);
   const [hi, setHi] = useState(0);
-  const CHAR_LIMIT = 32; // Character limit for the first field
-  const WORD_CHAR_LIMIT = 15; // Word character limit for each word in the first field
+  const CHAR_LIMIT = 32; // Character limit for the primary field
+  const WORD_CHAR_LIMIT = 15; // Word character limit for each word in the primary field
 
   useEffect(() => {
     // Scrolls the page to the top when the component is mounted
@@ -32,27 +33,28 @@ const AddItem = () => {
       const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
       const categoryData = categoryDoc.data();
       setFields(categoryData.fields);
+      setPrimaryField(categoryData.primaryField); // Set primary field
     };
     fetchCategory();
   }, [categoryId]);
 
   // Handle form input changes for the new item details
   const handleChange = (field, value) => {
-    // Set limits only for the first field
-    if (field === fields[0]) {
+    // Set limits only for the primary field
+    if (field === primaryField) {
       if (value.length > CHAR_LIMIT) {
-        setError(`Maximum ${CHAR_LIMIT} characters allowed for ${fields[0]}`);
+        setError(`Maximum ${CHAR_LIMIT} characters allowed for ${primaryField}`);
         return;
       }
 
       const words = value.split(' ');
       const isWordTooLong = words.some(word => word.length > WORD_CHAR_LIMIT);
       if (isWordTooLong) {
-        setError(`Each word in the ${fields[0]} field can have up to ${WORD_CHAR_LIMIT} characters.`);
+        setError(`Each word in the ${primaryField} field can have up to ${WORD_CHAR_LIMIT} characters.`);
         return;
       }
     }
-    
+
     setError(null); // Clear error if within limit
     setFormData({ ...formData, [field]: value });
   };
@@ -78,7 +80,7 @@ const AddItem = () => {
 
   const handleRankingChoice = async (rank) => {
     setRankCategory(rank);
-    
+
     const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
     const itemsInRankCategory = itemsSnapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))
@@ -142,7 +144,7 @@ const AddItem = () => {
                   onChange={(e) => handleChange(field, e.target.value)}
                   required
                 />
-                {index === 0 && error && <p className="error-message">{error}</p>}
+                {field === primaryField && error && <p className="error-message">{error}</p>}
               </div>
             ))}
             <div className="button-nav-container">
@@ -152,7 +154,7 @@ const AddItem = () => {
           </form>
         </>
       )}
-  
+
       {step === 2 && (
         <>
           <h2>How would you rate this item?</h2>
@@ -164,14 +166,14 @@ const AddItem = () => {
           <button className="button-nav" onClick={handleBack}>Back</button>
         </>
       )}
-  
+
       {step === 3 && comparisonItem && (
         <>
           <h2>Compare your item</h2>
           <p>Which item is better?</p>
           <div className="comparison-buttons">
-            <button className="button-common" onClick={() => handleComparisonChoice(true)}>{formData[fields[0]]}</button>
-            <button className="button-common" onClick={() => handleComparisonChoice(false)}>{comparisonItem[fields[0]]}</button>
+            <button className="button-common" onClick={() => handleComparisonChoice(true)}>{formData[primaryField]}</button>
+            <button className="button-common" onClick={() => handleComparisonChoice(false)}>{comparisonItem[primaryField]}</button>
           </div>
           <button className="button-nav" onClick={handleBack}>Back</button>
         </>

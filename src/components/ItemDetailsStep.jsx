@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-const ItemDetailsStep = ({ fields, itemData, updateItemData, onNext, isEditable }) => {
+const ItemDetailsStep = ({ primaryField, fields, itemData, updateItemData, onNext, isEditable }) => {
   const [error, setError] = useState(null);
   const CHAR_LIMIT = 32;
   const WORD_CHAR_LIMIT = 15;
@@ -10,14 +10,14 @@ const ItemDetailsStep = ({ fields, itemData, updateItemData, onNext, isEditable 
   const { categoryId } = useParams(); // Gets categoryId from URL parameters
 
   const handleInputChange = (field, value) => {
-    if (field === fields[0]) {
+    if (field === primaryField) {
       if (value.length > CHAR_LIMIT) {
-        setError(`Maximum ${CHAR_LIMIT} characters allowed for ${fields[0]}`);
+        setError(`Maximum ${CHAR_LIMIT} characters allowed for ${primaryField}`);
         return;
       }
       const words = value.split(' ');
       if (words.some(word => word.length > WORD_CHAR_LIMIT)) {
-        setError(`Each word in the ${fields[0]} field can have up to ${WORD_CHAR_LIMIT} characters.`);
+        setError(`Each word in the ${primaryField} field can have up to ${WORD_CHAR_LIMIT} characters.`);
         return;
       }
     }
@@ -52,7 +52,7 @@ const ItemDetailsStep = ({ fields, itemData, updateItemData, onNext, isEditable 
               readOnly={!isEditable}
               required
             />
-            {index === 0 && error && <p className="error-message">{error}</p>}
+            {field === primaryField && error && <p className="error-message">{error}</p>}
           </div>
         ))}
         <div className="button-nav-container">
@@ -66,6 +66,7 @@ const ItemDetailsStep = ({ fields, itemData, updateItemData, onNext, isEditable 
 
 // PropTypes for validation
 ItemDetailsStep.propTypes = {
+  primaryField: PropTypes.string.isRequired,
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
   itemData: PropTypes.object.isRequired,
   updateItemData: PropTypes.func.isRequired,

@@ -18,15 +18,17 @@ const ReRankFlow = () => {
   const [currentStep, setCurrentStep] = useState(1); // Start from RankSelectionStep
   const [rankCategory, setRankCategory] = useState(initialRankCategory); // Track new rank category if it changes
   const [fields, setFields] = useState([]);
+  const [primaryField, setPrimaryField] = useState(null); // Add primaryField state
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch category fields based on categoryId from item data
+    // Fetch category fields and primaryField based on categoryId from item data
     const fetchFields = async () => {
       const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
         setFields(categoryData.fields || []);
+        setPrimaryField(categoryData.primaryField); // Set primaryField from category data
       }
     };
     fetchFields();
@@ -76,6 +78,7 @@ const ReRankFlow = () => {
           categoryId={categoryId}
           itemData={existingItem}
           fields={fields}
+          primaryField={primaryField} // Pass primaryField to ComparisonStep
           rankCategory={rankCategory}
           onBack={handleBack}
           onSave={handleSave}
