@@ -60,49 +60,52 @@ const ItemView = () => {
 
   return (
     <div className="item-view-container">
-      <h2>{itemData[primaryField] || "Unnamed Item"}</h2>
-      
-      {orderedFields.map((field, index) => {
-        if (field === 'id') return null;
+      <div>
+        <h2 className="item-title">{itemData[primaryField] || "Unnamed Item"}</h2>
+        
+        {orderedFields.map((field, index) => {
+          if (field === 'id') return null;
 
-        return (
-          <div key={index} className="item-field">
-            <label>{field}:</label>
-            {field === 'rating' ? (
-              <span>{parseFloat(itemData[field] || 0).toFixed(1)}</span>
-            ) : field === 'rankCategory' ? (
-              <span>{getRankCategoryName(itemData[field])}</span>
-            ) : isEditing ? (
-              field === 'notes' ? (
-                <textarea
-                  className="notes-textarea"
-                  value={itemData[field] || ''}
-                  onChange={(e) => handleChange(field, e.target.value)}
-                />
+          return (
+            <div key={index} className="item-field">
+              <label className="item-label">{field}:</label>
+              {field === 'rating' ? (
+                <span className="item-value">{parseFloat(itemData[field] || 0).toFixed(1)}</span>
+              ) : field === 'rankCategory' ? (
+                <span className="item-value">{getRankCategoryName(itemData[field])}</span>
+              ) : isEditing ? (
+                field === 'notes' ? (
+                  <textarea
+                    className="notes-textarea"
+                    value={itemData[field] || ''}
+                    onChange={(e) => handleChange(field, e.target.value)}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={itemData[field] || ''}
+                    onChange={(e) => handleChange(field, e.target.value)}
+                    readOnly={field === 'rating' || field === 'rankCategory'}
+                    className="item-input"
+                  />
+                )
               ) : (
-                <input
-                  type="text"
-                  value={itemData[field] || ''}
-                  onChange={(e) => handleChange(field, e.target.value)}
-                  readOnly={field === 'rating' || field === 'rankCategory'}
-                />
-              )
-            ) : (
-              <span>{itemData[field]}</span>
-            )}
-          </div>
-        );
-      })}
-      
-      <div className="item-actions">
-        {isEditing ? (
-          <button onClick={handleSave}>Save</button>
-        ) : (
-          <button onClick={() => setIsEditing(true)}>Edit</button>
-        )}
-        <button onClick={handleDelete}>Delete</button>
-        <button onClick={handleReRank}>Re-rank</button>
-        <button onClick={() => navigate(`/categories/${categoryId}`)}>Back</button>
+                <span className="item-value">{itemData[field]}</span>
+              )}
+            </div>
+          );
+        })}
+        
+        <div className="item-actions">
+          {isEditing ? (
+            <button className="action-button save-button" onClick={handleSave}>Save</button>
+          ) : (
+            <button className="action-button edit-button" onClick={() => setIsEditing(true)}>Edit</button>
+          )}
+          <button className="action-button delete-button" onClick={handleDelete}>Delete</button>
+          <button className="action-button rerank-button" onClick={handleReRank}>Re-rank</button>
+          <button className="action-button back-button" onClick={() => navigate(`/categories/${categoryId}`)}>Back</button>
+        </div>
       </div>
     </div>
   );
