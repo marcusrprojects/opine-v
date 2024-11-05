@@ -1,17 +1,33 @@
 .item-view-container {
-  padding: 20px;
+  padding: var(--padding-medium);
 }
 
-.item-field {
-  margin-bottom: 15px;
+.item-field input, .notes-textarea{
+  /* margin-bottom: var(--padding-large); */
+  border-radius: var(--border-radius-small);
+  border: 1px solid var(--quaternary-color);
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+.item-field input{
+  margin: 1.5% 0%;
 }
 
 .item-field label {
   font-weight: bold;
-  margin-right: 10px;
+  margin-right: .5rem;
+}
+
+.notes-textarea {
+  width: 50%;
+  height: 5rem;
+  padding: var(--padding-small);
+  font-size: 1rem;
 }
 
 .item-actions button {
+  margin-top: var(--padding-small);
   margin-right: 10px;
   padding: 10px;
   font-size: 16px;

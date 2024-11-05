@@ -14,11 +14,9 @@ const ItemView = () => {
   const [primaryField, setPrimaryField] = useState(null);
 
   useEffect(() => {
-    // Scrolls the page to the top when the component is mounted
     window.scrollTo(0, 0);
   }, []);
 
-  // Fetch item data and fields on load
   useEffect(() => {
     const fetchItem = async () => {
       const itemDoc = await getDoc(doc(db, `categories/${categoryId}/items`, itemId));
@@ -30,29 +28,26 @@ const ItemView = () => {
       
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
-        setPrimaryField(categoryData.primaryField); // Set primaryField from category data
+        setPrimaryField(categoryData.primaryField);
       }
     };
     fetchItem();
   }, [categoryId, itemId]);
   
-  // Handle change for form inputs
   const handleChange = (field, value) => {
     setItemData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Save updates to Firestore
   const handleSave = async () => {
     const itemRef = doc(db, `categories/${categoryId}/items`, itemId);
     await updateDoc(itemRef, itemData);
     setIsEditing(false);
   };
 
-  // Delete item from Firestore
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this item?")) {
       await deleteDoc(doc(db, `categories/${categoryId}/items`, itemId));
-      await refreshRankedItems(categoryId, itemData.rankCategory); // Update ratings in category
+      await refreshRankedItems(categoryId, itemData.rankCategory);
       navigate(`/categories/${categoryId}`);
     }
   };
@@ -61,17 +56,11 @@ const ItemView = () => {
     navigate(`/categories/${categoryId}/items/${itemId}/rerank`, { state: { existingItem: itemData } });
   };
 
-  // const handleReRank = async () => {
-  //   await refreshRankedItems(categoryId, itemData.rankCategory); // Recalculate and update ratings
-  //   navigate(`/categories/${categoryId}`); // Optionally, add re-ranking logic
-  // };
-
   return (
     <div className="item-view-container">
       <h2>{itemData[primaryField] || "Unnamed Item"}</h2>
       
       {Object.keys(itemData).map((field, index) => {
-        // Hide the ID field
         if (field === 'id') return null;
 
         return (
@@ -82,12 +71,20 @@ const ItemView = () => {
             ) : field === 'rankCategory' ? (
               <span>{getRankCategoryName(itemData[field])}</span>
             ) : isEditing ? (
-              <input
-                type="text"
-                value={itemData[field]}
-                onChange={(e) => handleChange(field, e.target.value)}
-                readOnly={field === 'rating' || field === 'rankCategory'} // Make rating and rankCategory non-editable
-              />
+              field === 'notes' ? (
+                <textarea
+                  className="notes-textarea"
+                  value={itemData[field]}
+                  onChange={(e) => handleChange(field, e.target.value)}
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={itemData[field]}
+                  onChange={(e) => handleChange(field, e.target.value)}
+                  readOnly={field === 'rating' || field === 'rankCategory'}
+                />
+              )
             ) : (
               <span>{itemData[field]}</span>
             )}
@@ -102,7 +99,7 @@ const ItemView = () => {
           <button onClick={() => setIsEditing(true)}>Edit</button>
         )}
         <button onClick={handleDelete}>Delete</button>
-        <button onClick={handleReRank}>Re-rank</button> {/* Re-rank button */}
+        <button onClick={handleReRank}>Re-rank</button>
         <button onClick={() => navigate(`/categories/${categoryId}`)}>Back</button>
       </div>
     </div>
