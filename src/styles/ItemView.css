@@ -20,10 +20,12 @@
 
 #rating-display {
   cursor: pointer;
+  transition: transform 0.3s ease;
 }
 
 #rating-display:hover {
   filter:brightness(70%);
+  transform: scale(1.2);
 }
 
 /* .item-field {
