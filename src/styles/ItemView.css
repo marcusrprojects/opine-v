@@ -1,6 +1,8 @@
 .item-view-container {
   display: flex;
   justify-content: center;
+  position: relative; /* Allows absolute positioning for child elements */
+  padding: 2rem;
 }
 
 .item-title {
@@ -8,6 +10,16 @@
   text-align: center;
   margin-bottom: var(--padding-large);
   color: var(--secondary-color);
+}
+
+.rating-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--padding-large);
+}
+
+#rating-display {
+  cursor: pointer;
 }
 
 .item-field {
@@ -58,43 +70,20 @@
   color: var(--primary-color);
 }
 
-.save-button {
-  background-color: #4CAF50;
-  
+.trash-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  color: #f44336;
+  font-size: 1.5rem;
+  transition: color 0.2s;
 }
 
-.save-button:hover {
-  background-color: #45a049;
+.trash-icon:hover {
+  color: #da190b;
 }
 
-.edit-button {
-  background-color: #2196F3;
-}
-
-.edit-button:hover {
-  background-color: #0b7dda;
-}
-
-.delete-button {
-  background-color: #f44336;
-}
-
-.delete-button:hover {
-  background-color: #da190b;
-}
-
-.rerank-button {
-  background-color: #FFC107;
-}
-
-.rerank-button:hover {
-  background-color: #ffa000;
-}
-
-.back-button {
-  background-color: #9e9e9e;
-}
-
-.back-button:hover {
-  background-color: #757575;
+#back-button {
+  margin-top: var(--padding-medium);
 }
