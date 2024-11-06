@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { db } from '../firebaseConfig';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { getRankCategoryName } from '../enums/RankCategory';
+import { FaTrash } from 'react-icons/fa'; // Import trash icon
 import "../styles/ItemView.css";
 import { refreshRankedItems } from '../utils/ranking';
 
 const ItemView = () => {
   const { categoryId, itemId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const cardColor = location.state?.cardColor || "#FFFFFF";
   const [itemData, setItemData] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingField, setEditingField] = useState(null); // Track individual field editing
   const [primaryField, setPrimaryField] = useState(null);
   const [orderedFields, setOrderedFields] = useState([]);
 
@@ -30,20 +32,20 @@ const ItemView = () => {
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
         setPrimaryField(categoryData.primaryField);
-        setOrderedFields(['rankCategory', 'rating', ...categoryData.fields]);
+        setOrderedFields(categoryData.fields);
       }
     };
     fetchItem();
   }, [categoryId, itemId]);
-  
+
   const handleChange = (field, value) => {
-    setItemData((prev) => ({ ...prev, [field]: value }));
+    setItemData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async () => {
+  const handleSaveField = async (field) => {
     const itemRef = doc(db, `categories/${categoryId}/items`, itemId);
-    await updateDoc(itemRef, itemData);
-    setIsEditing(false);
+    await updateDoc(itemRef, { [field]: itemData[field] });
+    setEditingField(null);
   };
 
   const handleDelete = async () => {
@@ -61,52 +63,46 @@ const ItemView = () => {
   return (
     <div className="item-view-container">
       <div>
-        <h2 className="item-title">{itemData[primaryField] || "Unnamed Item"}</h2>
-        
-        {orderedFields.map((field, index) => {
-          if (field === 'id') return null;
+      {/* Top right trash icon for delete */}
+      <FaTrash className="trash-icon" onClick={handleDelete} />
 
-          return (
-            <div key={index} className="item-field">
-              <label className="item-label">{field}:</label>
-              {field === 'rating' ? (
-                <span className="item-value">{parseFloat(itemData[field] || 0).toFixed(1)}</span>
-              ) : field === 'rankCategory' ? (
-                <span className="item-value">{getRankCategoryName(itemData[field])}</span>
-              ) : isEditing ? (
-                field === 'notes' ? (
-                  <textarea
-                    className="notes-textarea"
-                    value={itemData[field] || ''}
-                    onChange={(e) => handleChange(field, e.target.value)}
-                  />
-                ) : (
-                  <input
-                    type="text"
-                    value={itemData[field] || ''}
-                    onChange={(e) => handleChange(field, e.target.value)}
-                    readOnly={field === 'rating' || field === 'rankCategory'}
-                    className="item-input"
-                  />
-                )
-              ) : (
-                <span className="item-value">{itemData[field]}</span>
-              )}
-            </div>
-          );
-        })}
-        
-        <div className="item-actions">
-          {isEditing ? (
-            <button className="action-button save-button" onClick={handleSave}>Save</button>
-          ) : (
-            <button className="action-button edit-button" onClick={() => setIsEditing(true)}>Edit</button>
-          )}
-          <button className="action-button delete-button" onClick={handleDelete}>Delete</button>
-          <button className="action-button rerank-button" onClick={handleReRank}>Re-rank</button>
-          <button className="action-button back-button" onClick={() => navigate(`/categories/${categoryId}`)}>Back</button>
+      <h2 className="item-title">{itemData[primaryField] || "Unnamed Item"}</h2>
+      
+      {/* Central Rating Display */}
+      <div className="rating-container">
+        <div id="rating-display" className="item-rating" style={{ borderColor: cardColor }} onClick={handleReRank}>
+          {parseFloat(itemData.rating || 0).toFixed(1)}
         </div>
       </div>
+
+      {/* Editable Fields */}
+      {orderedFields.map((field, index) => {
+        return (
+          <div
+            key={index}
+            className="item-field"
+            onClick={() => setEditingField(field)}
+          >
+            <label className="item-label">{field}:</label>
+            {editingField === field ? (
+              <input
+                type="text"
+                value={itemData[field] || ''}
+                onChange={(e) => handleChange(field, e.target.value)}
+                onBlur={() => handleSaveField(field)}
+                autoFocus
+                className="item-input"
+              />
+            ) : (
+              <span className="item-value">{itemData[field] || "Click to edit"}</span>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Back Button */}
+      <button id="back-button" onClick={() => navigate(`/categories/${categoryId}`)}>Back</button>
+    </div>
     </div>
   );
 };
