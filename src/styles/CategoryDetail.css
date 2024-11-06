@@ -120,8 +120,9 @@
     transition: color 200ms;
     border-radius: 100%;
     aspect-ratio: 1;
+    color: var(--quaternary-color);
 }
 
 .add-item-button:hover {
-    color: var(--hover-color);
+    color: var(--secondary-color);
 }
