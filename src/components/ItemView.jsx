@@ -80,22 +80,42 @@ const ItemView = () => {
         return (
           <div
             key={index}
-            className="item-field"
+            className={`item-field ${field === 'notes' ? 'notes-field' : ''}`}
             onClick={() => setEditingField(field)}
           >
-            <label className="item-label">{field}:</label>
-            {editingField === field ? (
-              <input
-                type="text"
-                value={itemData[field] || ''}
-                onChange={(e) => handleChange(field, e.target.value)}
-                onBlur={() => handleSaveField(field)}
-                autoFocus
-                className="item-input"
-              />
-            ) : (
-              <span className="item-value">{itemData[field] || "Click to edit"}</span>
-            )}
+            <div className="field-content">
+              <label className="item-label">{field}:</label>
+              {editingField === field ? (
+                field === 'notes' ? (
+                  <textarea
+                    value={itemData[field] || ''}
+                    onChange={(e) => handleChange(field, e.target.value)}
+                    onBlur={() => handleSaveField(field)}
+                    autoFocus
+                    className="notes-textarea"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={itemData[field] || ''}
+                    onChange={(e) => handleChange(field, e.target.value)}
+                    onBlur={() => handleSaveField(field)}
+                    autoFocus
+                    className="item-input"
+                  />
+                )
+              ) : (
+                field === 'notes' ? (
+                  <textarea
+                    className="notes-textarea"
+                    value={itemData[field] || "Click to edit"}
+                    readOnly
+                  />
+                ) : (
+                  <span className="item-value">{itemData[field] || "Click to edit"}</span>
+                )
+              )}
+            </div>
           </div>
         );
       })}

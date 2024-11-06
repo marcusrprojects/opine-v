@@ -22,12 +22,35 @@
   cursor: pointer;
 }
 
-.item-field {
+#rating-display:hover {
+  filter:brightness(70%);
+}
+
+/* .item-field {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--padding-small) 0;
   border-bottom: 1px solid var(--tertiary-color);
+} */
+
+.item-field {
+  display: flex;
+  flex-direction: column; /* Stack label and value vertically */
+  text-align: center;
+  padding: var(--padding-small) 0;
+  border-bottom: 1px solid var(--tertiary-color);
+  width: 100%; /* Ensure fields span the container width */
+}
+
+.field-content {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.item-field:hover {
+  filter: brightness(90%);
 }
 
 .item-label {
@@ -35,18 +58,13 @@
   color: var(--secondary-color);
 }
 
-.item-input, .notes-textarea {
-  width: 60%;
-  border-radius: var(--border-radius-small);
-  border: 1px solid var(--tertiary-color);
-  padding: var(--padding-small);
-  font-size: 1rem;
-}
-
 .notes-textarea {
-  width: 100%;
+  border:none;
+  width: 40rem;
   height: 5rem;
-  /* resize: vertical; */
+  resize: vertical;
+  background-color: var(--primary-color);
+  color:var(--secondary-color);
 }
 
 .item-value {
@@ -58,15 +76,21 @@
   top: 1rem;
   right: 1rem;
   cursor: pointer;
-  color: #f44336;
+  color: var(--error-color);
   font-size: 1.5rem;
   transition: color 0.2s;
 }
 
 .trash-icon:hover {
-  color: #da190b;
+  filter: brightness(75%);
 }
 
 #back-button {
   margin-top: var(--padding-medium);
+}
+
+.notes-field {
+  flex-direction: column; /* Stack label and textarea vertically */
+  align-items: flex-start;
+  padding: var(--padding-medium) 0; /* More padding for readability */
 }
