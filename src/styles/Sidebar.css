@@ -61,7 +61,8 @@ nav.sidebar a {
 }
   
 nav.sidebar a:hover {
-    box-shadow: var(--shadow-color);
+    /* box-shadow: var(--shadow-color); */
+    background-color: var(--tertiary-color);
 }
   
 nav.sidebar a.active {
