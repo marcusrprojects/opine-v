@@ -3,13 +3,6 @@
     padding: var(--padding-large);
 }
 
-/* Style for the category title */
-.category-title {
-    font-size: var(--font-xlarge);
-    margin: 0; /* Space around title */
-    margin-bottom: 3%;
-}
-
 /* Filters container styling */
 .filters {
     display: flex;
@@ -43,8 +36,8 @@
 /* Grid layout for item cards, responsive */
 .item-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--padding-medium);
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: var(--padding-ml);
     padding: 0;
 }
 
@@ -55,12 +48,15 @@
     box-shadow: var(--shadow-color);
     overflow: hidden;
     color: var(--secondary-color);
+    transition: transform 0.3s ease;
+    cursor: pointer;
 }
 
 .item-header {
     display: flex;
     align-items: center; /* Center content vertically */
-    padding: var(--padding-small);
+    justify-content: left;
+    padding: var(--padding-sm) 0;
     height: 4rem; /* Set this to the height of the tallest expected header */
 }
 
@@ -75,14 +71,18 @@
     align-items: center;
     justify-content: center;
     border-radius: 14px;
-    margin-right: var(--padding-medium);
+    margin: 0 1rem;
     border: 2px solid;
 }
 
 .item-title {
-    font-size: var(--font-large);
     text-align: left;
     flex-grow: 1;
+    padding-right: 1rem;
+}
+
+.item-header h4.item-title {
+    font-size: var(--font-large);
 }
 
 /* Bottom of card */
@@ -100,6 +100,7 @@
 /* Hover and active states */
 .item-card:hover {
     background-color: var(--quaternary-color);
+    transform: scale(1.05);
 }
 
 .item-card:active {
