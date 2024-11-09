@@ -4,7 +4,9 @@
     --secondary-color: #333;
     --tertiary-color: #f5f5f5;
     --quaternary-color: #e0e0e0;
-    --shadow-color: 2px 0 5px rgba(0, 0, 0, 0.1);
+    --quinary-color: #ccc;
+    --shadow-small: 2px 0 5px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.2);
     --active-color: #007acc;
     --error-color: #ff4d4d;
     
@@ -35,7 +37,9 @@
     --secondary-color: #ddd;
     --tertiary-color: #333;
     --quaternary-color: #444;
-    --shadow-color: 2px 0 5px rgba(255, 255, 255, 0.1);
+    --quinary-color: #636363;
+    --shadow-small: 2px 0 5px rgba(255, 255, 255, 0.1);
+    --shadow-medium: 0 4px 8px rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -45,7 +49,9 @@
   --secondary-color: #333;
   --tertiary-color: #f5f5f5;
   --quaternary-color: #e0e0e0;
-  --shadow-color: 2px 0 5px rgba(0, 0, 0, 0.1);
+  --quinary-color: #ccc;
+  --shadow-small: 2px 0 5px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Dark Mode Variables */
@@ -54,7 +60,9 @@
   --secondary-color: #ddd;
   --tertiary-color: #333;
   --quaternary-color: #444;
-  --shadow-color: 2px 0 5px rgba(255, 255, 255, 0.1);
+  --quinary-color: #555;
+  --shadow-small: 2px 0 5px rgba(255, 255, 255, 0.1);
+  --shadow-medium: 0 4px 8px rgba(255, 255, 255, 0.2);
 }
 
 body {

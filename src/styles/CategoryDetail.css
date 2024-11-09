@@ -1,6 +1,7 @@
 /* Container for the entire category detail section */
 .category-detail-container {
     padding: var(--padding-large);
+    position: relative;
 }
 
 /* Filters container styling */
@@ -18,7 +19,7 @@
     border-radius: var(--border-radius-small);
     /* border: 1px solid var(--secondary-color); */
     border:none;
-    box-shadow: var(--shadow-color);
+    box-shadow: var(--shadow-small);
     font-size: var(--font-medium);
     outline: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -45,7 +46,7 @@
     display: flex;
     flex-direction: column;
     border-radius: var(--border-radius-medium);
-    box-shadow: var(--shadow-color);
+    box-shadow: var(--shadow-small);
     overflow: hidden;
     color: var(--secondary-color);
     transition: transform 0.3s ease;
@@ -94,7 +95,7 @@
     width: 100%;
     color: var(--primary-color);
     padding: var(--padding-small) 0;
-    text-shadow: var(--shadow-color);
+    text-shadow: var(--shadow-small);
 }
 
 /* Hover and active states */
@@ -126,4 +127,36 @@
 
 .add-item-button:hover {
     color: var(--secondary-color);
+}
+
+
+/* Actions container */
+.category-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.edit-icon {
+    color: var(--quinary-color);
+}
+
+.delete-icon {
+    color: var(--error-color);
+}
+
+.edit-icon:hover {
+    filter: brightness(20%);
+}
+
+.delete-icon:hover {
+    filter: brightness(80%);
 }

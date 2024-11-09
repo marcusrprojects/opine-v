@@ -68,7 +68,7 @@
     transition: background-color 0.2s;
     width: 20rem;
     /* max-width: 10rem; */
-    box-shadow: var(--shadow-color);
+    box-shadow: var(--shadow-small);
     margin-top: 1rem;
 }
   
@@ -85,7 +85,6 @@
     max-width: 10rem;
     color:var(--primary-color);
 }
-
 
 .add-item-container .rating-buttons button:hover {
     filter: brightness(85%); /* Darkens the background color */
