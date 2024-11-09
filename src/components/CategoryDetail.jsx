@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebaseConfig';
-import { collection, doc, getDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
 import { FaPlusCircle, FaEdit, FaTrash } from 'react-icons/fa';
 import "../styles/CategoryDetail.css";
 import { debounce } from 'lodash';
@@ -16,8 +16,8 @@ const CategoryDetail = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const [filters, setFilters] = useState({});
   const [fields, setFields] = useState([]);
-  const primaryField = useRef('');
-  const categoryName = useRef('');
+  const [primaryField, setPrimaryField] = useState('');
+  const [categoryName, setCategoryName] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [isEditingCategory, setIsEditingCategory] = useState(false);
@@ -31,8 +31,8 @@ const CategoryDetail = () => {
         if (categorySnapshot.exists()) {
           const categoryData = categorySnapshot.data();
           setFields(categoryData.fields);
-          primaryField.current = categoryData.primaryField;
-          categoryName.current = categoryData.name;
+          setPrimaryField(categoryData.primaryField);
+          setCategoryName(categoryData.name);
         }
 
         const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
@@ -77,10 +77,21 @@ const CategoryDetail = () => {
     setIsEditingCategory(true); // Show the modal
   };
 
-  // Function to save updated fields
-  const handleSaveFields = (updatedFields) => {
-    setFields(updatedFields); // Update the fields state
-    setIsEditingCategory(false); // Close the modal
+  // Function to save updated fields and primaryfield
+  const handleSaveFields = async (updatedFields, newPrimaryField) => {
+    setFields(updatedFields);
+    setPrimaryField(newPrimaryField);
+    setIsEditingCategory(false);
+
+    try {
+      const categoryDocRef = doc(db, 'categories', categoryId);
+      await updateDoc(categoryDocRef, {
+        fields: updatedFields,
+        primaryField: newPrimaryField,
+      });
+    } catch (error) {
+      console.error("Error updating category fields:", error);
+    }
   };
 
   // Function to close the modal without saving
@@ -123,7 +134,7 @@ const CategoryDetail = () => {
           {isEditingCategory && (
             <EditCategoryModal
               fields={fields}
-              primaryField={primaryField.current}
+              primaryField={primaryField}
               onSave={handleSaveFields}
               onClose={handleCloseModal}
             />
@@ -132,7 +143,7 @@ const CategoryDetail = () => {
           <FaTrash className="icon delete-icon" onClick={handleDeleteCategory} />
 
         </div>
-        <h2 className="category-title">{categoryName.current}</h2>
+        <h2 className="category-title">{categoryName}</h2>
 
         <div className="filters">
           {fields.map((field, index) => (
@@ -168,10 +179,10 @@ const CategoryDetail = () => {
               >
                 <div className="item-header">
                   <div className="item-rating" style={{ borderColor: cardColor }}>{rating.toFixed(1)}</div>
-                  <h4 className="item-title">{item[primaryField.current] || "Unnamed Item"}</h4>
+                  <h4 className="item-title">{item[primaryField] || "Unnamed Item"}</h4>
                 </div>
                 <div className="item-content" style={{ backgroundColor: cardColor }}>
-                  {fields.filter(field => field !== primaryField.current).map((field, fieldIndex) => (
+                  {fields.filter(field => field !== primaryField).map((field, fieldIndex) => (
                     <p key={fieldIndex}>
                       {field}: {item[field] || "N/A"}
                     </p>
