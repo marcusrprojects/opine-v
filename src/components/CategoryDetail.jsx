@@ -65,19 +65,17 @@ const CategoryDetail = () => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
         await deleteDoc(doc(db, 'categories', categoryId));
-        navigate('/categories'); // Redirect after deletion
+        navigate('/categories');
       } catch (error) {
         console.error("Error deleting category:", error);
       }
     }
   };
 
-  // Function to open the edit category modal
   const handleEditCategory = () => {
-    setIsEditingCategory(true); // Show the modal
+    setIsEditingCategory(true);
   };
 
-  // Function to save updated fields and primaryfield
   const handleSaveFields = async (updatedFields, newPrimaryField) => {
     setFields(updatedFields);
     setPrimaryField(newPrimaryField);
@@ -94,9 +92,18 @@ const CategoryDetail = () => {
     }
   };
 
-  // Function to close the modal without saving
+  const handleNameChange = async (newName) => {
+    setCategoryName(newName);
+    try {
+      const categoryDocRef = doc(db, 'categories', categoryId);
+      await updateDoc(categoryDocRef, { name: newName });
+    } catch (error) {
+      console.error("Error updating category name:", error);
+    }
+  };
+
   const handleCloseModal = () => {
-    setIsEditingCategory(false); // Simply close the modal
+    setIsEditingCategory(false);
   };
 
   const applyFilters = debounce(() => {
@@ -125,24 +132,23 @@ const CategoryDetail = () => {
   return (
     <div>
       <div className="category-detail-container">
-        {/* Edit and Delete Icons */}
-
         <div className="category-actions">
-
           <FaEdit className="icon edit-icon" onClick={handleEditCategory} />
 
           {isEditingCategory && (
             <EditCategoryModal
               fields={fields}
               primaryField={primaryField}
+              categoryName={categoryName} // Pass the current category name
+              onNameChange={handleNameChange} // Pass name change handler
               onSave={handleSaveFields}
               onClose={handleCloseModal}
             />
           )}
 
           <FaTrash className="icon delete-icon" onClick={handleDeleteCategory} />
-
         </div>
+
         <h2 className="category-title">{categoryName}</h2>
 
         <div className="filters">
@@ -161,11 +167,9 @@ const CategoryDetail = () => {
           {filteredItems.map((item) => {
             const rating = item.rating || 1;
             const rankCategory = item.rankCategory ?? RankCategory.OKAY;
-            
             const maxWhite = 50;
             const hues = [0, 60, 120];
             const thresholds = [0, (1 / 3) * 10, (2 / 3) * 10];
-            
             const adjustedWhiteness = maxWhite - (rating - thresholds[rankCategory]) * (50 / 3);
             const cardColor = `hwb(${hues[rankCategory]} ${adjustedWhiteness}% 17.5%)`;
             const itemId = item.id;
