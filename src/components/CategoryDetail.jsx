@@ -1,24 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebaseConfig';
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
-import { FaPlusCircle } from 'react-icons/fa';
+import { collection, doc, getDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { FaPlusCircle, FaEdit, FaTrash } from 'react-icons/fa';
 import "../styles/CategoryDetail.css";
 import { debounce } from 'lodash';
 import RankCategory from '../enums/RankCategory';
 import LoadingMessages from '../enums/LoadingMessages';
 import LoadingComponent from './LoadingComponent';
+import EditCategoryModal from './EditCategoryModal';
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [filters, setFilters] = useState({});
-  const fields = useRef([]);
+  const [fields, setFields] = useState([]);
   const primaryField = useRef('');
   const categoryName = useRef('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [isEditingCategory, setIsEditingCategory] = useState(false);
 
   useEffect(() => {
     const fetchCategoryData = async () => {
@@ -28,7 +30,7 @@ const CategoryDetail = () => {
 
         if (categorySnapshot.exists()) {
           const categoryData = categorySnapshot.data();
-          fields.current = categoryData.fields;
+          setFields(categoryData.fields);
           primaryField.current = categoryData.primaryField;
           categoryName.current = categoryData.name;
         }
@@ -59,6 +61,33 @@ const CategoryDetail = () => {
     }));
   };
 
+  const handleDeleteCategory = async () => {
+    if (window.confirm("Are you sure you want to delete this category?")) {
+      try {
+        await deleteDoc(doc(db, 'categories', categoryId));
+        navigate('/categories'); // Redirect after deletion
+      } catch (error) {
+        console.error("Error deleting category:", error);
+      }
+    }
+  };
+
+  // Function to open the edit category modal
+  const handleEditCategory = () => {
+    setIsEditingCategory(true); // Show the modal
+  };
+
+  // Function to save updated fields
+  const handleSaveFields = (updatedFields) => {
+    setFields(updatedFields); // Update the fields state
+    setIsEditingCategory(false); // Close the modal
+  };
+
+  // Function to close the modal without saving
+  const handleCloseModal = () => {
+    setIsEditingCategory(false); // Simply close the modal
+  };
+
   const applyFilters = debounce(() => {
     const filtered = items.filter(item => {
       return Object.keys(filters).every(field => {
@@ -85,10 +114,28 @@ const CategoryDetail = () => {
   return (
     <div>
       <div className="category-detail-container">
+        {/* Edit and Delete Icons */}
+
+        <div className="category-actions">
+
+          <FaEdit className="icon edit-icon" onClick={handleEditCategory} />
+
+          {isEditingCategory && (
+            <EditCategoryModal
+              fields={fields}
+              primaryField={primaryField.current}
+              onSave={handleSaveFields}
+              onClose={handleCloseModal}
+            />
+          )}
+
+          <FaTrash className="icon delete-icon" onClick={handleDeleteCategory} />
+
+        </div>
         <h2 className="category-title">{categoryName.current}</h2>
 
         <div className="filters">
-          {fields.current.map((field, index) => (
+          {fields.map((field, index) => (
             <input
               key={index}
               type="text"
@@ -115,7 +162,7 @@ const CategoryDetail = () => {
             return (
               <div 
                 key={itemId} 
-                className="item-card" 
+                className="item-card"
                 style={{ borderColor: cardColor }} 
                 onClick={() => handleItemClick(itemId, cardColor)}
               >
@@ -124,7 +171,7 @@ const CategoryDetail = () => {
                   <h4 className="item-title">{item[primaryField.current] || "Unnamed Item"}</h4>
                 </div>
                 <div className="item-content" style={{ backgroundColor: cardColor }}>
-                  {fields.current.filter(field => field !== primaryField.current).map((field, fieldIndex) => (
+                  {fields.filter(field => field !== primaryField.current).map((field, fieldIndex) => (
                     <p key={fieldIndex}>
                       {field}: {item[field] || "N/A"}
                     </p>
