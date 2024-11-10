@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import '../styles/CreateCategory.css'; // Ensure you have a CSS file to style the tooltip
+import '../styles/CreateCategory.css';
 import { FaPlus } from 'react-icons/fa';
 
 const CreateCategory = () => {
@@ -32,7 +32,8 @@ const CreateCategory = () => {
       await addDoc(collection(db, 'categories'), {
         name: categoryName,
         primaryField: fields[primaryFieldIndex].name,
-        fields: [...fields.map(field => field.name), 'notes'],
+        fields: fields.map(field => field.name), // Only custom fields
+        notes: "",
       });
       navigate('/categories'); // Redirect to categories list
     } catch (error) {
@@ -72,9 +73,8 @@ const CreateCategory = () => {
             </label>
           </div>
         ))}
-        {/* <button type="button" onClick={addField}>Add Another Field</button><br /><br /> */}
         <button type="button" onClick={addField} className="add-field-button">
-          <FaPlus size="1.5em" /> {/* Plus icon */}
+          <FaPlus size="1.5em" />
         </button><br /><br />
         <button type="submit">Create Category</button>
       </form>
