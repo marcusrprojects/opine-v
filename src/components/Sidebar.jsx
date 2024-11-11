@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import '../styles/Sidebar.css';
 import PropTypes from 'prop-types';
-import { FaBars, FaChevronLeft } from "react-icons/fa";
+import { FaBars } from "react-icons/fa";
 import ThemeToggle from './ThemeToggle';
 
 const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
@@ -9,7 +9,7 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
     <>
       {/* Sidebar toggle button */}
       <button className={`sidebar-toggle ${sidebarOpen ? '' : 'move-left'}`} onClick={toggleSidebar}>
-        {sidebarOpen ? <FaChevronLeft /> : <FaBars />}
+        {<FaBars />}
       </button>
 
       {/* Sidebar navigation */}
