@@ -4,7 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
 import "../styles/Categories.css";
 import { debounce } from 'lodash'; // For debouncing filter input
-import { FaPlusCircle } from 'react-icons/fa';
+import AddButton from './AddButton';
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -81,9 +81,7 @@ const Categories = () => {
       </ul>
 
       {/* Button to navigate to the Create Category form */}
-      <button onClick={() => navigate(`/create-category`)} className="add-item-button">
-        <FaPlusCircle size="3em" />
-      </button>
+      <AddButton onClick={() => navigate(`/create-category`)} />
     </div>
   );
 };

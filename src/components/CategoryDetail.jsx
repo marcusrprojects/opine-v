@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebaseConfig';
 import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
-import { FaPlusCircle, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import "../styles/CategoryDetail.css";
 import { debounce } from 'lodash';
 import RankCategory from '../enums/RankCategory';
 import LoadingMessages from '../enums/LoadingMessages';
 import LoadingComponent from './LoadingComponent';
 import EditCategoryModal from './EditCategoryModal';
+import AddButton from './AddButton';
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -198,9 +199,7 @@ const CategoryDetail = () => {
         </div>
       </div>
 
-      <button onClick={() => navigate(`/categories/${categoryId}/add-item`)} className="add-item-button">
-        <FaPlusCircle size="3em" />
-      </button>
+      <AddButton onClick={() => navigate(`/categories/${categoryId}/add-item`)} />
       <br></br>
       {/* Back Button */}
       <button onClick={() => navigate('/categories')} className="back-button">

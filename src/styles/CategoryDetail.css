@@ -115,22 +115,6 @@
     margin-bottom: var(--padding-small);
 }
 
-/* Button styles */
-.add-item-button {
-    border: none;
-    background: none;
-    transition: color 200ms;
-    border-radius: 100%;
-    aspect-ratio: 1;
-    color: var(--quaternary-color);
-}
-
-.add-item-button:hover {
-    color: var(--quinary-color);
-    background: none;
-}
-
-
 /* Actions container */
 .category-actions {
     position: absolute;
