@@ -126,7 +126,8 @@
 }
 
 .add-item-button:hover {
-    color: var(--secondary-color);
+    color: var(--quinary-color);
+    background: none;
 }
 
 
@@ -159,4 +160,16 @@
 
 .delete-icon:hover {
     filter: brightness(80%);
+}
+
+.back-button {
+    margin-top: var(--padding-medium);
+    background-color: var(--tertiary-color);
+    color:var(--secondary-color);
+}
+
+.back-button:hover {
+    background-color: var(--quaternary-color);
+    color:var(--secondary-color);
+    box-shadow: var(--shadow-small);
 }
