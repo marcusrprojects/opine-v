@@ -3,7 +3,7 @@ import { db } from '../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import '../styles/CreateCategory.css';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaMinus } from 'react-icons/fa';
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState('');
@@ -21,6 +21,20 @@ const CreateCategory = () => {
     setFields(updatedFields);
   };
 
+  const handleRemoveField = (index) => {
+    if (index === primaryFieldIndex) {
+      alert("Please select a new primary field before deleting this one.");
+      return;
+    }
+
+    const updatedFields = fields.filter((_, i) => i !== index);
+    setFields(updatedFields);
+
+    if (primaryFieldIndex > index) {
+      setPrimaryFieldIndex(primaryFieldIndex - 1);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!categoryName || fields.length === 0) {
@@ -32,7 +46,7 @@ const CreateCategory = () => {
       await addDoc(collection(db, 'categories'), {
         name: categoryName,
         primaryField: fields[primaryFieldIndex].name,
-        fields: fields.map(field => field.name), // Only custom fields
+        fields: fields.map(field => field.name),
         notes: "",
       });
       navigate('/categories'); // Redirect to categories list
@@ -43,16 +57,17 @@ const CreateCategory = () => {
 
   return (
     <div>
-      <h2>Create a Category</h2>
+      <h2 className='item-title'>Create a Category</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Category Name"
           value={categoryName}
+          className='category-name'
           onChange={(e) => setCategoryName(e.target.value)}
           required
         />
-        <h2>Attributes</h2>
+        <h2 id='attributes'>Attributes</h2>
         {fields.map((field, index) => (
           <div key={index} className="field-container">
             <input
@@ -69,14 +84,32 @@ const CreateCategory = () => {
                 checked={primaryFieldIndex === index}
                 onChange={() => setPrimaryFieldIndex(index)}
               />
-              <span className="tooltip">Primary Field</span>
+              {primaryFieldIndex === index && (
+                <span className="tooltip">Primary Field</span>
+              )}
             </label>
+              <FaMinus
+                className="icon delete-icon" 
+                onClick={() => handleRemoveField(index)} 
+                title="Remove field"
+                style={{
+                  cursor: index === primaryFieldIndex ? 'not-allowed' : 'pointer',
+                  marginLeft: '10px',
+                  color: index === primaryFieldIndex ? 'var(--quinary-color)' : 'inherit',
+                }}
+              />
           </div>
         ))}
         <button type="button" onClick={addField} className="add-field-button">
           <FaPlus size="1.5em" />
-        </button><br /><br />
-        <button type="submit">Create Category</button>
+        </button>
+        <br /><br />
+        <div className="button-group">
+          <button type="button" onClick={() => navigate('/categories')}>
+              Back
+          </button>
+          <button type="submit">OK</button>
+        </div>
       </form>
     </div>
   );
