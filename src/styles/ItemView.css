@@ -28,14 +28,6 @@
   transform: scale(1.2);
 }
 
-/* .item-field {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--padding-small) 0;
-  border-bottom: 1px solid var(--tertiary-color);
-} */
-
 .item-field {
   display: flex;
   flex-direction: column; /* Stack label and value vertically */
