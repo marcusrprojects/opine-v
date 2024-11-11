@@ -1,7 +1,8 @@
 .field-container {
-  position: relative;
-  /* display: flex; */
-  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: relative; /* Allows absolute positioning for child elements */
+  padding: var(--padding-medium);
 }
 
 .primary-field-radio {
@@ -31,4 +32,44 @@
 .primary-field-radio:hover .tooltip {
   visibility: visible;
   opacity: 1;
+}
+
+#attributes {
+  margin-bottom: var(--padding-medium);
+  margin-top: var(--padding-large);
+}
+
+.field-container input[type="text"], .category-name {
+  background-color: var(--primary-color);
+  border: none;
+  border-bottom: 1px solid var(--tertiary-color);
+  width: 20vw;
+  font-size: medium;
+}
+
+.category-name {
+  font-size: large;
+}
+
+.add-field-button {
+  background: none; /* Remove background */
+  border: none; /* Remove border */
+  color: var(--highlight-color); /* Set color to match icon color */
+  cursor: pointer;
+  padding: 0; /* Remove padding for a closer fit to the icon */
+  transition: color 0.3s ease; /* Optional hover effect */
+  border-radius: 60%;
+  margin-top: var(--padding-medium);
+}
+
+.add-field-button:hover {
+  color: var(--quinary-color); /* Change color slightly on hover */
+  background: none;
+}
+
+.button-group {
+  display: flex; /* Enables gap to work */
+  gap: 1rem; /* Adjust this value as needed */
+  justify-content: center; /* Center align buttons if needed */
+  margin-top: var(--padding-medium);
 }
