@@ -201,6 +201,11 @@ const CategoryDetail = () => {
       <button onClick={() => navigate(`/categories/${categoryId}/add-item`)} className="add-item-button">
         <FaPlusCircle size="3em" />
       </button>
+      <br></br>
+      {/* Back Button */}
+      <button onClick={() => navigate('/categories')} className="back-button">
+        Back
+      </button>
     </div>
   );
 };
