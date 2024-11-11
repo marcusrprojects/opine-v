@@ -9,7 +9,7 @@ const EditCategoryModal = ({ fields, primaryField, categoryName, onNameChange, o
   const [editableCategoryName, setEditableCategoryName] = useState(categoryName);
 
   const handleAddField = () => {
-    if (newField && !fields.includes(newField) && newField !== "Notes") {
+    if (newField && !fields.includes(newField) && newField !== "notes") {
       const updatedFields = [...fields, newField];
       onSave(updatedFields, updatedFields[primaryFieldIndex] || updatedFields[0]);
       setNewField("");
