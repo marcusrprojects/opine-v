@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import "../styles/Categories.css";
 import { debounce } from 'lodash'; // For debouncing filter input
+import { FaPlusCircle } from 'react-icons/fa';
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -79,9 +81,9 @@ const Categories = () => {
       </ul>
 
       {/* Button to navigate to the Create Category form */}
-      <Link to="/create-category">
-        <button>Create New Category</button>
-      </Link>
+      <button onClick={() => navigate(`/create-category`)} className="add-item-button">
+        <FaPlusCircle size="3em" />
+      </button>
     </div>
   );
 };
