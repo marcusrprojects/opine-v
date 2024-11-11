@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaPlus } from 'react-icons/fa';
 import "../styles/EditCategoryModal.css";
 
 const EditCategoryModal = ({ fields, primaryField, categoryName, onNameChange, onSave, onClose }) => {
@@ -72,7 +72,9 @@ const EditCategoryModal = ({ fields, primaryField, categoryName, onNameChange, o
         value={newField}
         onChange={(e) => setNewField(e.target.value)}
       />
-      <button onClick={handleAddField}>Add Field</button>
+      <button onClick={handleAddField} className='add-category'>
+        <FaPlus />
+      </button>
       <button onClick={onClose}>Close</button>
     </div>
   );
