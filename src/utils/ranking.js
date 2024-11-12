@@ -16,10 +16,15 @@ export const writeItemsToFirestore = async (
       ? totalRange
       : 0;
 
-  // Adjust ratings for the items
-  items.forEach((item, index) => {
-    item.rating = minRating + (totalRange / (items.length - 1)) * index;
-  });
+  // Check if there is only one item and assign it a middle rating directly
+  if (items.length === 1) {
+    items[0].rating = minRating + totalRange / 2;
+  } else {
+    // Adjust ratings for multiple items
+    items.forEach((item, index) => {
+      item.rating = minRating + (totalRange / (items.length - 1)) * index;
+    });
+  }
 
   // Write batch to Firestore
   const batch = writeBatch(db);
