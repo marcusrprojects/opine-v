@@ -1,8 +1,9 @@
+
 .modal {
   position: fixed; /* Stays in place even when the page is scrolled */
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* Centers the modal */
+  transform: translate(-24%, -40%); /* Centers the modal */
   background-color: var(--tertiary-color);
   padding: 2rem;
   border-radius: 8px;
@@ -26,7 +27,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--quinary-color);
 }
 
 .modal input[type="text"] {
@@ -34,7 +35,7 @@
   padding: 0.5rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--quinary-color);
   border-radius: 4px;
   background-color: var(--tertiary-color);
   color: var(--secondary-color);
