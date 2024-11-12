@@ -70,13 +70,6 @@ const CreateCategory = () => {
         <h2 id='attributes'>Attributes</h2>
         {fields.map((field, index) => (
           <div key={index} className="field-container">
-            <input
-              type="text"
-              placeholder={`Field #${index + 1}`}
-              value={field.name}
-              onChange={(e) => handleFieldChange(index, e.target.value)}
-              required
-            />
             <label className="primary-field-radio">
               <input
                 type="radio"
@@ -88,16 +81,23 @@ const CreateCategory = () => {
                 <span className="tooltip">Primary Field</span>
               )}
             </label>
-              <FaMinus
-                className="icon delete-icon" 
-                onClick={() => handleRemoveField(index)} 
-                title="Remove field"
-                style={{
-                  cursor: index === primaryFieldIndex ? 'not-allowed' : 'pointer',
-                  marginLeft: '10px',
-                  color: index === primaryFieldIndex ? 'var(--quinary-color)' : 'inherit',
-                }}
-              />
+            <input
+              type="text"
+              placeholder={`Field #${index + 1}`}
+              value={field.name}
+              onChange={(e) => handleFieldChange(index, e.target.value)}
+              required
+            />
+            <FaMinus
+              className="icon delete-icon" 
+              onClick={() => handleRemoveField(index)} 
+              title="Remove field"
+              style={{
+                cursor: index === primaryFieldIndex ? 'not-allowed' : 'pointer',
+                marginLeft: '10px',
+                color: index === primaryFieldIndex ? 'var(--quinary-color)' : 'inherit',
+              }}
+            />
           </div>
         ))}
         <button type="button" onClick={addField} className="add-field-button">

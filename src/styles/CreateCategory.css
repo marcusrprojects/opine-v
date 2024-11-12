@@ -39,12 +39,24 @@
   margin-top: var(--padding-large);
 }
 
+.field-container {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
 .field-container input[type="text"], .category-name {
   background-color: var(--primary-color);
-  border: none;
-  border-bottom: 1px solid var(--tertiary-color);
+  border: 1px solid var(--quaternary-color);
   width: 20vw;
-  font-size: medium;
+  border-radius: var(--border-radius-medium);
+  padding: var(--padding-medium);
+  font-size: var(--font-medium);
+  color: var(--secondary-color);
+}
+
+.primary-field-radio {
+  margin-right: .5rem;
 }
 
 .category-name {
@@ -58,8 +70,12 @@
   cursor: pointer;
   padding: 0; /* Remove padding for a closer fit to the icon */
   transition: color 0.3s ease; /* Optional hover effect */
-  border-radius: 60%;
+  /* border-radius: 60%; */
   margin-top: var(--padding-medium);
+}
+
+.add-field-button:focus {
+  outline: none;
 }
 
 .add-field-button:hover {
