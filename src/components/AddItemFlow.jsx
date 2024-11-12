@@ -79,7 +79,7 @@ const AddItemFlow = () => {
           categoryId={categoryId}
           itemData={itemData}
           fields={fields}
-          primaryField={primaryField} // Pass primaryField to ComparisonStep
+          primaryField={primaryField}
           rankCategory={rankCategory}
           onBack={handleBack}
           onSave={handleSave}
