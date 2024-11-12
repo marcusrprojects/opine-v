@@ -89,12 +89,13 @@
 /* Bottom of card */
 .item-content {
     display: flex;
+    flex-direction: column;
     margin-top: auto;
     align-items: center;
     justify-content: center;
     width: 100%;
     color: var(--primary-color);
-    padding: var(--padding-small) 0;
+    padding-top: var(--padding-small);
     text-shadow: var(--shadow-small);
 }
 
