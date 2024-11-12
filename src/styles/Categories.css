@@ -29,7 +29,6 @@
 .category-card:hover {
   background-color: var(--quaternary-color); /* Change background on hover */
   color:  var(--primary-color); /* Text color on hover */
-  /* box-shadow: var(--shadow-small); Shadow on hover */
 }
 
 .category-card:active {
