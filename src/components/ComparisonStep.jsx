@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -8,8 +8,8 @@ const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onBa
   const [comparisonItem, setComparisonItem] = useState(null);
   const [lo, setLo] = useState(0);
   const [hi, setHi] = useState(0);
+  const hasSavedInitialItem = useRef(false); // Track if initial item has been saved
 
-  // Fetch ranked items based on `rankCategory`
   useEffect(() => {
     const fetchRankedItems = async () => {
       const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
@@ -20,12 +20,18 @@ const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onBa
 
       setRankedItems(itemsInRankCategory);
       setHi(itemsInRankCategory.length - 1);
+
+      // Check if no items are in rank category and ensure we save only once
+      if (itemsInRankCategory.length === 0 && !hasSavedInitialItem.current) {
+        onSave([{ ...itemData, rankCategory }]);
+        hasSavedInitialItem.current = true; // Set flag to prevent duplicate saves
+      }
     };
 
     fetchRankedItems();
-  }, [categoryId, rankCategory, itemData.id]);
+  }, [categoryId, rankCategory, itemData, onSave, hasSavedInitialItem]);
 
-  // Set initial comparison item
+  // Set initial comparison item if there are ranked items
   useEffect(() => {
     if (rankedItems.length > 0) {
       const middleIndex = Math.floor((lo + hi) / 2);
@@ -58,7 +64,7 @@ const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onBa
     }
   };
 
-  return (
+  return rankedItems.length > 0 ? (
     <div className="add-item-container">
       <h2>Compare your item</h2>
       <p>Which item is better?</p>
@@ -71,9 +77,8 @@ const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onBa
         </button>
       </div>
       <button className="button-nav" onClick={onBack}>Back</button>
-      <button className="button-nav" onClick={() => onSave(rankedItems)}>Save</button>
     </div>
-  );
+  ) : null; // Return nothing if no comparison is needed
 };
 
 // PropTypes for validation
