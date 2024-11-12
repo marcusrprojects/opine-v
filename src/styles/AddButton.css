@@ -16,3 +16,7 @@
     color: var(--middle-color);
     transform: scale(0.95); /* Slightly reduces size for a pressed effect */
 }
+
+.add-button:focus {
+  outline: none;
+}
