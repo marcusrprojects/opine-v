@@ -11,3 +11,8 @@
     color: var(--quinary-color);
     background: none;
 }
+
+.add-button:active {
+    color: var(--middle-color);
+    transform: scale(0.95); /* Slightly reduces size for a pressed effect */
+}
