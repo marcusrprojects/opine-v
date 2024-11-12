@@ -15,11 +15,10 @@
 
 /* Individual filter input styling */
 .filters input {
-    padding: var(--padding-small);
+    padding: var(--padding-medium);
     border-radius: var(--border-radius-small);
     /* border: 1px solid var(--secondary-color); */
     border:none;
-    box-shadow: var(--shadow-small);
     font-size: var(--font-medium);
     outline: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -30,8 +29,8 @@
 
 /* Style the filter inputs on focus */
 .filters input:focus {
-    border-color: var(--active-color);
-    box-shadow: 0 0 5px var(--active-color);
+    border-color: var(--middle-color);
+    box-shadow: 0 0 5px var(--middle-color);
 }
 
 /* Grid layout for item cards, responsive */
@@ -133,10 +132,6 @@
 
 .edit-icon {
     color: var(--quinary-color);
-}
-
-.delete-icon {
-    color: var(--error-color);
 }
 
 .edit-icon:hover {
