@@ -130,16 +130,12 @@
     transition: color 0.3s ease;
 }
 
-.edit-icon {
+.category-actions .delete-icon, .edit-icon{
     color: var(--quinary-color);
 }
 
-.edit-icon:hover {
-    filter: brightness(20%);
-}
-
-.delete-icon:hover {
-    filter: brightness(80%);
+.category-actions .delete-icon:hover, .edit-icon:hover {
+    color: var(--middle-color);
 }
 
 .back-button {
