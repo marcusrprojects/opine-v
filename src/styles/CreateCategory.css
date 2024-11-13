@@ -89,3 +89,20 @@
   justify-content: center; /* Center align buttons if needed */
   margin-top: var(--padding-medium);
 }
+
+.field-container .default-delete, .field-container .primary-delete {
+  transition: color 0.3s ease;
+}
+
+.field-container .default-delete {
+  color: var(--quinary-color);
+}
+
+.default-delete:hover {
+  color: var(--middle-color);
+}
+
+.field-container .primary-delete {
+  cursor: not-allowed;
+  color: var(--tertiary-color);
+}

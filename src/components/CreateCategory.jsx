@@ -89,14 +89,9 @@ const CreateCategory = () => {
               required
             />
             <FaMinus
-              className="icon delete-icon" 
+              className={`icon delete-icon ${index === primaryFieldIndex ? 'primary-delete' : 'default-delete'}`}
               onClick={() => handleRemoveField(index)} 
               title="Remove field"
-              style={{
-                cursor: index === primaryFieldIndex ? 'not-allowed' : 'pointer',
-                marginLeft: '10px',
-                color: index === primaryFieldIndex ? 'var(--quinary-color)' : 'inherit',
-              }}
             />
           </div>
         ))}
