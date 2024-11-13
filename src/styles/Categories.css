@@ -30,7 +30,7 @@
 .category-card:hover {
   background-color: var(--quaternary-color); /* Change background on hover */
   color:  var(--primary-color); /* Text color on hover */
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .category-card:active {
