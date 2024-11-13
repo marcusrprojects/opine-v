@@ -4,31 +4,33 @@
 
 .category-grid ul {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); /* Makes responsive cards */
-  gap: var(--padding-xlarge);
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--padding-medium);
   padding: 0;
-  list-style-type: none; /* Remove bullets */
+  list-style-type: none;
 }
 
 .category-grid li {
-  padding: var(--padding-medium);
+  padding: var(--padding-sm);
 }
 
 .category-card {
   display: block; /* Ensures the link fills the whole card */
-  padding: var(--padding-large) var(--padding-small) var(--padding-large) var(--padding-small);
+  padding: var(--padding-large) var(--padding-medium);
   background-color: var(--tertiary-color); /* Background color for the card */
-  box-shadow: var(--shadow-small);
-  border-radius: var(--border-radius-small); /* Rounded corners */
+  /* box-shadow: var(--shadow-small); */
+  border-radius: var(--border-radius-medium);
+  /* border: .05px solid black; */
   text-align: center;
-  color: var(--secondary-color); /* Text color */
-  transition: background-color 200ms, box-shadow 200ms; /* Smooth transitions */
-  font-size:var(--font-medium);
+  color: var(--secondary-color);
+  font-size:var(--font-ml);
+  transition: background-color 200ms, box-shadow 200ms, transform 0.3s ease;
 }
 
 .category-card:hover {
   background-color: var(--quaternary-color); /* Change background on hover */
   color:  var(--primary-color); /* Text color on hover */
+  transform: scale(1.05);
 }
 
 .category-card:active {
