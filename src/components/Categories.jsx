@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import "../styles/Categories.css";
 import { debounce } from 'lodash'; // For debouncing filter input
 import AddButton from './AddButton';
@@ -52,9 +52,9 @@ const Categories = () => {
   }
 
   return (
-    <div className="category-grid">
+    <div>
       <h2>Categories</h2>
-      
+
       {/* Filter input */}
       <div className="filters">
         <input
@@ -65,20 +65,36 @@ const Categories = () => {
         />
       </div>
 
-      <ul>
+      <div className="category-grid">
         {filteredCategories.length === 0 ? (
           <p>No categories found.</p>
         ) : (
-          filteredCategories.map((category) => (
-            <li key={category.id}>
-              {/* Make the entire list item clickable */}
-              <Link to={`/categories/${category.id}`} className="category-card">
-                {category.name}
-              </Link>
-            </li>
-          ))
+          filteredCategories.map((category) => {
+            // Customize card color based on category properties, if needed
+            // const cardColor = "var(--tertiary-color)"; // Set a default or dynamic color based on your logic
+
+            return (
+              <div 
+                key={category.id} 
+                className="category-card"
+                onClick={() => navigate(`/categories/${category.id}`)}
+              >
+                {/* Header with Category Name */}
+                <div className="category-header">
+                  <h4 className="category-title">{category.name}</h4>
+                </div>
+
+                {/* Category Content - Attributes excluding primary field */}
+                <div className="category-content">
+                  {category.fields
+                    .filter(field => field !== category.primaryField)
+                    .join(', ')}
+                </div>
+              </div>
+            );
+          })
         )}
-      </ul>
+      </div>
 
       {/* Button to navigate to the Create Category form */}
       <AddButton onClick={() => navigate(`/create-category`)} />

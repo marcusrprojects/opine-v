@@ -1,28 +1,22 @@
-.category-grid h2 {
-  font-size: var(--font-xlarge);
-}
-
-.category-grid ul {
+.category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: var(--padding-medium);
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: var(--padding-ml);
   padding: 0;
-  list-style-type: none;
-}
-
-.category-grid li {
-  padding: var(--padding-sm);
 }
 
 .category-card {
-  display: block; /* Ensures the link fills the whole card */
-  padding: var(--padding-large) var(--padding-medium);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background-color: var(--tertiary-color); /* Background color for the card */
-  /* box-shadow: var(--shadow-small); */
+  box-shadow: var(--shadow-small);
   border-radius: var(--border-radius-medium);
-  /* border: .05px solid black; */
+  border: .1px solid var(--primary-color);
   text-align: center;
   color: var(--secondary-color);
+  cursor: pointer;
+  background-color: var(--primary-color);
   font-size:var(--font-ml);
   transition: background-color 200ms, box-shadow 200ms, transform 0.3s ease;
 }
@@ -30,12 +24,26 @@
 .category-card:hover {
   background-color: var(--quaternary-color); /* Change background on hover */
   color:  var(--primary-color); /* Text color on hover */
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .category-card:active {
   background-color: var(--active-color); /* Active/click state */
   color: var(--primary-color); /* Text color on click */
+}
+
+/* Bottom of card */
+.category-content {
+  color: var(--primary-color);
+  background-color: var(--quinary-color);
+  padding: var(--padding-sm);
+}
+
+.category-content p {
+  font-size: var(--font-small);
+  line-height: 1.4;
+  margin-top: 0;
+  margin-bottom: var(--padding-small);
 }
 
 button {
