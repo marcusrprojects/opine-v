@@ -9,10 +9,10 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: var(--tertiary-color); /* Background color for the card */
+  background-color: var(--tertiary-color);
   box-shadow: var(--shadow-small);
   border-radius: var(--border-radius-medium);
-  border: .1px solid var(--primary-color);
+  /* border: .15rem solid var(--quinary-color); */
   text-align: center;
   color: var(--secondary-color);
   cursor: pointer;
@@ -22,7 +22,7 @@
 }
 
 .category-card:hover {
-  background-color: var(--quaternary-color); /* Change background on hover */
+  background-color: var(--quaternary-color);
   color:  var(--primary-color); /* Text color on hover */
   transform: scale(1.05);
 }
