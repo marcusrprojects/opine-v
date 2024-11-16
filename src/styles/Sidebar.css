@@ -10,7 +10,7 @@
     cursor: pointer;
     z-index: 11;
     transition: left 200ms ease, background-color 200ms ease;
-    background-color: var(--primary-color); /* new idea; check in the morning */
+    background-color: var(--tertiary-color);
 }
 
 .sidebar-toggle.move-left {
@@ -24,7 +24,7 @@
 /* Sidebar styles */
 nav.sidebar {
     width: 14vw;
-    /* background-color: var(--tertiary-color); */
+    background-color: var(--tertiary-color);
     height: 100vh;
     padding: var(--padding-large) var(--padding-medium) var(--padding-medium) var(--padding-medium);
     position: fixed;
@@ -61,7 +61,7 @@ nav.sidebar a {
 }
   
 nav.sidebar a:hover {
-    background-color: var(--tertiary-color);
+    background-color: var(--primary-color);
 }
   
 nav.sidebar a.active {

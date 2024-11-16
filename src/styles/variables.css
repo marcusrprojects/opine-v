@@ -1,34 +1,34 @@
 /* Global Variables for Light Mode */
 :root {
-    --primary-color: #fff;
-    --secondary-color: #333;
-    --tertiary-color: #f5f5f5;
-    --quaternary-color: #e0e0e0;
-    --quinary-color: #ccc;
-    --shadow-small: 2px 0 5px rgba(0, 0, 0, 0.1);
-    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.2);
-    --active-color: #007acc;
-    --error-color: #ff4d4d;
-    --middle-color: #808080;
-    
-    --font-family: 'Helvetica';
-    --font-small: 0.875rem; /* 14px */
-    --font-medium: 1.125rem; /* 18px */
-    --font-ml: 1.3rem;
-    --font-large: 1.5rem; /* 24px */
-    --font-xlarge: 2rem; /* 32px */
+  --primary-color: #FFFFFF; /* Bright white */
+  --secondary-color: #4D4D4D; /* Slightly lighter gray */
+  --tertiary-color: #FBFBFB; /* Near white */
+  --quaternary-color: #DADADA; /* Darker subtle white tone */
+  --quinary-color: #BFBFBF;
+  --shadow-small: 2px 0 5px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --active-color: #007acc;
+  --error-color: #ff4d4d;
+  --middle-color: #808080;
   
-    /* Spacing and Sizing */
-    --padding-small: 0.5rem;
-    --padding-sm: 0.75rem;
-    --padding-medium: 1rem;
-    --padding-ml: 1.5rem;
-    --padding-large: 2rem;
-    --padding-xlarge: 4rem;
-    --padding-xxlarge: 8rem;
+  --font-family: 'Helvetica';
+  --font-small: 0.875rem; /* 14px */
+  --font-medium: 1.125rem; /* 18px */
+  --font-ml: 1.3rem;
+  --font-large: 1.5rem; /* 24px */
+  --font-xlarge: 2rem; /* 32px */
 
-    --border-radius-small: 4px;
-    --border-radius-medium: 8px;
+  /* Spacing and Sizing */
+  --padding-small: 0.5rem;
+  --padding-sm: 0.75rem;
+  --padding-medium: 1rem;
+  --padding-ml: 1.5rem;
+  --padding-large: 2rem;
+  --padding-xlarge: 4rem;
+  --padding-xxlarge: 8rem;
+
+  --border-radius-small: 4px;
+  --border-radius-medium: 8px;
 }
 
 /* Dark Mode Variables */
@@ -36,9 +36,9 @@
   :root {
     --primary-color: #242424;
     --secondary-color: #ddd;
-    --tertiary-color: #333;
-    --quaternary-color: #444;
-    --quinary-color: #636363;
+    --tertiary-color: #171717;
+    --quaternary-color: #3e3e3e;
+    --quinary-color: #4a4a4a;
     --shadow-small: 2px 0 5px rgba(255, 255, 255, 0.1);
     --shadow-medium: 0 4px 8px rgba(255, 255, 255, 0.2);
   }
@@ -46,11 +46,11 @@
 
 /* Light Mode Variables */
 [data-theme="light"] {
-  --primary-color: #fff;
-  --secondary-color: #333;
-  --tertiary-color: #f5f5f5;
-  --quaternary-color: #e0e0e0;
-  --quinary-color: #ccc;
+  --primary-color: #FFFFFF; /* Bright white */
+  --secondary-color: #4D4D4D; /* Slightly lighter gray */
+  --tertiary-color: #FBFBFB; /* Near white */
+  --quaternary-color: #DADADA; /* Darker subtle white tone */
+  --quinary-color: #BFBFBF;
   --shadow-small: 2px 0 5px rgba(0, 0, 0, 0.1);
   --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -59,9 +59,9 @@
 [data-theme="dark"] {
   --primary-color: #242424;
   --secondary-color: #ddd;
-  --tertiary-color: #333;
-  --quaternary-color: #444;
-  --quinary-color: #555;
+  --tertiary-color: #171717;
+  --quaternary-color: #3e3e3e;
+  --quinary-color: #4a4a4a;
   --shadow-small: 2px 0 5px rgba(255, 255, 255, 0.1);
   --shadow-medium: 0 4px 8px rgba(255, 255, 255, 0.2);
 }
