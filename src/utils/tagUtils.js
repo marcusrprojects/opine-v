@@ -22,14 +22,16 @@ export const handleCustomTag = async ({
   if (tagInput.trim() && tags.length < 5) {
     const normalizedTagInput = tagInput.trim().toLowerCase();
 
-    // Check if tag exists in availableTags
+    // Check if the tag exists in the available tags
     const existingTag = availableTags.find(
       (tag) => tag.name.toLowerCase() === normalizedTagInput
     );
 
     if (existingTag) {
-      // Add existing tag ID
-      setTags((prev) => [...prev, existingTag.id]);
+      // Prevent adding duplicate tag IDs
+      if (!tags.includes(existingTag.id)) {
+        setTags((prev) => [...prev, existingTag.id]);
+      }
     } else {
       try {
         // Query Firestore to check for duplicates
@@ -43,15 +45,25 @@ export const handleCustomTag = async ({
         if (!duplicateSnapshot.empty) {
           // Tag already exists in Firestore
           const existingTagInDB = duplicateSnapshot.docs[0];
-          setAvailableTags((prev) => [
-            ...prev,
-            { id: existingTagInDB.id, name: existingTagInDB.data().name },
-          ]);
-          setTags((prev) => [...prev, existingTagInDB.id]);
+          const tagData = {
+            id: existingTagInDB.id,
+            name: existingTagInDB.data().name,
+          };
+
+          // Add to available tags if not already present
+          if (!availableTags.some((tag) => tag.id === tagData.id)) {
+            setAvailableTags((prev) => [...prev, tagData]);
+          }
+
+          // Prevent duplicate tag IDs in tags
+          if (!tags.includes(tagData.id)) {
+            setTags((prev) => [...prev, tagData.id]);
+          }
         } else {
           // Add new tag to Firestore
           const newTagRef = await addDoc(tagsRef, { name: normalizedTagInput });
           const newTag = { id: newTagRef.id, name: normalizedTagInput };
+
           setAvailableTags((prev) => [...prev, newTag]);
           setTags((prev) => [...prev, newTag.id]);
         }
@@ -59,6 +71,8 @@ export const handleCustomTag = async ({
         console.error("Error adding new tag:", error);
       }
     }
+
+    // Clear input field
     setTagInput("");
   }
 };
