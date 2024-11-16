@@ -16,7 +16,7 @@
 /* Individual filter input styling */
 .filters input {
     padding: var(--padding-medium);
-    border-radius: var(--border-radius-small);
+    border-radius: var(--border-radius-medium);
     /* border: 1px solid var(--secondary-color); */
     border:none;
     font-size: var(--font-medium);
@@ -24,7 +24,7 @@
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     width: 11rem; /* Set a consistent width */
     color: var(--secondary-color);
-    background-color: var(--tertiary-color);
+    background-color: var(--primary-color);
 }
 
 /* Style the filter inputs on focus */
@@ -45,18 +45,19 @@
     display: flex;
     flex-direction: column;
     border-radius: var(--border-radius-medium);
-    box-shadow: var(--shadow-small);
+    /* box-shadow: var(--shadow-small); */
     overflow: hidden;
     color: var(--secondary-color);
     transition: transform 0.3s ease;
     cursor: pointer;
+    background-color: var(--primary-color);
 }
 
 .item-header {
     display: flex;
     align-items: center; /* Center content vertically */
     justify-content: left;
-    padding: var(--padding-sm) 0;
+    padding: var(--padding-sm);
     height: 4rem; /* Set this to the height of the tallest expected header */
 }
 
@@ -71,7 +72,6 @@
     align-items: center;
     justify-content: center;
     border-radius: 14px;
-    margin: 0 1rem;
     border: 2px solid;
 }
 
@@ -140,8 +140,10 @@
 
 .back-button {
     margin-top: var(--padding-medium);
-    background-color: var(--tertiary-color);
-    color:var(--secondary-color);
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
 .back-button:hover {
