@@ -36,7 +36,7 @@
 /* Grid layout for item cards, responsive */
 .item-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(20vw, 1fr));
     gap: var(--padding-ml);
     padding: 0;
 }
@@ -56,9 +56,9 @@
 .item-header {
     display: flex;
     align-items: center; /* Center content vertically */
-    justify-content: left;
+    /* justify-content: left; */
     padding: var(--padding-sm);
-    height: 4rem; /* Set this to the height of the tallest expected header */
+    height: 4rem;
 }
 
 .item-rating {
@@ -78,7 +78,8 @@
 .item-title {
     text-align: left;
     flex-grow: 1;
-    padding-right: 1rem;
+    /* padding-right: 1rem; */
+    padding: var(--padding-sm);
 }
 
 .item-header h4.item-title {
@@ -150,4 +151,27 @@
     background-color: var(--quaternary-color);
     color:var(--secondary-color);
     box-shadow: var(--shadow-small);
+}
+
+.category-description {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: var(--secondary-color);
+  cursor: pointer;
+}
+
+.category-description textarea {
+  text-align: center;
+  padding: var(--padding-small);
+  width: 65%; /* Ensure fields span the container width */
+  border-radius: var(--border-radius-small);
+}
+
+.category-description p:hover {
+  filter: brightness(90%);
+}
+
+.category-description textarea:focus {
+  border: none;
+  outline: .1rem solid var(--secondary-color);
 }

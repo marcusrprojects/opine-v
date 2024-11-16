@@ -18,10 +18,13 @@ const CategoryDetail = () => {
   const [filters, setFilters] = useState({});
   const [fields, setFields] = useState([]);
   const [primaryField, setPrimaryField] = useState('');
+  const [tags, setTags] = useState([]);
   const [categoryName, setCategoryName] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [isEditingCategory, setIsEditingCategory] = useState(false);
+  const [description, setDescription] = useState(''); // Description state
+  const [isEditingDescription, setIsEditingDescription] = useState(false); // Editing state for description
 
   useEffect(() => {
     const fetchCategoryData = async () => {
@@ -33,7 +36,9 @@ const CategoryDetail = () => {
           const categoryData = categorySnapshot.data();
           setFields(categoryData.fields);
           setPrimaryField(categoryData.primaryField);
+          setTags(categoryData.tags);
           setCategoryName(categoryData.name);
+          setDescription(categoryData.description || '');
         }
 
         const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
@@ -77,16 +82,18 @@ const CategoryDetail = () => {
     setIsEditingCategory(true);
   };
 
-  const handleSaveFields = async (updatedFields, newPrimaryField) => {
+  const handleSaveFields = async (updatedFields, newPrimaryField, newTags) => {
     setFields(updatedFields);
     setPrimaryField(newPrimaryField);
+    setTags(newTags);
     setIsEditingCategory(false);
-
+    
     try {
       const categoryDocRef = doc(db, 'categories', categoryId);
       await updateDoc(categoryDocRef, {
         fields: updatedFields,
         primaryField: newPrimaryField,
+        tags: newTags
       });
     } catch (error) {
       console.error("Error updating category fields:", error);
@@ -126,6 +133,17 @@ const CategoryDetail = () => {
     navigate(`./item/${itemId}`, { state: { cardColor } });
   };
 
+  const handleDescriptionChange = async (newDescription) => {
+    setDescription(newDescription);
+    setIsEditingDescription(false);
+    try {
+      const categoryDocRef = doc(db, 'categories', categoryId);
+      await updateDoc(categoryDocRef, { description: newDescription });
+    } catch (error) {
+      console.error('Error updating category description:', error);
+    }
+  };
+
   if (loading) {
     return <LoadingComponent message={LoadingMessages.FETCHING} />;
   }
@@ -141,6 +159,7 @@ const CategoryDetail = () => {
               fields={fields}
               primaryField={primaryField}
               categoryName={categoryName} // Pass the current category name
+              tags={tags}
               onNameChange={handleNameChange} // Pass name change handler
               onSave={handleSaveFields}
               onClose={handleCloseModal}
@@ -151,6 +170,24 @@ const CategoryDetail = () => {
         </div>
 
         <h2 className="category-title">{categoryName}</h2>
+
+        {/* Editable Description */}
+
+        <div className="category-description">
+
+          {isEditingDescription ? (
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              onBlur={() => handleDescriptionChange(description)}
+              autoFocus
+            />
+          ) : (
+            <p onClick={() => setIsEditingDescription(true)}>
+              {description || "Click to add a description..."}
+            </p>
+          )}
+        </div>
 
         <div className="filters">
           {fields.map((field, index) => (
