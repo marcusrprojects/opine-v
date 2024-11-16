@@ -9,14 +9,13 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: var(--tertiary-color);
-  box-shadow: var(--shadow-small);
+  /* box-shadow: var(--shadow-small); */
   border-radius: var(--border-radius-medium);
   /* border: .15rem solid var(--quinary-color); */
   text-align: center;
   color: var(--secondary-color);
   cursor: pointer;
-  background-color: var(--primary-color);
+  background-color: var(--tertiary-color);
   font-size:var(--font-ml);
   transition: background-color 200ms, box-shadow 200ms, transform 0.3s ease;
 }
