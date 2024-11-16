@@ -35,7 +35,7 @@
 /* Bottom of card */
 .category-content {
   color: var(--primary-color);
-  background-color: var(--quinary-color);
+  background-color: var(--secondary-color);
   padding: var(--padding-sm);
 }
 
