@@ -57,8 +57,19 @@
   width: 40rem;
   height: 5rem;
   resize: vertical;
-  background-color: var(--primary-color);
+  background-color: var(--tertiary-color);
   color:var(--secondary-color);
+}
+
+.item-input, .notes-textarea:focus {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+.notes-textarea:focus, .item-input:focus {
+  border: none;
+  outline: .1rem solid var(--secondary-color);
+  border-radius: var(--border-radius-small);
 }
 
 .item-value {
