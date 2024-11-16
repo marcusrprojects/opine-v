@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { FaMinus } from 'react-icons/fa';
 import { handleCustomTag, handleTagInput, handleKeyPress } from "../utils/tagUtils";
+import '../styles/TagSelector.css';
 
 const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTags = 5 }) => {
   const [tagInput, setTagInput] = useState("");
@@ -49,22 +50,21 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
       />
 
       {/* Dropdown */}
-      {showDropdown && (
-        <div className="dropdown">
-          {availableTags
-            .filter(tag => tag.name.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(tag.id))
-            .slice(0, 5)
-            .map(tag => (
-              <div
-                key={tag.id}
-                onClick={() => handleTagSuggestionClick(tag.id)}
-                className="dropdown-item"
-              >
-                {tag.name}
-              </div>
-            ))}
-        </div>
-      )}
+      <div className={`dropdown ${showDropdown ? 'expanded' : ''}`}>
+        {availableTags
+          .filter(tag => tag.name.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(tag.id))
+          .slice(0, 5)
+          .map(tag => (
+            <div
+              key={tag.id}
+              onClick={() => handleTagSuggestionClick(tag.id)}
+              className="dropdown-item"
+            >
+              {tag.name}
+            </div>
+          ))}
+      </div>
+      
 
       {/* Selected Tags */}
       <div className="selected-tags">
