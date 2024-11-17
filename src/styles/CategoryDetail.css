@@ -18,13 +18,13 @@
     padding: var(--padding-medium);
     border-radius: var(--border-radius-medium);
     /* border: 1px solid var(--secondary-color); */
-    border:none;
+    border: .01rem solid var(--quinary-color);
     font-size: var(--font-medium);
     outline: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     width: 11rem; /* Set a consistent width */
     color: var(--secondary-color);
-    background-color: var(--primary-color);
+    background-color: transparent;
 }
 
 /* Style the filter inputs on focus */
@@ -50,7 +50,9 @@
     color: var(--secondary-color);
     transition: transform 0.3s ease;
     cursor: pointer;
-    background-color: var(--primary-color);
+    /* background-color: var(--tertiary-color); */
+    background-color: transparent;
+    border: .05rem solid var(--quinary-color);
 }
 
 .item-header {
@@ -83,7 +85,7 @@
 }
 
 .item-header h4.item-title {
-    font-size: var(--font-large);
+    font-size: var(--font-ml);
 }
 
 /* Bottom of card */
@@ -153,25 +155,25 @@
     box-shadow: var(--shadow-small);
 }
 
-.category-description {
+.category-description, .category-title {
   margin: 2rem 0;
   font-size: 1rem;
   color: var(--secondary-color);
   cursor: pointer;
 }
 
-.category-description textarea {
+.category-description textarea, .category-title input {
   text-align: center;
-  padding: var(--padding-small);
+  padding: var(--padding-sm) var(--padding-small);
   width: 65%; /* Ensure fields span the container width */
   border-radius: var(--border-radius-small);
 }
 
-.category-description p:hover {
+.category-description p:hover, .category-title h2:hover {
   filter: brightness(90%);
 }
 
-.category-description textarea:focus {
+.category-description textarea:focus, .category-title input:focus{
   border: none;
   outline: .1rem solid var(--secondary-color);
 }
