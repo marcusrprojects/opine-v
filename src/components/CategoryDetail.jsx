@@ -25,6 +25,7 @@ const CategoryDetail = () => {
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [description, setDescription] = useState(''); // Description state
   const [isEditingDescription, setIsEditingDescription] = useState(false); // Editing state for description
+  const [isEditingCategoryName, setIsEditingCategoryName] = useState(false);
 
   useEffect(() => {
     const fetchCategoryData = async () => {
@@ -100,16 +101,6 @@ const CategoryDetail = () => {
     }
   };
 
-  const handleNameChange = async (newName) => {
-    setCategoryName(newName);
-    try {
-      const categoryDocRef = doc(db, 'categories', categoryId);
-      await updateDoc(categoryDocRef, { name: newName });
-    } catch (error) {
-      console.error("Error updating category name:", error);
-    }
-  };
-
   const handleCloseModal = () => {
     setIsEditingCategory(false);
   };
@@ -131,6 +122,17 @@ const CategoryDetail = () => {
 
   const handleItemClick = (itemId, cardColor) => {
     navigate(`./item/${itemId}`, { state: { cardColor } });
+  };
+
+  const handleNameChange = async (newName) => {
+    setCategoryName(newName);
+    setIsEditingCategoryName(false);
+    try {
+      const categoryDocRef = doc(db, 'categories', categoryId);
+      await updateDoc(categoryDocRef, { name: newName });
+    } catch (error) {
+      console.error("Error updating category name:", error);
+    }
   };
 
   const handleDescriptionChange = async (newDescription) => {
@@ -160,7 +162,6 @@ const CategoryDetail = () => {
               primaryField={primaryField}
               categoryName={categoryName} // Pass the current category name
               tags={tags}
-              onNameChange={handleNameChange} // Pass name change handler
               onSave={handleSaveFields}
               onClose={handleCloseModal}
             />
@@ -169,12 +170,25 @@ const CategoryDetail = () => {
           <FaTrash className="icon delete-icon" onClick={handleDeleteCategory} />
         </div>
 
-        <h2 className="category-title">{categoryName}</h2>
+        <div className="category-title">
+          {isEditingCategoryName ? (
+            <input
+              type="text"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+              onBlur={() => handleNameChange(categoryName)}
+              autoFocus
+            />
+          ) : (
+            <h2 onClick={() => setIsEditingCategoryName(true)}>
+              {categoryName || "Click to add a title..."}
+            </h2>
+          )}
+        </div>
 
         {/* Editable Description */}
 
         <div className="category-description">
-
           {isEditingDescription ? (
             <textarea
               value={description}

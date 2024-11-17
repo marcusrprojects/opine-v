@@ -46,6 +46,7 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
         onKeyDown={(e) => handleKeyPress(e, handleCustomTagWrapper)}
         placeholder={`Add a tag (up to ${maxTags})`}
         onFocus={() => setShowDropdown(true)}
+        className='field-input'
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
       />
 
