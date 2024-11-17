@@ -13,21 +13,18 @@ const RankSelectionStep = ({ setRankCategory, onNext, onBack }) => {
       <div className="rating-buttons">
         <button
           onClick={() => handleRankingChoice(RankCategory.GOOD)}
-          className="button-common"
           style={{ backgroundColor: `hsl(120, 40%, 60%)` }}
         >
           Good
         </button>
         <button
           onClick={() => handleRankingChoice(RankCategory.OKAY)}
-          className="button-common"
           style={{ backgroundColor: `hsl(60, 40%, 60%)` }}
         >
           Okay
         </button>
         <button
           onClick={() => handleRankingChoice(RankCategory.BAD)}
-          className="button-common"
           style={{ backgroundColor: `hsl(0, 40%, 60%)` }}
         >
           Bad
