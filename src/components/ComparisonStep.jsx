@@ -69,16 +69,16 @@ const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onBa
       <h2>Compare your item</h2>
       <p>Which item is better?</p>
       <div className="comparison-buttons">
-        <button className="button-common" onClick={() => onComparisonChoice(true)}>
+        <button onClick={() => onComparisonChoice(true)}>
           {primaryField ? itemData[primaryField] : "Current Item"}
         </button>
-        <button className="button-common" onClick={() => onComparisonChoice(false)}>
+        <button onClick={() => onComparisonChoice(false)}>
           {primaryField ? comparisonItem?.[primaryField] : "Comparison Item"}
         </button>
       </div>
       <button className="button-nav" onClick={onBack}>Back</button>
     </div>
-  ) : null; // Return nothing if no comparison is needed
+  ) : null;
 };
 
 // PropTypes for validation
