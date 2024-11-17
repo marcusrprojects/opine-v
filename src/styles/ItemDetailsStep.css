@@ -1,0 +1,25 @@
+.field-data, .notes-field {
+    background-color: var(--tertiary-color);
+    padding: var(--padding-medium);
+    font-size: var(--font-medium);
+    border-radius: var(--border-radius-medium);
+    border: 1px solid var(--quaternary-color);
+    transition: border-color 0.2s;
+    color: var(--secondary-color);
+}
+
+.notes-field {
+  margin-top: 1rem;
+  width: 65%;
+}
+
+.field-data:focus, .notes-field:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+}
+
+.field-data:hover, .notes-field:hover {
+    border-color: var(--secondary-color);
+    outline: none;
+    filter: brightness(90%);
+}
