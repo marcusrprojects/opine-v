@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import "../styles/ItemDetailsStep.css";
 
 const ItemDetailsStep = ({ primaryField, fields, itemData, updateItemData, onNext, isEditable }) => {
   const [error, setError] = useState(null);
@@ -50,11 +51,25 @@ const ItemDetailsStep = ({ primaryField, fields, itemData, updateItemData, onNex
               value={itemData[field] || ''}
               onChange={(e) => handleInputChange(field, e.target.value)}
               readOnly={!isEditable}
+              className='field-data'
               required
             />
             {field === primaryField && error && <p className="error-message">{error}</p>}
           </div>
         ))}
+
+        {/* Notes Field */}
+        <div>
+          <textarea
+            placeholder="Notes"
+            value={itemData.notes || ''}
+            onChange={(e) => handleInputChange('notes', e.target.value)}
+            readOnly={!isEditable}
+            rows={4}
+            className="notes-field"
+          />
+        </div>
+
         <div className="button-nav-container">
           <button className="button-nav" type="button" onClick={handleBack}>Back</button>
           <button className="button-nav" type="submit" disabled={!!error}>Next</button>
