@@ -61,6 +61,10 @@
   color:var(--secondary-color);
 }
 
+.item-input {
+  flex-grow: 1;
+}
+
 .item-input, .notes-textarea:focus {
   background-color: var(--primary-color);
   color: var(--secondary-color);
@@ -92,10 +96,4 @@
 
 #back-button {
   margin-top: var(--padding-medium);
-}
-
-.notes-field {
-  flex-direction: column; /* Stack label and textarea vertically */
-  align-items: flex-start;
-  padding: var(--padding-medium) 0; /* More padding for readability */
 }

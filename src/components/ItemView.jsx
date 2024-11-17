@@ -100,7 +100,7 @@ const ItemView = () => {
 
       {/* Render "Notes" field separately */}
       <div
-        className="item-field notes-field"
+        className="item-field"
         onClick={() => setEditingField("notes")}
       >
         <div className="field-content">
