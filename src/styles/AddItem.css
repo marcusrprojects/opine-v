@@ -7,7 +7,7 @@
 .add-item-container h2 {
     color: var(--secondary-color);
     text-align: center;
-    margin: var(--padding-large) 0 var(--padding-medium);
+    margin: var(--padding-large) 0;
     font-size: var(--font-large);
 }
 
@@ -18,26 +18,10 @@
     gap: var(--padding-large);
 }
 
-.add-item-container .button-nav-container {
+.button-nav-container {
     display: flex;
     justify-content: center; /* Centers the buttons in the container */
-    gap: var(--padding-medium); /* Space between the buttons */
-}
-
-/* Input field styling */
-.add-item-container input[type="text"] {
-    padding: var(--padding-medium);
-    font-size: var(--font-medium);
-    border-radius: var(--border-radius-medium);
-    border: 1px solid var(--quaternary-color);
-    transition: border-color 0.2s;
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
-}
-
-.add-item-container input[type="text"]:focus {
-    border-color: var(--secondary-color);
-    outline: none;
+    gap: var(--padding-large); /* Space between the buttons */
 }
 
 /* Error message styling */
@@ -47,47 +31,37 @@
     margin-bottom: var(--padding-small);
 }
 
-/* Flex layout for both rating and comparison buttons */
-.add-item-container .rating-buttons,
-.add-item-container .comparison-buttons {
-    display: flex;
-    justify-content: center;
-    gap: var(--padding-large);
-}
-  
 /* Button styling */
 .add-item-container button {
     padding: var(--padding-medium);
     font-size: var(--font-medium);
     font-weight: bold;
-    color: var(--secondary-color);
-    background-color: var(--tertiary-color);
     border: none;
     border-radius: var(--border-radius-medium);
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
     width: 20rem;
-    /* max-width: 10rem; */
-    box-shadow: var(--shadow-small);
-    margin-top: 1rem;
+    /* box-shadow: var(--shadow-small); */
+}
+
+.comparison-buttons button, .rating-buttons button {
+    color: var(--secondary-color);
+    background-color: var(--primary-color);
 }
   
-.add-item-container button:disabled {
-    background-color: var(--tertiary-color);
+.add-item-container .button-nav:disabled {
+    background-color: var(--quaternary-color);
+    color: var(--primary-color);
     cursor: not-allowed;
 }
 
-.add-item-container button:hover:not(:disabled) {
-    background-color: var(--quaternary-color);
+.add-item-container .button-nav:hover:not(:disabled) {
+    background-color: var(--quinary-color);
 }
 
 .add-item-container .rating-buttons button {
     max-width: 10rem;
-    color:var(--primary-color);
-}
-
-.add-item-container .rating-buttons button:hover {
-    filter: brightness(85%); /* Darkens the background color */
+    color: var(--primary-color);
 }
 
 .add-item-container .button-nav {
@@ -97,14 +71,30 @@
     max-width: 10rem;
 }
 
-/* Specific styling for rating buttons */
-.add-item-container .rating-buttons .button-common {
-    margin: var(--padding-large) var(--padding-medium);
-}
-
 /* Comparison text styling */
 .add-item-container p {
     font-size: var(--font-medium);
     color: var(--secondary-color);
     text-align: center;
+}
+
+/* Flex layout for both rating and comparison buttons */
+.rating-buttons, .comparison-buttons {
+    display: flex;
+    justify-content: center;
+    gap: var(--padding-large);
+}
+
+.rating-buttons button, .comparison-buttons button {
+    margin: var(--padding-xlarge) var(--padding-medium);
+}
+
+.comparison-buttons button:focus, .rating-buttons button:focus {
+    border:none;
+    outline:none;
+}
+
+.rating-buttons button:hover, .comparison-buttons button:hover {
+    transform: scale(1.1);
+    filter: brightness(85%);
 }

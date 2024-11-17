@@ -15,7 +15,7 @@
 
 .primary-field-radio .tooltip {
   visibility: hidden;
-  background-color: var(--secondary-color);
+  background-color: var(--quinary-color);
   color: var(--primary-color);
   text-align: center;
   padding: 5px;
@@ -41,8 +41,8 @@
   margin-top: var(--padding-large);
 }
 
-.field-container input[type="text"], .category-name, .tag-dropdown-container input {
-  background-color: var(--primary-color);
+.field-input{
+  background-color: var(--tertiary-color);
   border: 1px solid var(--quaternary-color);
   width: 20vw;
   border-radius: var(--border-radius-medium);
@@ -51,12 +51,17 @@
   color: var(--secondary-color);
 }
 
-.primary-field-radio {
-  margin-right: .5rem;
+.field-input:focus {
+  outline:none;
+  background-color: var(--primary-color);
 }
 
-.category-name {
-  font-size: large;
+.field-input:hover {
+  /* background-color: var(--primary-color) !important; */
+}
+
+.primary-field-radio {
+  margin-right: .5rem;
 }
 
 .add-field-button {
@@ -86,6 +91,17 @@
   margin-top: var(--padding-medium);
 }
 
+.button-group button {
+  background-color: var(--primary-color);
+  border-radius: var(--border-radius-medium);
+  color: var(--secondary-color);
+  border: none;
+}
+
+.button-group button:hover, .field-input:hover {
+  background-color: var(--primary-color);
+}
+
 .field-container .default-delete, .field-container .primary-delete {
   transition: color 0.3s ease;
 }
@@ -100,22 +116,21 @@
 
 .field-container .primary-delete {
   cursor: not-allowed;
-  color: var(--tertiary-color);
+  color: var(--primary-color);
 }
 
 /* Container wrapping the input and dropdown */
-.tag-dropdown-container {
+/* .tag-dropdown-container {
   position: relative;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+} */
 
 /* Dropdown styling */
 .dropdown {
   display: none; /* Initially hidden */
-  background-color: var(--primary-color);
   border: 1px solid var(--tertiary-color);
   border-radius: var(--border-radius-medium);
   margin-top: 0.5rem;
@@ -140,7 +155,7 @@
 }
 
 .dropdown-item:hover {
-  background-color: var(--tertiary-color);
+  background-color: var(--primary-color);
 }
 
 .selected-tags {

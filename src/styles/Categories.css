@@ -9,7 +9,6 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  /* box-shadow: var(--shadow-small); */
   border-radius: var(--border-radius-medium);
   /* border: .15rem solid var(--quinary-color); */
   text-align: center;
@@ -36,6 +35,7 @@
   color: var(--primary-color);
   background-color: var(--secondary-color);
   padding: var(--padding-sm);
+  flex-grow: 1;
 }
 
 .category-content p {

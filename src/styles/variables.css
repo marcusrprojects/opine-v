@@ -2,7 +2,7 @@
 :root {
   --primary-color: #FFFFFF; /* Bright white */
   --secondary-color: #4D4D4D; /* Slightly lighter gray */
-  --tertiary-color: #FBFBFB; /* Near white */
+  --tertiary-color: #F7F7F7; /* Near white */
   --quaternary-color: #DADADA; /* Darker subtle white tone */
   --quinary-color: #BFBFBF;
   --shadow-small: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -48,7 +48,7 @@
 [data-theme="light"] {
   --primary-color: #FFFFFF; /* Bright white */
   --secondary-color: #4D4D4D; /* Slightly lighter gray */
-  --tertiary-color: #FBFBFB; /* Near white */
+  --tertiary-color: #F7F7F7; /* Near white */
   --quaternary-color: #DADADA; /* Darker subtle white tone */
   --quinary-color: #BFBFBF;
   --shadow-small: 2px 0 5px rgba(0, 0, 0, 0.1);

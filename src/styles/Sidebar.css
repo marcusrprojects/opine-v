@@ -10,7 +10,7 @@
     cursor: pointer;
     z-index: 11;
     transition: left 200ms ease, background-color 200ms ease;
-    background-color: var(--tertiary-color);
+    background-color: transparent;
 }
 
 .sidebar-toggle.move-left {
