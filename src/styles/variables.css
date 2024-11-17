@@ -19,6 +19,7 @@
   --font-xlarge: 2rem; /* 32px */
 
   /* Spacing and Sizing */
+  --padding-xsmall: 0.25rem;
   --padding-small: 0.5rem;
   --padding-sm: 0.75rem;
   --padding-medium: 1rem;
