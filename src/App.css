@@ -23,7 +23,7 @@ ul {
 .main-content {
   flex: 1;
   padding: var(--padding-large);
-  background-color: var(--tertiary-color);
+  background-color: transparent;
   min-height: 100vh;
   transition: margin-left 200ms ease, width 200ms ease;
 }
