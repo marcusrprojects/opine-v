@@ -217,7 +217,7 @@ const CategoryDetail = () => {
 
         <div className="item-grid">
           {filteredItems.map((item) => {
-            const rating = item.rating || 1;
+            const rating = item.rating !== undefined ? item.rating : 1;
             const rankCategory = item.rankCategory ?? RankCategory.OKAY;
             const maxWhite = 50;
             const hues = [0, 60, 120];
