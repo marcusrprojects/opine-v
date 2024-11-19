@@ -74,3 +74,13 @@ body {
   color: var(--secondary-color);
   background-color: var(--primary-color);
 }
+
+::selection {
+  background-color: var(--secondary-color); /* Highlight background color */
+  color: var(--primary-color); /* Text color inside the highlight */
+}
+
+::-moz-selection { /* For Firefox */
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+}
