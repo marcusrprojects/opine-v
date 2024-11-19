@@ -68,7 +68,7 @@ const ItemView = () => {
       <h2 className="item-title">{itemData[primaryField] || "Unnamed Item"}</h2>
       
       <div className="rating-container">
-        <div id="rating-display" className="item-rating" style={{ borderColor: cardColor }} onClick={handleReRank}>
+        <div id="rating-display" className="item-rating" style={{ backgroundColor: cardColor }} onClick={handleReRank}>
           {parseFloat(itemData.rating || 0).toFixed(1)}
         </div>
       </div>
