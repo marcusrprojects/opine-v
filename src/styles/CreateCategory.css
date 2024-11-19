@@ -15,11 +15,12 @@
 
 .primary-field-radio .tooltip {
   visibility: hidden;
-  background-color: var(--quinary-color);
-  color: var(--primary-color);
+  background-color: var(--tertiary-color);
+  color: var(--secondary-color);
+  border: 0.05rem solid var(--quinary-color);
   text-align: center;
   padding: 5px;
-  border-radius: var(--border-radius-small);
+  border-radius: var(--border-radius-medium);
   position: absolute;
   bottom: 125%; /* Position above the radio button */
   left: 50%;
@@ -29,6 +30,10 @@
   font-size: var(--font-small);
   opacity: 0;
   transition: opacity 0.3s;
+}
+
+.primary-field {
+  accent-color: var(--secondary-color); /* Changes the color of the radio button */
 }
 
 .primary-field-radio:hover .tooltip {
@@ -42,7 +47,7 @@
 }
 
 .field-input{
-  background-color: var(--tertiary-color);
+  background-color: transparent;
   border: 1px solid var(--quaternary-color);
   width: 20vw;
   border-radius: var(--border-radius-medium);
@@ -53,11 +58,6 @@
 
 .field-input:focus {
   outline:none;
-  background-color: var(--primary-color);
-}
-
-.field-input:hover {
-  /* background-color: var(--primary-color) !important; */
 }
 
 .primary-field-radio {
@@ -92,31 +92,39 @@
 }
 
 .button-group button {
-  background-color: var(--primary-color);
+  background-color: var(--tertiary-color);
   border-radius: var(--border-radius-medium);
   color: var(--secondary-color);
   border: none;
 }
 
-.button-group button:hover, .field-input:hover {
-  background-color: var(--primary-color);
+.field-input:hover {
+  background-color: var(--tertiary-color);
+}
+
+.button-group button:hover {
+  background-color: var(--quaternary-color);
 }
 
 .field-container .default-delete, .field-container .primary-delete {
   transition: color 0.3s ease;
 }
 
-.field-container .default-delete {
-  color: var(--quinary-color);
-}
-
-.default-delete:hover {
+.field-container .default-delete, .add-field-icon {
   color: var(--middle-color);
 }
 
+.field-container .default-delete:hover, .add-field-icon:hover {
+  color: var(--secondary-color);
+}
+/* 
+.default-delete:hover {
+  color: var(--middle-color);
+} */
+
 .field-container .primary-delete {
   cursor: not-allowed;
-  color: var(--primary-color);
+  color: var(--tertiary-color);
 }
 
 /* Container wrapping the input and dropdown */
