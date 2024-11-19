@@ -54,17 +54,18 @@
     background-color: transparent;
     border: .05rem solid var(--quinary-color);
     padding: var(--padding-sm);
+    justify-content: space-between;
 }
 
 .item-header {
     display: flex;
-    align-items: center; /* Center content vertically */
+    align-items: center;
     justify-content: center;
     /* padding: var(--padding-xsmall) var(--padding-sm); */
     gap:0 var(--padding-sm);
     margin:0;
     padding: 0;
-    margin-bottom: var(--padding-medium);
+    margin-bottom: var(--padding-sm);
 }
 
 .item-header h4.item-title {
