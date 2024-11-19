@@ -1,0 +1,87 @@
+.tag-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--padding-medium);
+}
+
+/* Input Field Styling */
+/* .tag-input {
+  background-color: var(--primary-color);
+  border: 1px solid var(--quaternary-color);
+  width: 20vw;
+  border-radius: var(--border-radius-medium);
+  padding: var(--padding-medium);
+  font-size: var(--font-medium);
+  color: var(--secondary-color);
+} */
+
+/* Dropdown Styling */
+.dropdown {
+  display: block;
+  background-color: var(--primary-color);
+  border: 0.1rem solid transparent;
+  border-radius: var(--border-radius-medium);
+  /* margin-top: 0.5rem; */
+  /* width: 20vw; */
+  /* overflow-y: auto; */
+  overflow: hidden;
+  z-index: 10;
+  transition: max-height .4s ease;
+  max-height: 0;
+}
+
+/* Show Dropdown */
+.dropdown.expanded {
+  display: flex;
+  flex-direction: column;
+  /* position: fixed; */
+  max-height: 10rem;
+  border-color: var(--tertiary-color);
+}
+
+/* Dropdown Item */
+.dropdown-item {
+  /* padding: 0.5rem; */
+  /* text-align: center; */
+  /* cursor: pointer; */
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+  background-color: var(--tertiary-color);
+}
+
+/* Selected Tags Section */
+.selected-tags {
+  margin-top: var(--padding-medium);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--padding-small) var(--padding-medium);
+  /* justify-content: center; */
+}
+
+.selected-tag {
+  background-color: var(--tertiary-color);
+  color: var(--secondary-color);
+  padding: var(--padding-xsmall) var(--padding-small);
+  border-radius: var(--border-radius-small);
+  /* display: flex; */
+  /* align-items: center; */
+  transition: background-color 0.3s ease;
+  /* cursor: pointer; */
+}
+
+.selected-tag:hover {
+  background-color: var(--quaternary-color);
+}
+
+/* .selected-tag .icon {
+  margin-left: 0.25rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+} */
+
+/* .selected-tag .icon:hover {
+  color: var(--quinary-color);
+} */
