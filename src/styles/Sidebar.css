@@ -13,6 +13,16 @@
     background-color: transparent;
 }
 
+.sidebar-toggle:hover {
+    background-color: transparent;
+    color: var(--middle-color);
+}
+
+.sidebar-toggle:focus {
+    border:none;
+    outline:none;
+}
+
 .sidebar-toggle.move-left {
     left: 2vw; /* Move the button further to the left when sidebar is hidden */
 }
@@ -24,7 +34,7 @@
 /* Sidebar styles */
 nav.sidebar {
     width: 14vw;
-    background-color: var(--tertiary-color);
+    background-color: transparent;
     height: 100vh;
     padding: var(--padding-large) var(--padding-medium) var(--padding-medium) var(--padding-medium);
     position: fixed;
@@ -49,6 +59,7 @@ nav.sidebar a {
     display: block;
     border-radius: var(--border-radius-small);
     transition: background-color 200ms, color 200ms;
+    /* border: 1px solid var(--quaternary-color); */
 }
   
 .sidebar ul {
@@ -61,7 +72,7 @@ nav.sidebar a {
 }
   
 nav.sidebar a:hover {
-    background-color: var(--primary-color);
+    background-color: var(--tertiary-color);
 }
   
 nav.sidebar a.active {
