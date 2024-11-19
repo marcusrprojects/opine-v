@@ -24,7 +24,7 @@
 }
 
 #rating-display:hover {
-  filter:brightness(70%);
+  filter:brightness(90%);
   transform: scale(1.2);
 }
 
@@ -33,7 +33,6 @@
   flex-direction: column; /* Stack label and value vertically */
   text-align: center;
   padding: var(--padding-small) 0;
-  border-bottom: 1px solid var(--tertiary-color);
   width: 100%; /* Ensure fields span the container width */
 }
 
@@ -43,8 +42,22 @@
   gap: 1rem;
 }
 
-.item-field:hover {
-  filter: brightness(90%);
+.item-value {
+  width: 100%;
+  text-align: left;
+}
+
+.item-value,.notes-textarea {
+  border: none;
+  border-bottom: .01rem solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.item-value:hover, .notes-textarea:hover {
+  /* color: purple !important; */
+  /* filter: brightness(10%); */
+  display: absolute;
+  border-bottom: .01rem solid var(--quinary-color);
 }
 
 .item-label {
@@ -53,11 +66,10 @@
 }
 
 .notes-textarea {
-  border:none;
   width: 40rem;
   height: 5rem;
   resize: vertical;
-  background-color: var(--tertiary-color);
+  background-color: transparent;
   color:var(--secondary-color);
 }
 
@@ -65,19 +77,27 @@
   flex-grow: 1;
 }
 
-.item-input, .notes-textarea:focus {
-  background-color: var(--primary-color);
+.item-input {
+  background-color: var(--primary-color); 
   color: var(--secondary-color);
 }
+
+.notes-textarea, .item-input {
+  outline: none; /* Disable the default outline */
+  border: none; /* Ensure no border is set by default */
+}
+
 
 .notes-textarea:focus, .item-input:focus {
   border: none;
-  outline: .1rem solid var(--secondary-color);
+  outline: .05rem solid var(--quaternary-color);
   border-radius: var(--border-radius-small);
 }
 
-.item-value {
-  color: var(--secondary-color);
+.notes-textarea:focus:not(:focus-visible), 
+.item-input:focus:not(:focus-visible) {
+  outline: none !important;
+  border: none !important;
 }
 
 .trash-icon {
@@ -85,7 +105,6 @@
   top: 1rem;
   right: 1rem;
   cursor: pointer;
-  color: var(--error-color);
   font-size: 1.5rem;
   transition: color 0.2s;
 }
