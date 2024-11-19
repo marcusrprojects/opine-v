@@ -230,17 +230,16 @@ const CategoryDetail = () => {
               <div 
                 key={itemId} 
                 className="item-card"
-                style={{ borderColor: cardColor }} 
                 onClick={() => handleItemClick(itemId, cardColor)}
               >
                 <div className="item-header">
-                  <div className="item-rating" style={{ borderColor: cardColor }}>{rating.toFixed(1)}</div>
+                  <div className="item-rating" style={{ backgroundColor: cardColor }}>{rating.toFixed(1)}</div>
                   <h4 className="item-title">{item[primaryField] || "Unnamed Item"}</h4>
                 </div>
-                <div className="item-content" style={{ backgroundColor: cardColor }}>
+                <div className="item-content">
                   {fields.filter(field => field !== primaryField).map((field, fieldIndex) => (
-                    <p key={fieldIndex}>
-                      {field}: {item[field] || "N/A"}
+                    <p key={fieldIndex} className="field-pair">
+                      <span className="attribute-string">{field}:</span> <span className="attribute-value" style={{ color: cardColor}}>{item[field] || "N/A"}</span>
                     </p>
                   ))}
                 </div>
