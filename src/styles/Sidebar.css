@@ -54,7 +54,7 @@ nav.sidebar a {
     text-decoration: none;
     font-size: var(--font-medium);
     color: var(--secondary-color);
-    font-weight: 600;
+    font-weight: var(--fw-medium);
     padding: var(--padding-small) var(--padding-medium);
     display: block;
     border-radius: var(--border-radius-small);

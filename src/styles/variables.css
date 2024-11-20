@@ -23,11 +23,9 @@
 
   --fw-xsmall: 300; /* Light */
   --fw-small: 400; /* Regular */
-  --fw-sm: 500; /* Medium */
   --fw-medium: 500; /* Medium */
-  --fw-ml: 600; /* Semi-Bold */
   --fw-large: 600; /* Semi-Bold */
-  --fw-lx: 700; /* Bold */
+  --fw-lx: 700;
   --fw-xlarge: 800; /* Extra-Bold */
 
   /* Spacing and Sizing */
@@ -87,11 +85,11 @@ body {
 }
 
 h2 {
-  font-weight: 600;
+  font-weight: var(--fw-medium);
 }
 
 h4 {
-  font-weight: 400;
+  font-weight: var(--fw-small);
 }
 
 ::selection {

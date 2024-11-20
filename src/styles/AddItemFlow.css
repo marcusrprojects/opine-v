@@ -35,7 +35,7 @@
 .add-item-container button {
     padding: var(--padding-medium);
     font-size: var(--font-medium);
-    font-weight: bold;
+    font-weight: var(--fw-medium);
     border: none;
     border-radius: var(--border-radius-medium);
     cursor: pointer;

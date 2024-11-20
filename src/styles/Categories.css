@@ -32,7 +32,7 @@
 .category-header .category-title{
   font-size: var(--font-ml);
   margin: var(--padding-xsmall) 0 0 0;
-  font-weight: 600;
+  font-weight: var(--fw-medium);
 }
 
 /* Bottom of card */
@@ -129,12 +129,12 @@
 
 .tag-chip.active {
   background-color: var(--primary-color);
-  font-weight: bold;
+  font-weight: var(--fw-large);
 }
 
 .remove-tag {
   margin-left: 0.3rem;
-  font-weight: bold;
+  font-weight: var(--fw-large);
   cursor: pointer;
 }
 

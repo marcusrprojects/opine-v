@@ -70,7 +70,7 @@
 
 .item-header h4.item-title {
     font-size: var(--font-large);
-    font-weight: 500;
+    font-weight: var(--fw-medium);
     margin: 0;
 }
 
@@ -82,7 +82,7 @@
     background-color: var(--primary-color);
     color: var(--primary-color);
     font-size: var(--font-medium);
-    font-weight: 600;
+    font-weight: var(--fw-large);
     filter: opacity(70%);
     width: 3rem;
     height: 3rem;
