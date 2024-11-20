@@ -1,5 +1,5 @@
 .field-data, .notes-field {
-    background-color: var(--tertiary-color);
+    background-color: transparent;
     padding: var(--padding-medium);
     font-size: var(--font-medium);
     border-radius: var(--border-radius-medium);
