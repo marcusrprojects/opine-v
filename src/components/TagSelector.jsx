@@ -7,6 +7,7 @@ import '../styles/TagSelector.css';
 const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTags = 5 }) => {
   const [tagInput, setTagInput] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleCustomTagWrapper = async () => {
     if (!db) {
@@ -25,10 +26,15 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
   };
 
   const handleTagSuggestionClick = (tagId) => {
-    if (!tags.includes(tagId) && tags.length < maxTags) {
+    if (tags.includes(tagId)) {
+      setErrorMessage("This tag is already selected.");
+    } else if (tags.length >= maxTags) {
+      setErrorMessage(`You can only select up to ${maxTags} tags.`);
+    } else {
       setTags([...tags, tagId]);
       setTagInput("");
       setShowDropdown(false);
+      setErrorMessage(""); // Clear any previous error
     }
   };
 
@@ -42,7 +48,10 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
       <input
         type="text"
         value={tagInput}
-        onChange={(e) => handleTagInput(e.target.value, setTagInput, setShowDropdown)}
+        onChange={(e) => {
+          setErrorMessage(""); // Clear any error when typing
+          handleTagInput(e.target.value, setTagInput, setShowDropdown);
+        }}
         onKeyDown={(e) => handleKeyPress(e, handleCustomTagWrapper)}
         placeholder={`Add a tag (up to ${maxTags})`}
         onFocus={() => setShowDropdown(true)}
@@ -65,6 +74,8 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
             </div>
           ))}
       </div>
+
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
       
 
       {/* Selected Tags */}
