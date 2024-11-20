@@ -13,19 +13,19 @@ const RankSelectionStep = ({ setRankCategory, onNext, onBack }) => {
       <div className="rating-buttons">
         <button
           onClick={() => handleRankingChoice(RankCategory.GOOD)}
-          style={{ backgroundColor: `hsl(120, 40%, 60%)` }}
+          style={{ color: `hsl(120, 40%, 60%)` }}
         >
           Good
         </button>
         <button
           onClick={() => handleRankingChoice(RankCategory.OKAY)}
-          style={{ backgroundColor: `hsl(60, 40%, 60%)` }}
+          style={{ color: `hsl(60, 40%, 60%)` }}
         >
           Okay
         </button>
         <button
           onClick={() => handleRankingChoice(RankCategory.BAD)}
-          style={{ backgroundColor: `hsl(0, 40%, 60%)` }}
+          style={{ color: `hsl(0, 40%, 60%)` }}
         >
           Bad
         </button>
