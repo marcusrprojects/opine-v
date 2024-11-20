@@ -7,7 +7,7 @@ import LoadingComponent from './LoadingComponent';
 import { writeItemsToFirestore } from '../utils/ranking';
 import { db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import "../styles/AddItem.css";
+import "../styles/AddItemFlow.css";
 import { withLoading } from '../utils/loadingUtils';
 import LoadingMessages from '../enums/LoadingMessages';
 

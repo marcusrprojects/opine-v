@@ -44,9 +44,17 @@
     /* box-shadow: var(--shadow-small); */
 }
 
-.comparison-buttons button, .rating-buttons button {
+.comparison-buttons button {
     color: var(--secondary-color);
     background-color: var(--primary-color);
+    border: 0.05rem solid var(--quinary-color);
+}
+
+.rating-buttons button {
+    /* color: var(--secondary-color) !important; */
+    background-color: var(--primary-color);
+    border: 0.05rem solid var(--quinary-color);
+    border-radius: var(--border-radius-medium);
 }
   
 .add-item-container .button-nav:disabled {
@@ -66,8 +74,8 @@
 
 .add-item-container .button-nav {
     margin-top: var(--padding-large);
-    background-color: var(--secondary-color);
-    color: var(--primary-color);
+    background-color: var(--tertiary-color);
+    color: var(--secondary-color);
     max-width: 10rem;
 }
 
@@ -96,5 +104,5 @@
 
 .rating-buttons button:hover, .comparison-buttons button:hover {
     transform: scale(1.1);
-    filter: brightness(85%);
+    background-color: var(--tertiary-color);
 }
