@@ -182,6 +182,7 @@
     background-color: var(--tertiary-color);
     color: var(--secondary-color);
     border: none;
+    outline: none;
     transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
@@ -189,6 +190,11 @@
     background-color: var(--quaternary-color);
     color:var(--secondary-color);
     box-shadow: var(--shadow-small);
+}
+
+.back-button:focus {
+    border: none;
+    outline: none;
 }
 
 .category-description, .category-title {
