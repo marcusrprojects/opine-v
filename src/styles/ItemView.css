@@ -115,4 +115,15 @@
 
 #back-button {
   margin-top: var(--padding-medium);
+  border: none;
+  outline: none;
+}
+
+.item-label {
+  text-align: left;
+  flex: 0 0 10rem;
+}
+
+#back-button:hover {
+  color: var(--secondary-color);
 }
