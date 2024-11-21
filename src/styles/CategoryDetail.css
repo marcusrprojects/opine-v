@@ -215,6 +215,6 @@
 
 .category-description textarea:focus, .category-title input:focus{
   border: none;
-  outline: .001rem solid var(--secondary-color);
+  outline: .001rem solid var(--quinary-color);
   background-color: var(--primary-color);
 }

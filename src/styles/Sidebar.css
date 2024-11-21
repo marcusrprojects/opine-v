@@ -42,7 +42,8 @@ nav.sidebar {
     left: 0;
     z-index: 10;
     transition: transform 200ms ease, width 200ms ease;
-    box-shadow: var(--shadow-small);
+    /* box-shadow: var(--shadow-small); */
+    border: 0.05rem solid var(--quaternary-color);
     overflow-y: auto;
 }
   
@@ -59,7 +60,7 @@ nav.sidebar a {
     display: block;
     border-radius: var(--border-radius-small);
     transition: background-color 200ms, color 200ms;
-    /* border: 1px solid var(--quaternary-color); */
+    /* border: 0.05rem solid var(--quaternary-color); */
 }
   
 .sidebar ul {
