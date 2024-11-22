@@ -14,6 +14,7 @@ import Sidebar from "./components/Sidebar.jsx"
 import "./firebaseConfig";
 import ItemView from './components/ItemView';
 import ReRankFlow from './components/ReRankFlow';
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 
 /**
@@ -41,11 +42,32 @@ function App() {
             <Routes>
               <Route exact path="/" element={<Home />} />
               <Route path="/categories" element={<Categories />} />
-              <Route path="/create-category" element={<CreateCategory />} />
+              <Route 
+                path="/create-category" 
+                element={
+                  <ProtectedRoute>
+                    <CreateCategory />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/categories/:categoryId" element={<CategoryDetail />} />
-              <Route path="/categories/:categoryId/add-item" element={<AddItem />} />
+              <Route 
+                path="/categories/:categoryId/add-item" 
+                element={
+                  <ProtectedRoute>
+                    <AddItem />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/categories/:categoryId/item/:itemId" element={<ItemView />} />
-              <Route path="/categories/:categoryId/items/:itemId/rerank" element={<ReRankFlow />} />
+              <Route 
+                path="/categories/:categoryId/items/:itemId/rerank" 
+                element={
+                  <ProtectedRoute>
+                    <ReRankFlow />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/profile" element={<Profile />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
