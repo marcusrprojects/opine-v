@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/useAuth'; // Use your AuthProvider
 import '../styles/CreateCategory.css';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import TagSelector from './TagSelector';
@@ -12,6 +13,7 @@ const CreateCategory = () => {
   const [primaryFieldIndex, setPrimaryFieldIndex] = useState(0);
   const [tags, setTags] = useState([]); // Store selected tag IDs
   const [availableTags, setAvailableTags] = useState([]); // Store tags with IDs and names
+  const { user } = useAuth(); // Access the user state
   const navigate = useNavigate();
 
   // Fetch tags from Firestore on component mount
@@ -57,6 +59,10 @@ const CreateCategory = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user) {
+      alert("You must be logged in to create a category.");
+      return;
+    }
     if (!categoryName || fields.length === 0 || tags.length === 0) {
       alert('Category name, fields, and at least one tag are required.');
       return;
@@ -64,14 +70,16 @@ const CreateCategory = () => {
 
     try {
       // Add the category to the "categories" collection
-      await addDoc(collection(db, 'categories'), {
+      const newCategory = {
         name: categoryName,
         primaryField: fields[primaryFieldIndex].name,
         fields: fields.map(field => field.name),
         tags, // Save tag IDs
-        notes: "",
-      });
+        createdBy: user.uid, // Use the user UID from useAuth
+        createdAt: new Date().toISOString(), // Timestamp
+      };
 
+      await addDoc(collection(db, 'categories'), newCategory);
       navigate('/categories');
     } catch (error) {
       console.error('Error creating category:', error);

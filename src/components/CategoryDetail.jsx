@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebaseConfig';
 import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
@@ -10,6 +10,9 @@ import LoadingMessages from '../enums/LoadingMessages';
 import LoadingComponent from './LoadingComponent';
 import EditCategoryModal from './EditCategoryModal';
 import AddButton from './AddButton';
+import { useAuth } from '../context/useAuth';
+import { calculateCardColor } from '../utils/ranking';
+import {handleError} from '../utils/errorUtils';
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -24,8 +27,11 @@ const CategoryDetail = () => {
   const navigate = useNavigate();
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [description, setDescription] = useState(''); // Description state
+  const [creatorId, setCreatorId] = useState('');
   const [isEditingDescription, setIsEditingDescription] = useState(false); // Editing state for description
   const [isEditingCategoryName, setIsEditingCategoryName] = useState(false);
+
+  const { user } = useAuth(); // Access the user state from useAuth
 
   useEffect(() => {
     const fetchCategoryData = async () => {
@@ -40,6 +46,7 @@ const CategoryDetail = () => {
           setTags(categoryData.tags);
           setCategoryName(categoryData.name);
           setDescription(categoryData.description || '');
+          setCreatorId(categoryData.createdBy);
         }
 
         const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
@@ -54,12 +61,16 @@ const CategoryDetail = () => {
         setFilteredItems(sortedItems);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching items:', error);
+        handleError(error, 'Error fetching items.');
       }
     };
 
     fetchCategoryData();
   }, [categoryId]);
+
+  const canEdit = useMemo(() => {
+    return user && user.uid === creatorId;
+  }, [user, creatorId]);
 
   const handleFilterChange = (field, value) => {
     setFilters(prevFilters => ({
@@ -68,15 +79,26 @@ const CategoryDetail = () => {
     }));
   };
 
-  const handleDeleteCategory = async () => {
-    if (window.confirm("Are you sure you want to delete this category?")) {
-      try {
-        await deleteDoc(doc(db, 'categories', categoryId));
-        navigate('/categories');
-      } catch (error) {
-        console.error("Error deleting category:", error);
-      }
+  const canEditAction = async (action) => {
+    if (!canEdit) {
+      alert("You do not have permission to perform this action.");
+      return false;
     }
+    await action();
+    return true;
+  };
+
+  const handleDeleteCategory = async () => {
+    await canEditAction(async () => {
+      if (window.confirm("Are you sure you want to delete this category?")) {
+        try {
+          await deleteDoc(doc(db, 'categories', categoryId));
+          navigate('/categories');
+        } catch (error) {
+          handleError(error, "Error deleting category.");
+        }
+      }
+    });
   };
 
   const handleEditCategory = () => {
@@ -84,21 +106,23 @@ const CategoryDetail = () => {
   };
 
   const handleSaveFields = async (updatedFields, newPrimaryField, newTags) => {
-    setFields(updatedFields);
-    setPrimaryField(newPrimaryField);
-    setTags(newTags);
-    setIsEditingCategory(false);
-    
-    try {
-      const categoryDocRef = doc(db, 'categories', categoryId);
-      await updateDoc(categoryDocRef, {
-        fields: updatedFields,
-        primaryField: newPrimaryField,
-        tags: newTags
-      });
-    } catch (error) {
-      console.error("Error updating category fields:", error);
-    }
+    await canEditAction(async () => {
+      setFields(updatedFields);
+      setPrimaryField(newPrimaryField);
+      setTags(newTags);
+      setIsEditingCategory(false);
+      
+      try {
+        const categoryDocRef = doc(db, 'categories', categoryId);
+        await updateDoc(categoryDocRef, {
+          fields: updatedFields,
+          primaryField: newPrimaryField,
+          tags: newTags
+        });
+      } catch (error) {
+        handleError(error, "Error updating category fields.");
+      }
+    });
   };
 
   const handleCloseModal = () => {
@@ -125,14 +149,16 @@ const CategoryDetail = () => {
   };
 
   const handleNameChange = async (newName) => {
-    setCategoryName(newName);
-    setIsEditingCategoryName(false);
-    try {
-      const categoryDocRef = doc(db, 'categories', categoryId);
-      await updateDoc(categoryDocRef, { name: newName });
-    } catch (error) {
-      console.error("Error updating category name:", error);
-    }
+    await canEditAction(async () => {
+      setCategoryName(newName);
+      setIsEditingCategoryName(false);
+      try {
+        const categoryDocRef = doc(db, 'categories', categoryId);
+        await updateDoc(categoryDocRef, { name: newName });
+      } catch (error) {
+        handleError(error, "Error updating category name.");
+      }
+    }); 
   };
 
   const handleDescriptionChange = async (newDescription) => {
@@ -142,7 +168,7 @@ const CategoryDetail = () => {
       const categoryDocRef = doc(db, 'categories', categoryId);
       await updateDoc(categoryDocRef, { description: newDescription });
     } catch (error) {
-      console.error('Error updating category description:', error);
+      handleError(error, 'Error updating category description.');
     }
   };
 
@@ -154,24 +180,28 @@ const CategoryDetail = () => {
     <div>
       <div className="category-detail-container">
         <div className="category-actions">
-          <FaEdit className="icon edit-icon" onClick={handleEditCategory} />
+          {canEdit &&
+            <div className={`${canEdit ? 'editable' : 'non-editable'} cheese`}>
+              <FaEdit className="icon edit-icon" onClick={handleEditCategory} />
 
-          {isEditingCategory && (
-            <EditCategoryModal
-              fields={fields}
-              primaryField={primaryField}
-              categoryName={categoryName} // Pass the current category name
-              tags={tags}
-              onSave={handleSaveFields}
-              onClose={handleCloseModal}
-            />
-          )}
+              {isEditingCategory && (
+                <EditCategoryModal
+                  fields={fields}
+                  primaryField={primaryField}
+                  categoryName={categoryName}
+                  tags={tags}
+                  onSave={handleSaveFields}
+                  onClose={handleCloseModal}
+                />
+              )}
 
-          <FaTrash className="icon delete-icon" onClick={handleDeleteCategory} />
-        </div>
+              <FaTrash className="icon delete-icon" onClick={handleDeleteCategory} />
+            </div>
+            }
+          </div>
 
-        <div className="category-title">
-          {isEditingCategoryName ? (
+        <div className={`category-title ${canEdit ? 'editable' : 'non-editable'}`}>
+          {canEdit && isEditingCategoryName ? (
             <input
               type="text"
               value={categoryName}
@@ -187,9 +217,8 @@ const CategoryDetail = () => {
         </div>
 
         {/* Editable Description */}
-
-        <div className="category-description">
-          {isEditingDescription ? (
+        <div className={`category-description ${canEdit ? 'editable' : 'non-editable'}`}>
+          {canEdit && isEditingDescription ? (
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -197,8 +226,8 @@ const CategoryDetail = () => {
               autoFocus
             />
           ) : (
-            <p onClick={() => setIsEditingDescription(true)}>
-              {description || "Click to add a description..."}
+            <p onClick={() => canEdit && setIsEditingDescription(true)}>
+              {description || (canEdit ? "Click to add a description..." : "")}
             </p>
           )}
         </div>
@@ -218,13 +247,8 @@ const CategoryDetail = () => {
         <div className="item-grid">
           {filteredItems.map((item) => {
             const rating = item.rating !== undefined ? item.rating : 1;
-            const rankCategory = item.rankCategory ?? RankCategory.OKAY;
-            const maxWhite = 50;
-            const hues = [0, 60, 120];
-            const thresholds = [0, (1 / 3) * 10, (2 / 3) * 10];
-            const adjustedWhiteness = maxWhite - (rating - thresholds[rankCategory]) * (50 / 3);
-            const cardColor = `hwb(${hues[rankCategory]} ${adjustedWhiteness}% 17.5%)`;
             const itemId = item.id;
+            const cardColor = calculateCardColor(rating, item.rankCategory ?? RankCategory.OKAY);
 
             return (
               <div 
@@ -249,7 +273,12 @@ const CategoryDetail = () => {
         </div>
       </div>
 
-      <AddButton onClick={() => navigate(`/categories/${categoryId}/add-item`)} />
+      {/* <AddButton onClick={() => navigate(`/categories/${categoryId}/add-item`)} className='good'/> */}
+      <AddButton
+        onClick={() =>
+          canEditAction(() => navigate(`/categories/${categoryId}/add-item`))
+        }
+      />
       <br></br>
       {/* Back Button */}
       <button onClick={() => navigate('/categories')} className="back-button">
