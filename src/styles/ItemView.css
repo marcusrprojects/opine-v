@@ -127,3 +127,8 @@
 #back-button:hover {
   color: var(--secondary-color);
 }
+
+.non-editable {
+  pointer-events: none;
+  cursor: not-allowed;
+}
