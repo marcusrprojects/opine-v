@@ -52,3 +52,12 @@ export const refreshRankedItems = async (categoryId, rankCategory) => {
 
   await writeItemsToFirestore(categoryId, rankedItems, rankCategory);
 };
+
+export const calculateCardColor = (rating, rankCategory) => {
+  const maxWhite = 50;
+  const hues = [0, 60, 120];
+  const thresholds = [0, (1 / 3) * 10, (2 / 3) * 10];
+  const adjustedWhiteness =
+    maxWhite - (rating - thresholds[rankCategory]) * (50 / 3);
+  return `hwb(${hues[rankCategory]} ${adjustedWhiteness}% 17.5%)`;
+};
