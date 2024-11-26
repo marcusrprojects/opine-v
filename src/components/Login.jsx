@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import "../styles/Authentication.css";
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -7,6 +9,7 @@ function Login() {
   const [error, setError] = useState(''); // State to hold error message
   const [user, setUser] = useState(null); // State to track the current user
   const auth = getAuth();
+  const navigate = useNavigate();
 
   // Track the authentication state
   useEffect(() => {
@@ -39,33 +42,53 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>{user ? 'Welcome' : 'Login'}</h2>
+    <div className="login-container">
+      <h2 className="login-title">{user ? 'Welcome' : 'Login'}</h2>
       {user ? (
-        <div>
-          <p>Logged in as: {user.email}</p>
-          <button onClick={handleLogout}>Logout</button>
+        <div className="user-info">
+          <p className="user-email">Logged in as: {user.email}</p>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       ) : (
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button type="submit">Login</button>
-        </form>
+        <div className='login-contents'>
+          <form className="login-form" onSubmit={handleLogin}>
+            <input
+              className="input-field"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+              className="input-field"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <button className="submit-button" type="submit">
+              Login
+            </button>
+          </form>
+          
+
+          <p className="switch-link">
+            Don&apos;t have an account?
+            <button
+              className="navigate-button"
+              onClick={() => navigate('/signup')}
+            >
+              Sign Up
+            </button>
+          </p>
+        </div>
       )}
 
       {/* Display error message if there is one */}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
 }

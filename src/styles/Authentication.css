@@ -1,0 +1,90 @@
+/* Common Styles */
+.input-field {
+  width: 100%;
+  padding: var(--padding-small);
+  margin-bottom: var(--padding-medium);
+  border: 0.05rem solid var(--quaternary-color);
+  border-radius: var(--border-radius-small);
+  font-size: var(--font-small);
+  font-family: var(--font-family);
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+.signup-form, .login-form {
+  gap: 1rem !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+}
+
+.submit-button {
+  padding: var(--padding-small) var(--padding-medium);
+  width:fit-content;
+  align-self: center;
+  background-color: var(--tertiary-color);
+  color: var(--secondary-color);
+  border: none;
+  border-radius: var(--border-radius-small);
+  font-size: var(--font-small);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0;
+}
+
+.submit-button:hover {
+  background-color: var(--quaternary-color);
+  color:var(--secondary-color);
+}
+
+.switch-link {
+  /* margin-top: var(--padding-small); */
+  text-align: center;
+  font-size: var(--font-small);
+  color: var(--secondary-color);
+}
+
+.navigate-button {
+  background: none;
+  border: none;
+  color: var(--secondary-color);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: var(--font-small);
+  font-weight: var(--fw-medium);
+  /* margin-left: var(--padding-xsmall); */
+}
+
+.navigate-button:hover {
+    background: none;
+    color: var(--middle-color);
+}
+
+.error-message {
+  color: var(--error-color);
+  /* margin-top: var(--padding-ml); */
+  text-align: center;
+  font-size: var(--font-small);
+}
+
+/* Signup-Specific Styles */
+.signup-container, .login-container {
+  /* margin: auto; */
+  justify-self: center;
+  width: 25vw;
+  /* padding: var(--padding-medium); */
+  /* border-radius: var(--border-radius-medium); */
+}
+
+.signup-title, .login-title {
+  /* text-align: center; */
+  font-size: var(--font-large);
+  font-weight: var(--fw-medium);
+  color: var(--secondary-color);
+  margin-bottom: var(--padding-large);
+}
