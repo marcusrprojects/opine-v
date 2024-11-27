@@ -27,15 +27,3 @@ ul {
   min-height: 100vh;
   transition: margin-left 200ms ease, width 200ms ease;
 }
-
-/* When the sidebar is open */
-.main-content.with-sidebar {
-  margin-left: 15rem;
-  width: calc(100vw - 15rem);
-}
-
-/* When the sidebar is hidden */
-.main-content.full-width {
-  margin-left: 0;
-  width: 100vw;
-}

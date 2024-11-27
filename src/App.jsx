@@ -24,7 +24,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
  * It also includes routes for category management (creating and viewing categories, adding items).
  */
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(true); // Manage sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Manage sidebar state
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -38,7 +38,7 @@ function App() {
           <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
           {/* Main content area */}
-          <div className={`main-content ${sidebarOpen ? 'with-sidebar' : 'full-width'}`}>
+          <div className={`main-content`}>
             <Routes>
               <Route exact path="/" element={<Home />} />
               <Route path="/categories" element={<Categories />} />
