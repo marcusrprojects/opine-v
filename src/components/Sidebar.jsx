@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Sidebar.css";
 import PropTypes from "prop-types";
@@ -6,16 +6,36 @@ import { FaBars, FaUser, FaHome, FaSignInAlt } from "react-icons/fa";
 import ThemeToggle from "./ThemeToggle";
 
 const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
+  const timeoutRef = useRef(null);
+
   useEffect(() => {
-    let timeout;
-    if (sidebarOpen) {
-      timeout = setTimeout(() => {
-        toggleSidebar(); // Close the sidebar
-      }, 4000); // 4 seconds
+    const resetTimeout = () => {
+      clearTimeout(timeoutRef.current);
+      if (sidebarOpen) {
+        timeoutRef.current = setTimeout(() => {
+          toggleSidebar(); // Close the sidebar
+        }, 2500);
+      }
+    };
+
+    // Reset the timeout whenever there's interaction
+    const sidebarElement = document.querySelector(".sidebar");
+    if (sidebarElement) {
+      sidebarElement.addEventListener("mousemove", resetTimeout);
+      sidebarElement.addEventListener("click", resetTimeout);
     }
 
-    // Cleanup the timeout if the component unmounts or sidebarOpen changes
-    return () => clearTimeout(timeout);
+    // Set an initial timeout
+    resetTimeout();
+
+    // Cleanup: Remove listeners and clear timeout
+    return () => {
+      clearTimeout(timeoutRef.current);
+      if (sidebarElement) {
+        sidebarElement.removeEventListener("mousemove", resetTimeout);
+        sidebarElement.removeEventListener("click", resetTimeout);
+      }
+    };
   }, [sidebarOpen, toggleSidebar]);
 
   return (
