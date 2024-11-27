@@ -3,6 +3,8 @@
 /* Global Variables for Light Mode */
 :root {
   --primary-color: #FFFFFF; /* Bright white */
+  --primary-transp:rgba(255, 255, 255, 0.9);
+  --primary-clear:rgba(255, 255, 255, 0.15);
   --secondary-color: #4D4D4D; /* Slightly lighter gray */
   --tertiary-color: #F7F7F7; /* Near white */
   --quaternary-color: #DADADA; /* Darker subtle white tone */
@@ -46,6 +48,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --primary-color: #242424;
+    --primary-transp:rgba(0, 0, 0, 0.9);
+    --primary-clear:rgba(0, 0, 0, 0.15);
     --secondary-color: #ddd;
     --tertiary-color: #171717;
     --quaternary-color: #3e3e3e;
@@ -58,6 +62,8 @@
 /* Light Mode Variables */
 [data-theme="light"] {
   --primary-color: #FFFFFF; /* Bright white */
+  --primary-transp:rgba(255, 255, 255, 0.9);
+  --primary-clear:rgba(255, 255, 255, 0.15);
   --secondary-color: #4D4D4D; /* Slightly lighter gray */
   --tertiary-color: #F7F7F7; /* Near white */
   --quaternary-color: #DADADA; /* Darker subtle white tone */
@@ -69,6 +75,8 @@
 /* Dark Mode Variables */
 [data-theme="dark"] {
   --primary-color: #242424;
+  --primary-transp:rgba(0, 0, 0, 0.9);
+  --primary-clear:rgba(0, 0, 0, 0.15);
   --secondary-color: #ddd;
   --tertiary-color: #171717;
   --quaternary-color: #3e3e3e;

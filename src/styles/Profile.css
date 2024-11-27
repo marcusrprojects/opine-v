@@ -72,7 +72,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--shadow-small); /* Semi-transparent overlay */
+  background-color: var(--primary-clear); /* Semi-transparent overlay */
   z-index: 1; /* Place it below the text */
 }
 
@@ -95,10 +95,10 @@
   margin: 0;
 }
 
-.text-box, .edit-cover-photo-button {
+.text-box {
   position: relative; /* Ensure the box appears above the overlay */
   z-index: 2;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--primary-transp);
   padding: var(--padding-medium) var(--padding-xxlarge);
   border-radius: var(--padding-xlarge);
   /* box-shadow: var(--shadow-small); */
@@ -127,15 +127,16 @@
   position: absolute;
   bottom: var(--padding-small);
   right: var(--padding-small);
-  /* background-color: var(--secondary-color); */
   /* color: var(--primary-color); */
   /* border: none; */
-  /* border-radius: var(--border-radius-medium); */
   padding: var(--padding-sm) var(--padding-medium);
   cursor: pointer;
   box-shadow: var(--shadow-small);
   transition: background-color 0.3s ease, transform 0.3s ease;
   z-index: 2;
+  background-color: transparent;
+  color: var(--primary-color);
+  border-radius: var(--padding-large);
   text-shadow: none;
   font-size: var(--font-medium);
 }
