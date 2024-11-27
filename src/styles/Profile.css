@@ -1,0 +1,44 @@
+/* Login prompt */
+.login-prompt {
+  text-align: center;
+  justify-self: center;
+  /* margin: 2rem auto; */
+  max-width: 30rem;
+}
+
+.login-prompt h2 {
+  font-size: var(--font-large);
+  margin-bottom: var(--padding-large);
+}
+
+.login-prompt p {
+  font-size: var(--font-medium);
+  color: var(--middle-color);
+  margin-bottom: var(--padding-medium);
+}
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--padding-sall);
+  justify-self: center;
+}
+
+.auth-buttons .login-button,
+.auth-buttons .signup-button {
+  padding: var(--padding-small) var(--padding-medium);
+  width: 8rem;
+  background-color: var(--tertiary-color);
+  
+  color: var(--secondary-color);
+  border: none;
+  border-radius: var(--border-radius-medium);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.auth-buttons .login-button:hover,
+.auth-buttons .signup-button:hover {
+  background-color: var(--quaternary-color);
+}
