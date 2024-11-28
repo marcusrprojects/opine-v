@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebaseConfig';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { useAuth } from '../context/useAuth';
 import CategoryCollection from './CategoryCollection';
 import { useNavigate } from 'react-router-dom';
@@ -24,15 +24,29 @@ const Profile = () => {
     const fetchUserCategories = async () => {
       if (!user) return;
 
-      const likedQuery = query(collection(db, 'categories'), where('likedBy', 'array-contains', user.uid));
+      // Fetch user's document to get likedCategories
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDocSnapshot = await getDoc(userDocRef);
+
+      if (userDocSnapshot.exists()) {
+        const userData = userDocSnapshot.data();
+        const likedCategoryIds = userData.likedCategories || [];
+
+        // Fetch liked categories by their IDs
+        const likedCategoryDocs = await Promise.all(
+          likedCategoryIds.map(async (categoryId) => {
+            const categoryDocRef = doc(db, 'categories', categoryId);
+            const categoryDocSnapshot = await getDoc(categoryDocRef);
+            return { id: categoryId, ...categoryDocSnapshot.data() };
+          })
+        );
+
+        setLikedCategories(likedCategoryDocs);
+      }
+
+      // Fetch categories created by the user
       const createdQuery = query(collection(db, 'categories'), where('createdBy', '==', user.uid));
-
-      const [likedSnapshot, createdSnapshot] = await Promise.all([
-        getDocs(likedQuery),
-        getDocs(createdQuery),
-      ]);
-
-      setLikedCategories(likedSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      const createdSnapshot = await getDocs(createdQuery);
       setOwnCategories(createdSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     };
 
