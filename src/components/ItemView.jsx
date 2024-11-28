@@ -34,7 +34,7 @@ const ItemView = () => {
         const categoryData = categoryDoc.data();
         setPrimaryField(categoryData.primaryField);
         setOrderedFields(categoryData.fields);
-        setCreatorId(categoryData.creatorId);
+        setCreatorId(categoryData.createdBy);
       }
     };
     fetchItem();
