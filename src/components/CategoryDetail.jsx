@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebaseConfig';
-import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { FaEdit, FaTrash, FaHeart, FaRegHeart } from 'react-icons/fa';
 import "../styles/CategoryDetail.css";
 import { debounce } from 'lodash';
 import RankCategory from '../enums/RankCategory';
@@ -24,6 +24,7 @@ const CategoryDetail = () => {
   const [tags, setTags] = useState([]);
   const [categoryName, setCategoryName] = useState('');
   const [loading, setLoading] = useState(true);
+  const [liked, setLiked] = useState(false); // State to track if the board is liked
   const navigate = useNavigate();
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [description, setDescription] = useState(''); // Description state
@@ -65,8 +66,49 @@ const CategoryDetail = () => {
       }
     };
 
+    const fetchLikedState = async () => {
+      if (!user) return;
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          setLiked(userData.likedCategories?.includes(categoryId));
+        }
+      } catch (error) {
+        handleError(error, 'Error fetching liked state.');
+      }
+    };
+
     fetchCategoryData();
-  }, [categoryId]);
+    fetchLikedState();
+  }, [categoryId, user]);
+
+  const toggleLike = async () => {
+    if (!user) {
+      alert("You must be logged in to like a board.");
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+
+      if (liked) {
+        await updateDoc(userDocRef, {
+          likedCategories: arrayRemove(categoryId),
+        });
+      } else {
+        await updateDoc(userDocRef, {
+          likedCategories: arrayUnion(categoryId),
+        });
+      }
+
+      setLiked(!liked);
+    } catch (error) {
+      handleError(error, 'Error updating like state.');
+    }
+  };
 
   const canEdit = useMemo(() => {
     return user && user.uid === creatorId;
@@ -180,6 +222,13 @@ const CategoryDetail = () => {
     <div>
       <div className="category-detail-container">
         <div className="category-actions">
+          <div className="like-container">
+            {liked ? (
+              <FaHeart className="icon like-icon" onClick={toggleLike} />
+            ) : (
+              <FaRegHeart className="icon like-icon" onClick={toggleLike} />
+            )}
+          </div>
           {canEdit &&
             <div className={`${canEdit ? 'editable' : 'non-editable'} cheese`}>
               <FaEdit className="icon edit-icon" onClick={handleEditCategory} />
