@@ -138,7 +138,8 @@ const Profile = () => {
         onMouseLeave={isEditing ? handleMouseUp : null}
       >
         <div className="text-box">
-          <h3>{user?.email}</h3>
+          <h2>{user.name || "Anonymous"}</h2>
+          <h3>@{user.username || "unknown"}</h3>
         </div>
         <button
           className="edit-cover-photo-button"
