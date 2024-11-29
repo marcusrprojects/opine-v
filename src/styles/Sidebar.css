@@ -1,15 +1,15 @@
 /* Button to toggle sidebar */
 .sidebar-toggle {
     position: fixed;
-    top: var(--padding-medium); /* Keeps the toggle button at the top-left corner */
-    left: var(--padding-large); /* Adjusts for horizontal positioning */
+    top: var(--padding-medium);
+    left: var(--padding-large);
     color: var(--secondary-color);
     border: none;
     padding: var(--padding-medium);
     border-radius: 50%;
     cursor: pointer;
     z-index: 11;
-    background-color: var(--primary-color);
+    background-color: transparent;
     transition: transform 200ms ease, background-color 200ms ease;
 }
 
@@ -41,11 +41,7 @@
 .sidebar-toggle svg {
     font-size: var(--font-medium);
 }
-
-#theme-toggle {
-    height: 3rem;
-    align-content: center;
-}
+ 
 
 /* Sidebar styles */
 nav.sidebar {
