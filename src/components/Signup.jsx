@@ -8,10 +8,10 @@ import { db } from "../firebaseConfig";
 function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState(''); // State for display name
-  const [username, setUsername] = useState(''); // State for username
-  const [error, setError] = useState(null); // State to track error messages
-  const [isChecking, setIsChecking] = useState(false); // To track username validation
+  const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
+  const [error, setError] = useState(null);
+  const [isChecking, setIsChecking] = useState(false);
   const auth = getAuth();
   const navigate = useNavigate();
 
@@ -34,18 +34,42 @@ function Signup() {
   const isUsernameUnique = async (username) => {
     setIsChecking(true);
     const usersRef = collection(db, "users");
-    const usernameQuery = query(usersRef, where("username", "==", username));
+    const usernameQuery = query(usersRef, where("username", "==", username.toLowerCase()));
     const usernameSnapshot = await getDocs(usernameQuery);
     setIsChecking(false);
     return usernameSnapshot.empty; // Returns true if no users have this username
+  };
+
+  const validateUsername = (username) => {
+    const minLength = 3;
+    const maxLength = 24;
+    const usernameRegex = /^[a-zA-Z0-9_.]+$/; // Allows letters, numbers, underscores, and periods
+
+    if (username.length < minLength) {
+      return `Username must be at least ${minLength} characters long.`;
+    }
+    if (username.length > maxLength) {
+      return `Username cannot exceed ${maxLength} characters.`;
+    }
+    if (!usernameRegex.test(username)) {
+      return 'Username can only contain letters, numbers, underscores, and periods.';
+    }
+    return null; // No errors
   };
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setError(null); // Clear previous errors before new attempt
 
-    if (!displayName || !username) {
-      setError("Display Name and Username are required.");
+    // Validate username
+    const usernameError = validateUsername(username);
+    if (usernameError) {
+      setError(usernameError);
+      return;
+    }
+
+    if (!displayName) {
+      setError("Display Name is required.");
       return;
     }
 
@@ -65,7 +89,7 @@ function Signup() {
       console.log('Signed up:', user);
 
       // Add the new user to Firestore
-      await addUserToCollection(user, displayName, username);
+      await addUserToCollection(user, displayName, username.toLowerCase());
 
       // Redirect to home or another route on successful signup
       navigate('/');
