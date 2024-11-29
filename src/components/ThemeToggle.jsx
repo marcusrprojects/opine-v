@@ -1,45 +1,47 @@
 import { useState, useEffect } from 'react';
-import '../styles/ThemeToggle.css'; // Import the CSS for styling the toggle switch
+import '../styles/ThemeToggle.css';
+import { FaAdjust, FaSun, FaMoon } from 'react-icons/fa';
+import { Link } from "react-router-dom";
 
 const ThemeToggle = () => {
-  const [isDarkMode, setIsDarkMode] = useState(
-    localStorage.getItem('theme') === 'dark' || window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
+  const [themeMode, setThemeMode] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) return savedTheme;
+    return 'auto'; 
+  });
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e) => {
-      setIsDarkMode(e.matches);
+    const applyTheme = () => {
+      if (themeMode === 'auto') {
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', systemPrefersDark ? 'dark' : 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', themeMode);
+      }
+      localStorage.setItem('theme', themeMode);
     };
-    mediaQuery.addEventListener('change', handleChange);
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange);
-    };
-  }, []);
 
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
+    applyTheme();
+  }, [themeMode]);
 
   const toggleTheme = () => {
-    setIsDarkMode((prevMode) => !prevMode);
+    setThemeMode((prevMode) => {
+      if (prevMode === 'auto') return 'light';
+      if (prevMode === 'light') return 'dark';
+      return 'auto';
+    });
+  };
+
+  const getThemeIcon = () => {
+    if (themeMode === 'auto') return <FaAdjust />;
+    if (themeMode === 'light') return <FaSun />;
+    if (themeMode === 'dark') return <FaMoon />;
   };
 
   return (
-    <label className="theme-toggle">
-      <input
-        type="checkbox"
-        checked={isDarkMode}
-        onChange={toggleTheme}
-      />
-      <span className="slider"></span>
-    </label>
+    <Link className="theme-toggle" onClick={toggleTheme} aria-label="Toggle Theme">
+      {getThemeIcon()}
+    </Link>
   );
 };
 
