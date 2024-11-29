@@ -47,10 +47,6 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
 
       {/* Sidebar navigation */}
       <nav className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <div id="theme-toggle">
-          <ThemeToggle />
-        </div>
-
         <Link to="/categories" title="Home" className="link-icon">
           <FaHome />
         </Link>
@@ -62,6 +58,10 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
         <Link to="/login" title="Login" className="link-icon">
           <FaSignInAlt />
         </Link>
+
+        <div className="link-icon" title="Theme">
+          <ThemeToggle />
+        </div>
       </nav>
     </>
   );
