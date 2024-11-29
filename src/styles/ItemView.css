@@ -132,3 +132,8 @@
   pointer-events: none;
   cursor: not-allowed;
 }
+
+.editable {
+  pointer-events:all;
+  cursor: pointer;
+}
