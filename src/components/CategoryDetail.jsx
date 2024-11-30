@@ -230,7 +230,7 @@ const CategoryDetail = () => {
             )}
           </div>
           {canEdit &&
-            <div className={`${canEdit ? 'editable' : 'non-editable'} cheese`}>
+            <div className={`${canEdit ? 'editable' : 'non-editable'}`}>
               <FaEdit className="icon edit-icon" onClick={handleEditCategory} />
 
               {isEditingCategory && (
