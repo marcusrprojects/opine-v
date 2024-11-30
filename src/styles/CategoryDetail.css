@@ -169,7 +169,7 @@
 .icon {
     font-size: 1.5rem;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .category-actions .delete-icon, .edit-icon{
@@ -222,4 +222,19 @@
   border: none;
   outline: .001rem solid var(--quinary-color);
   background-color: var(--primary-color);
+}
+
+.like-container {
+  display: flex;
+  /* justify-content: center; */
+  /* align-items: center; */
+}
+
+.like-icon.liked {
+  color: var(--primary-color);
+  transform: scale(1.2);
+}
+
+.like-icon:hover {
+  transform: scale(1.1);
 }
