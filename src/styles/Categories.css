@@ -3,12 +3,17 @@
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: var(--padding-ml);
   padding: 0;
+  /* width: 90vw;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: start; */
 }
 
 .category-card {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
   border-radius: var(--border-radius-medium);
   border: .01rem solid var(--quinary-color);
   text-align: center;
@@ -155,4 +160,31 @@ button {
 button:hover {
   background-color: var(--quaternary-color);
   color: var(--primary-color);
+}
+
+.like-container {
+  display: flex;
+  justify-content: flex-end;
+  position: absolute;
+  top: var(--padding-small);
+  right: var(--padding-sm);
+  /* margin-top: 0.5rem; */
+  /* margin-left: 0.5rem; */
+  /* right: 1rem; */
+  /* top: 1rem; */
+}
+
+.like-container .like-icon {
+  font-size: var(--padding-medium);
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s ease;
+  color: var(--middle-color);
+}
+
+.like-container .like-icon.liked {
+  color: var(--middle-color);
+}
+
+.like-icon:hover {
+  transform: scale(1.2);
 }
