@@ -31,6 +31,7 @@ const CategoryDetail = () => {
   const [creatorId, setCreatorId] = useState('');
   const [isEditingDescription, setIsEditingDescription] = useState(false); // Editing state for description
   const [isEditingCategoryName, setIsEditingCategoryName] = useState(false);
+  const [creatorUsername, setCreatorUsername] = useState('');
 
   const { user } = useAuth(); // Access the user state from useAuth
 
@@ -48,6 +49,14 @@ const CategoryDetail = () => {
           setCategoryName(categoryData.name);
           setDescription(categoryData.description || '');
           setCreatorId(categoryData.createdBy);
+
+          // Fetch the creator's username
+          const creatorDocRef = doc(db, 'users', categoryData.createdBy);
+          const creatorSnapshot = await getDoc(creatorDocRef);
+          if (creatorSnapshot.exists()) {
+            const creatorData = creatorSnapshot.data();
+            setCreatorUsername(creatorData.username || 'Unknown User');
+          }
         }
 
         const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
@@ -222,13 +231,11 @@ const CategoryDetail = () => {
     <div>
       <div className="category-detail-container">
         <div className="category-actions">
-          <div className="like-container">
-            {liked ? (
-              <FaHeart className="icon like-icon" onClick={toggleLike} />
-            ) : (
-              <FaRegHeart className="icon like-icon" onClick={toggleLike} />
-            )}
-          </div>
+          {liked ? (
+            <FaHeart className="icon like-icon liked" onClick={toggleLike} />
+          ) : (
+            <FaRegHeart className="icon like-icon" onClick={toggleLike} />
+          )}
           {canEdit &&
             <div className={`${canEdit ? 'editable' : 'non-editable'}`}>
               <FaEdit className="icon edit-icon" onClick={handleEditCategory} />
@@ -246,8 +253,8 @@ const CategoryDetail = () => {
 
               <FaTrash className="icon delete-icon" onClick={handleDeleteCategory} />
             </div>
-            }
-          </div>
+          }
+        </div>
 
         <div className={`category-title ${canEdit ? 'editable' : 'non-editable'}`}>
           {canEdit && isEditingCategoryName ? (
@@ -264,6 +271,8 @@ const CategoryDetail = () => {
             </h2>
           )}
         </div>
+
+        <p className='username'>@{creatorUsername}</p>
 
         {/* Editable Description */}
         <div className={`category-description ${canEdit ? 'editable' : 'non-editable'}`}>

@@ -159,11 +159,21 @@
 
 /* Actions container */
 .category-actions {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
+    position: relative;
     display: flex;
-    gap: 0.5rem;
+    gap: var(--padding-xsmall);
+    /* top: 1rem; */
+    /* right: 1rem; */
+    /* gap: var(--padding-small); */
+    justify-content: flex-end;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+}
+
+.category-actions .icon, .category-actions {
+    margin:var(--padding-xsmall);
+    padding: 0;
 }
 
 .icon {
@@ -174,10 +184,6 @@
 
 .category-actions .delete-icon, .edit-icon{
     color: var(--quinary-color);
-}
-
-.category-actions .delete-icon:hover, .edit-icon:hover {
-    color: var(--middle-color);
 }
 
 .back-button {
@@ -201,10 +207,15 @@
 }
 
 .category-description, .category-title {
-  margin: 2rem 0;
+  /* margin: 2rem 0; */
+  /* margin:0; */
   font-size: 1rem;
   color: var(--secondary-color);
   cursor: pointer;
+}
+
+.category-description {
+    margin: 2rem 0;
 }
 
 .category-description textarea, .category-title input {
@@ -231,10 +242,17 @@
 }
 
 .like-icon.liked {
-  color: var(--primary-color);
-  transform: scale(1.2);
+  color: var(--quinary-color);
+  align-items: center;
 }
 
-.like-icon:hover {
+.like-icon:hover, .category-actions .icon:hover {
   transform: scale(1.1);
+  color: var(--middle-color);
+}
+
+.category-actions .non-editable, .category-actions .editable {
+    margin: 0;
+    gap: 0;
+    padding: 0;
 }
