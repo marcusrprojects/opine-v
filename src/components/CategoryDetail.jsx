@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebaseConfig';
 import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { FaEdit, FaTrash, FaHeart, FaRegHeart } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaHeart, FaRegHeart, FaFilter, FaCog } from 'react-icons/fa';
 import "../styles/CategoryDetail.css";
 import { debounce } from 'lodash';
 import RankCategory from '../enums/RankCategory';
@@ -32,8 +32,10 @@ const CategoryDetail = () => {
   const [isEditingDescription, setIsEditingDescription] = useState(false); // Editing state for description
   const [isEditingCategoryName, setIsEditingCategoryName] = useState(false);
   const [creatorUsername, setCreatorUsername] = useState('');
-
-  const { user } = useAuth(); // Access the user state from useAuth
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [filterFields, setFilterFields] = useState([]);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchCategoryData = async () => {
@@ -123,11 +125,26 @@ const CategoryDetail = () => {
     return user && user.uid === creatorId;
   }, [user, creatorId]);
 
+  const handleSettingsToggle = () => {
+    setSettingsOpen((prev) => {
+      if (prev) {
+        setFilterOpen(false); // Turn off the filter when settings are closed
+      }
+      return !prev;
+    });
+  };
+
   const handleFilterChange = (field, value) => {
     setFilters(prevFilters => ({
       ...prevFilters,
       [field]: value,
     }));
+  };
+
+  const handleFilterFieldChange = (field) => {
+    setFilterFields(prev =>
+      prev.includes(field) ? prev.filter(f => f !== field) : [...prev, field]
+    );
   };
 
   const canEditAction = async (action) => {
@@ -180,20 +197,33 @@ const CategoryDetail = () => {
     setIsEditingCategory(false);
   };
 
+  const toggleFilter = () => {
+    setFilterOpen((prev) => !prev);
+  };
+
+  // const applyFilters = debounce(() => {
+  //   const filtered = items.filter(item => {
+  //     return Object.keys(filters).every(field => {
+  //       const filterValue = filters[field].toLowerCase();
+  //       const itemValue = item[field]?.toString().toLowerCase();
+  //       return itemValue?.includes(filterValue);
+  //     });
+  //   });
+  //   setFilteredItems(filtered);
+  // }, 300);
+
   const applyFilters = debounce(() => {
-    const filtered = items.filter(item => {
-      return Object.keys(filters).every(field => {
-        const filterValue = filters[field].toLowerCase();
-        const itemValue = item[field]?.toString().toLowerCase();
-        return itemValue?.includes(filterValue);
-      });
-    });
+    const filtered = items.filter(item =>
+      filterFields.every(field =>
+        (item[field] || '').toString().toLowerCase().includes(filters[field]?.toLowerCase() || '')
+      )
+    );
     setFilteredItems(filtered);
   }, 300);
 
   useEffect(() => {
     applyFilters();
-  }, [filters, applyFilters]);
+  }, [filters, applyFilters, filterFields]);
 
   const handleItemClick = (itemId, cardColor) => {
     navigate(`./item/${itemId}`, { state: { cardColor } });
@@ -223,6 +253,18 @@ const CategoryDetail = () => {
     }
   };
 
+  useEffect(() => {
+    let timeoutId;
+  
+    if (settingsOpen && !filterOpen) {
+      timeoutId = setTimeout(() => {
+        setSettingsOpen(false);
+      }, 4000);
+    }
+  
+    return () => clearTimeout(timeoutId);
+  }, [settingsOpen, filterOpen]);
+
   if (loading) {
     return <LoadingComponent message={LoadingMessages.FETCHING} />;
   }
@@ -230,31 +272,6 @@ const CategoryDetail = () => {
   return (
     <div>
       <div className="category-detail-container">
-        <div className="category-actions">
-          {liked ? (
-            <FaHeart className="icon like-icon liked" onClick={toggleLike} />
-          ) : (
-            <FaRegHeart className="icon like-icon" onClick={toggleLike} />
-          )}
-          {canEdit &&
-            <div className={`${canEdit ? 'editable' : 'non-editable'}`}>
-              <FaEdit className="icon edit-icon" onClick={handleEditCategory} />
-
-              {isEditingCategory && (
-                <EditCategoryModal
-                  fields={fields}
-                  primaryField={primaryField}
-                  categoryName={categoryName}
-                  tags={tags}
-                  onSave={handleSaveFields}
-                  onClose={handleCloseModal}
-                />
-              )}
-
-              <FaTrash className="icon delete-icon" onClick={handleDeleteCategory} />
-            </div>
-          }
-        </div>
 
         <div className={`category-title ${canEdit ? 'editable' : 'non-editable'}`}>
           {canEdit && isEditingCategoryName ? (
@@ -290,7 +307,81 @@ const CategoryDetail = () => {
           )}
         </div>
 
-        <div className="filters">
+        <div className="settings-actions-container">
+          <button className="settings-toggle" onClick={handleSettingsToggle}>
+            <FaCog />
+          </button>
+
+            <div className={`category-actions ${settingsOpen ? 'open' : ''}`}>
+
+              <FaFilter
+                className={`icon ${filterOpen ? 'filter-active' : ''}`}
+                onClick={toggleFilter}
+              />
+
+              {liked ? (
+                <FaHeart className="icon liked" onClick={toggleLike} />
+              ) : (
+                <FaRegHeart className="icon" onClick={toggleLike} />
+              )}
+              <FaEdit className="icon" onClick={handleEditCategory} />
+
+              {canEdit && isEditingCategory && (
+                <EditCategoryModal
+                  fields={fields}
+                  primaryField={primaryField}
+                  categoryName={categoryName}
+                  tags={tags}
+                  onSave={handleSaveFields}
+                  onClose={handleCloseModal}
+                  className={`${canEdit ? 'editable' : 'non-editable'}`}
+                />
+              )}
+
+              {canEdit &&
+                <FaTrash className={`icon ${canEdit ? 'editable' : 'non-editable'}`} onClick={handleDeleteCategory} />
+              }
+
+              {settingsOpen && filterOpen && (
+                <div className="filter-checkboxes">
+                  {fields.map((field, index) => (
+                    <div key={index} className="filter-checkbox-container">
+                      <label className="filter-field">
+                        <input
+                          type="checkbox"
+                          checked={filterFields.includes(field)}
+                          onChange={() => handleFilterFieldChange(field)}
+                        />
+                        {field}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            
+        </div>
+
+        {settingsOpen && filterOpen && (
+          <div className="filter">
+            <div className="filter-inputs">
+              {filterFields.map((field) => (
+                <div key={field} className="filter-input-container">
+                  <input
+                    type="text"
+                    placeholder={`Filter by ${field}`}
+                    value={filters[field] || ''}
+                    onChange={(e) => handleFilterChange(field, e.target.value)}
+                    className="filters"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* <div className="filters">
           {fields.map((field, index) => (
             <input
               key={index}
@@ -300,7 +391,7 @@ const CategoryDetail = () => {
               onChange={(e) => handleFilterChange(field, e.target.value)}
             />
           ))}
-        </div>
+        </div> */}
 
         <div className="item-grid">
           {filteredItems.map((item) => {
