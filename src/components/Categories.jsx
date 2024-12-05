@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { db } from '../firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import "../styles/Categories.css";
 import AddButton from './AddButton';
+import { useAuth } from '../context/useAuth';
 import { debounce } from 'lodash';
+import { FaHeart, FaRegHeart, FaSearch } from 'react-icons/fa'; // Icons for like/dislike
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -14,13 +16,15 @@ const Categories = () => {
   const [tagMap, setTagMap] = useState({}); // Store tag IDs and names
   const [loading, setLoading] = useState(true);
   const [showDropdown, setShowDropdown] = useState(false); // For controlling dropdown visibility
+  const [likedCategories, setLikedCategories] = useState([]);
   const navigate = useNavigate();
+  const [showSearch, setShowSearch] = useState(false); // State for toggling the search input
+  const { user } = useAuth();
 
   // Create a debounced function outside of React render
   const debouncedFilterRef = useRef(
     debounce((searchValue, tags, categories, tagMap, setFilteredCategories) => {
       const searchLower = searchValue.toLowerCase();
-
       const filtered = categories.filter((category) => {
         const matchesName = category.name.toLowerCase().includes(searchLower);
 
@@ -64,16 +68,32 @@ const Categories = () => {
         }));
         setCategories(categoryList);
         setFilteredCategories(categoryList);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching categories: ', error);
-        setLoading(false);
+      }
+    };
+
+    const fetchLikedCategories = async () => {
+      if (user) {
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDocSnapshot = await getDoc(userDocRef);
+          if (userDocSnapshot.exists()) {
+            const userData = userDocSnapshot.data();
+            const likedCategoryIds = userData.likedCategories || []; // Ensure array of IDs
+            setLikedCategories(likedCategoryIds); // Directly set IDs
+          }
+        } catch (error) {
+          console.error('Error fetching liked categories:', error);
+        }
       }
     };
 
     fetchTags();
     fetchCategories();
-  }, []);
+    fetchLikedCategories();
+    setLoading(false);
+  }, [user]);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -104,6 +124,25 @@ const Categories = () => {
     setShowDropdown(false); // Hide the dropdown
   };
 
+  const toggleLike = async (categoryId) => {
+    if (!user) {
+      alert('You need to log in to like categories.');
+      return;
+    }
+
+    const userDocRef = doc(db, 'users', user.uid);
+    const updatedLikes = likedCategories.includes(categoryId)
+      ? likedCategories.filter((id) => id !== categoryId) // Remove like
+      : [...likedCategories, categoryId]; // Add like
+
+    try {
+      await updateDoc(userDocRef, { likedCategories: updatedLikes });
+      setLikedCategories(updatedLikes);
+    } catch (error) {
+      console.error('Error updating likes:', error);
+    }
+  };
+
   const handleRemoveTag = (tagId) => {
     toggleTagFilter(tagId);
   };
@@ -124,32 +163,44 @@ const Categories = () => {
     <div>
       <h2>Categories</h2>
 
-      {/* Unified Search Input */}
-      <div className="filters tag-filter">
-        <input
-          type="text"
-          placeholder="Filter by name or tag"
-          value={searchInput}
-          onChange={handleSearchChange}
-          onFocus={() => setShowDropdown(true)}
-          onBlur={() => setTimeout(() => setShowDropdown(false), 150)} // Delay to allow selection
-        />
-        {showDropdown && searchInput && (
-          <div className="tag-dropdown">
-            {Object.entries(tagMap)
-              .filter(([tagId, tagName]) =>
-                tagName.toLowerCase().includes(searchInput.toLowerCase()) &&
-                !selectedTags.includes(tagId)
-              )
-              .map(([tagId, tagName]) => (
-                <div
-                  key={tagId}
-                  className="dropdown-item"
-                  onClick={() => toggleTagFilter(tagId)}
-                >
-                  {tagName}
-                </div>
-              ))}
+      <div className="search-container">
+        <button
+          className="search-icon"
+          onClick={() => setShowSearch(!showSearch)}
+          aria-label="Toggle search"
+        >
+          <FaSearch />
+        </button>
+
+        {showSearch && (
+          <div className="tag-filter">
+            <input
+              type="text"
+              placeholder="Filter by name or tag"
+              value={searchInput}
+              onChange={handleSearchChange}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 150)} // Delay to allow selection
+              className="search-input"
+            />
+            {showDropdown && searchInput && (
+              <div className="tag-dropdown">
+                {Object.entries(tagMap)
+                  .filter(([tagId, tagName]) =>
+                    tagName.toLowerCase().includes(searchInput.toLowerCase()) &&
+                    !selectedTags.includes(tagId)
+                  )
+                  .map(([tagId, tagName]) => (
+                    <div
+                      key={tagId}
+                      className="dropdown-item"
+                      onClick={() => toggleTagFilter(tagId)}
+                    >
+                      {tagName}
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -186,6 +237,21 @@ const Categories = () => {
                   .filter((field) => field !== category.primaryField)
                   .join(', ')}
               </div>
+
+              <div className="like-container">
+                {likedCategories.includes(category.id) ? (
+                  <FaHeart
+                    className="like-icon liked"
+                    onClick={() => toggleLike(category.id)}
+                  />
+                ) : (
+                  <FaRegHeart
+                    className="like-icon"
+                    onClick={() => toggleLike(category.id)}
+                  />
+                )}
+              </div>
+
               <div className="category-tags">
                 {category.tags && category.tags.length > 0 ? (
                   <div className="tag-container">
