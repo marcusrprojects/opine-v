@@ -9,35 +9,6 @@
     position: relative;
 }
 
-/* Filters container styling */
-.filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--padding-medium);
-    margin-bottom: var(--padding-large);
-    justify-content: center;
-}
-
-/* Individual filter input styling */
-.filters input {
-    padding: var(--padding-medium);
-    border-radius: var(--border-radius-medium);
-    /* border: 1px solid var(--secondary-color); */
-    border: .01rem solid var(--quinary-color);
-    font-size: var(--font-medium);
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    width: 11rem; /* Set a consistent width */
-    color: var(--secondary-color);
-    background-color: transparent;
-}
-
-/* Style the filter inputs on focus */
-.filters input:focus {
-    border-color: var(--middle-color);
-    box-shadow: 0 0 5px var(--middle-color);
-}
-
 /* Grid layout for item cards, responsive */
 .item-grid {
     display: grid;
@@ -71,12 +42,14 @@
     margin:0;
     padding: 0;
     margin-bottom: var(--padding-sm);
+    flex-wrap: nowrap;
 }
 
 .item-header h4.item-title {
-    font-size: var(--font-large);
+    font-size: var(--font-ml);
     font-weight: var(--fw-medium);
     margin: 0;
+    text-overflow: ellipsis;
 }
 
 .item-title {
@@ -98,6 +71,7 @@
     border-radius: 14px;
     /* border: .05rem solid var(--secondary-color); */
     padding: 0.03rem;
+    flex-shrink: 0;
 }
 
 /* Bottom of card */
@@ -161,29 +135,33 @@
 .category-actions {
     position: relative;
     display: flex;
-    gap: var(--padding-xsmall);
-    /* top: 1rem; */
-    /* right: 1rem; */
-    /* gap: var(--padding-small); */
-    justify-content: flex-end;
-    align-items: flex-start;
+    gap: var(--padding-medium);
+    justify-content: left;
     margin: 0;
     padding: 0;
+
+    /* Initial state for hidden actions */
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(-20%); /* Move out of view to the left */
+    transform-origin: left; /* Set the origin to the left edge */
+    transition: visibility 100ms ease, opacity 100ms ease, transform 200ms ease;
 }
 
-.category-actions .icon, .category-actions {
-    margin:var(--padding-xsmall);
-    padding: 0;
+.category-actions.open {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
 }
 
 .icon {
-    font-size: 1.5rem;
-    cursor: pointer;
     transition: transform 0.3s ease, color 0.3s ease;
+    color: var(--middle-color);
 }
 
-.category-actions .delete-icon, .edit-icon{
-    color: var(--quinary-color);
+.settings-toggle, .icon {
+    font-size: 1.5rem;
+    cursor: pointer;
 }
 
 .back-button {
@@ -208,14 +186,9 @@
 
 .category-description, .category-title {
   /* margin: 2rem 0; */
-  /* margin:0; */
   font-size: 1rem;
   color: var(--secondary-color);
   cursor: pointer;
-}
-
-.category-description {
-    margin: 2rem 0;
 }
 
 .category-description textarea, .category-title input {
@@ -235,24 +208,103 @@
   background-color: var(--primary-color);
 }
 
-.like-container {
-  display: flex;
-  /* justify-content: center; */
-  /* align-items: center; */
-}
-
-.like-icon.liked {
-  color: var(--quinary-color);
-  align-items: center;
-}
-
-.like-icon:hover, .category-actions .icon:hover {
+.icon:hover {
   transform: scale(1.1);
-  color: var(--middle-color);
 }
 
-.category-actions .non-editable, .category-actions .editable {
+.non-editable, .editable {
     margin: 0;
     gap: 0;
     padding: 0;
+}
+
+.settings-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--middle-color);
+  font-size: 1.5rem;
+  outline: none;
+  margin:0;
+  display: flex;
+  justify-content: left;
+}
+
+.settings-toggle:hover {
+    background-color: transparent;
+    color: var(--middle-color);
+    border-radius: 10rem;
+    outline: none;
+    scale: 1.1;
+}
+
+.settings-toggle:focus {
+    border: none;
+    outline: none;
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--padding-medium);
+}
+
+/* Individual filter input styling */
+.filters {
+    padding: var(--padding-medium);
+    border-radius: var(--border-radius-medium);
+    border: .01rem solid var(--quinary-color);
+    font-size: var(--font-medium);
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 11rem;
+    color: var(--secondary-color);
+    background-color: transparent;
+}
+
+/* Style the filter inputs on focus */
+.filters input:focus {
+    border-color: var(--middle-color);
+    box-shadow: 0 0 5px var(--middle-color);
+}
+
+.filter-checkboxes,
+.filter-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--padding-medium);
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.filter-checkbox-container {
+  display: flex;
+  align-items: center;
+}
+
+.filter-field {
+  display: flex;
+  align-items: center;
+  gap: var(--padding-xsmall);
+}
+
+.filter-input-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--padding-small);
+}
+
+.settings-actions-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--padding-small);
+}
+
+.filter-active {
+  color: var(--secondary-color);
 }
