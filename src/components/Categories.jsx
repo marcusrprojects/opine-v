@@ -239,18 +239,24 @@ const Categories = () => {
               </div>
 
               <div className="like-container">
-                {likedCategories.includes(category.id) ? (
-                  <FaHeart
-                    className="like-icon liked"
-                    onClick={() => toggleLike(category.id)}
-                  />
-                ) : (
-                  <FaRegHeart
-                    className="like-icon"
-                    onClick={() => toggleLike(category.id)}
-                  />
-                )}
-              </div>
+              {likedCategories.includes(category.id) ? (
+                <FaHeart
+                  className="like-icon liked"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent navigation
+                    toggleLike(category.id);
+                  }}
+                />
+              ) : (
+                <FaRegHeart
+                  className="like-icon"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent navigation
+                    toggleLike(category.id);
+                  }}
+                />
+              )}
+            </div>
 
               <div className="category-tags">
                 {category.tags && category.tags.length > 0 ? (
