@@ -409,13 +409,15 @@ const CategoryDetail = () => {
                   <div className="item-rating" style={{ backgroundColor: cardColor }}>{rating.toFixed(1)}</div>
                   <h4 className="item-title">{item[primaryField] || "Unnamed Item"}</h4>
                 </div>
-                <div className="item-content">
-                  {fields.filter(field => field !== primaryField).map((field, fieldIndex) => (
-                    <p key={fieldIndex} className="field-pair">
-                      <span className="attribute-string">{field}:</span> <span className="attribute-value" style={{ color: cardColor}}>{item[field] || "N/A"}</span>
-                    </p>
-                  ))}
-                </div>
+                {Object.keys(fields || {}).length > 1 && (
+                  <div className="item-content">
+                    {fields.filter(field => field !== primaryField).map((field, fieldIndex) => (
+                      <p key={fieldIndex} className="field-pair">
+                        <span className="attribute-string">{field}:</span> <span className="attribute-value" style={{ color: cardColor}}>{item[field] || "N/A"}</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
