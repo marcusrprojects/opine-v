@@ -194,8 +194,9 @@
 .category-description textarea, .category-title input {
   text-align: center;
   padding: var(--padding-sm) var(--padding-small);
-  width: 65%; /* Ensure fields span the container width */
+  width: 80%;
   border-radius: var(--border-radius-small);
+  color: var(--secondary-color);
 }
 
 .category-description p:hover, .category-title h2:hover {
