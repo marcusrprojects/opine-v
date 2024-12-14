@@ -3,7 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
 import { db } from '../firebaseConfig';
-import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from 'firebase/firestore';
 import "../styles/EditCategory.css";
 import { handleError } from '../utils/errorUtils';
 
@@ -126,15 +126,54 @@ const EditCategory = () => {
   };
 
   const addTag = (tagId) => {
-    if (!tags.includes(tagId) && tags.length < 5) {
+    if (tags.length >= 5) {
+      alert("You can only add up to 5 tags.");
+      return;
+    }
+    if (!tags.includes(tagId)) {
       setTags([...tags, tagId]);
       setTagInput('');
       setShowDropdown(false);
     }
   };
 
+  const handleCustomTag = async () => {
+    if (tagInput.trim() && tags.length < 5) {
+      const existingTag = availableTags.find(tag => tag.name.toLowerCase() === tagInput.toLowerCase());
+  
+      if (existingTag) {
+        // Add the existing tag's ID
+        addTag(existingTag.id);
+      } else {
+        try {
+          // Add new tag to Firestore and retrieve its ID
+          const newTagRef = await addDoc(collection(db, 'tags'), { name: tagInput });
+          const newTag = { id: newTagRef.id, name: tagInput };
+          setAvailableTags([...availableTags, newTag]); // Update available tags
+          addTag(newTag.id); // Add the newly created tag
+        } catch (error) {
+          handleError(error, "Error adding new tag.");
+        }
+      }
+      setTagInput(''); // Clear the input field
+      setShowDropdown(false); // Close the dropdown
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent form submission
+      handleCustomTag(); // Add the tag or create a new one
+    }
+  };
+
   const handleRemoveTag = (tagId) => {
     setTags(tags.filter((tag) => tag !== tagId));
+  };
+
+  // TODO: determine whether to keep this.
+  const handleTagBlur = () => {
+    setTimeout(() => setShowDropdown(false), 150);
   };
 
   if (loading) {
@@ -202,8 +241,11 @@ const EditCategory = () => {
             type="text"
             value={tagInput}
             onChange={handleTagInput}
-            placeholder="Add tag"
+            placeholder="Add tag (1-5)"
             className="edit-input"
+            onBlur={handleTagBlur}
+            onKeyDown={handleKeyPress}
+            onFocus={() => setShowDropdown(true)}
           />
           {showDropdown && (
             <div className="dropdown">
