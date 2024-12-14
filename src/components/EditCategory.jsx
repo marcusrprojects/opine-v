@@ -248,7 +248,7 @@ const EditCategory = () => {
             onFocus={() => setShowDropdown(true)}
           />
           {showDropdown && (
-            <div className="dropdown">
+            <div className={`dropdown ${showDropdown ? 'expanded' : ''}`}>
               {availableTags
                 .filter(
                   (tag) =>
