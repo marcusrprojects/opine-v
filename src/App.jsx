@@ -15,6 +15,7 @@ import "./firebaseConfig";
 import ItemView from './components/ItemView';
 import ReRankFlow from './components/ReRankFlow';
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import EditCategory from './components/EditCategory';
 
 
 /**
@@ -51,6 +52,7 @@ function App() {
                 } 
               />
               <Route path="/categories/:categoryId" element={<CategoryDetail />} />
+              <Route path="/categories/:categoryId/edit" element={<EditCategory />} />
               <Route 
                 path="/categories/:categoryId/add-item" 
                 element={
