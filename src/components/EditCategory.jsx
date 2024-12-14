@@ -3,8 +3,9 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
 import { db } from '../firebaseConfig';
-import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
 import "../styles/EditCategory.css";
+import { handleError } from '../utils/errorUtils';
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -15,9 +16,7 @@ const EditCategory = () => {
   const [categoryName, setCategoryName] = useState(location.state?.categoryName || '');
   const [description, setDescription] = useState(location.state?.description || '');
   const [fields, setFields] = useState(location.state?.fields || []);
-  const [primaryFieldIndex, setPrimaryFieldIndex] = useState(
-    location.state?.fields?.indexOf(location.state?.primaryField) || 0
-  );
+  const [primaryField, setPrimaryField] = useState(location.state?.primaryField || '');
   const [tags, setTags] = useState(location.state?.tags || []);
   const [tagInput, setTagInput] = useState('');
   const [availableTags, setAvailableTags] = useState([]);
@@ -37,7 +36,7 @@ const EditCategory = () => {
             setCategoryName(data.name || '');
             setDescription(data.description || '');
             setFields(data.fields || []);
-            setPrimaryFieldIndex(data.fields.indexOf(data.primaryField));
+            setPrimaryField(data.primaryField || '');
             setTags(data.tags || []);
           }
 
@@ -49,7 +48,7 @@ const EditCategory = () => {
           }));
           setAvailableTags(tagsList);
         } catch (error) {
-          console.error('Error fetching category data:', error);
+          handleError(error, 'Error fetching category data:');
         } finally {
           setLoading(false);
         }
@@ -67,7 +66,7 @@ const EditCategory = () => {
           }));
           setAvailableTags(tagsList);
         } catch (error) {
-          console.error('Error fetching tags from Firestore:', error);
+          handleError(error, 'Error fetching tags from Firestore:');
         }
       };
 
@@ -76,18 +75,33 @@ const EditCategory = () => {
   }, [categoryId, location.state]);
 
   const handleSave = async () => {
+    if (!categoryName.trim()) {
+      alert("Category name is required.");
+      return;
+    }
+
+    if (fields.length === 0) {
+      alert("At least one field is required.");
+      return;
+    }
+
+    if (!primaryField || !fields.includes(primaryField)) {
+      alert("A valid primary field must be selected.");
+      return;
+    }
+
     try {
       const categoryDocRef = doc(db, 'categories', categoryId);
       await updateDoc(categoryDocRef, {
         name: categoryName,
         description,
         fields,
-        primaryField: fields[primaryFieldIndex],
+        primaryField,
         tags,
       });
       navigate(`/categories/${categoryId}`);
     } catch (error) {
-      console.error('Error saving category:', error);
+      handleError(error, "Error saving category.");
     }
   };
 
@@ -99,15 +113,11 @@ const EditCategory = () => {
   };
 
   const handleRemoveField = (field) => {
-    if (fields[primaryFieldIndex] === field) {
+    if (primaryField === field) {
       alert('Select a new primary field before removing this one.');
       return;
     }
     setFields(fields.filter((f) => f !== field));
-  };
-
-  const handlePrimaryFieldChange = (index) => {
-    setPrimaryFieldIndex(index);
   };
 
   const handleTagInput = (e) => {
@@ -151,26 +161,26 @@ const EditCategory = () => {
         />
       </div>
 
-      <div className='field-section'>
+      <div className="field-section">
         <label className="edit-label">Fields</label>
         <ul className="edit-list">
-        {fields.map((field, index) => (
-          <li key={field} className="edit-list-item">
-            <input
-              type="radio"
-              name="primaryField"
-              checked={primaryFieldIndex === index}
-              onChange={() => handlePrimaryFieldChange(index)}
-              className="field-radio"
-              id={`field-radio-${index}`}
-            />
-            <label htmlFor={`field-radio-${index}`} className="property-pair">
-              {field}
-            </label>
-            <FaTrash onClick={() => handleRemoveField(field)} className="icon delete-icon" />
-          </li>
-        ))}
-      </ul>
+          {fields.map((field) => (
+            <li key={field} className="edit-list-item">
+              <input
+                type="radio"
+                name="primaryField"
+                checked={primaryField === field}
+                onChange={() => setPrimaryField(field)}
+                className="field-radio"
+                id={`field-radio-${field}`}
+              />
+              <label htmlFor={`field-radio-${field}`} className="property-pair">
+                {field}
+              </label>
+              <FaTrash onClick={() => handleRemoveField(field)} className="icon delete-icon" />
+            </li>
+          ))}
+        </ul>
         <div className="edit-add-field">
           <input
             type="text"
@@ -238,7 +248,12 @@ const EditCategory = () => {
 };
 
 EditCategory.propTypes = {
-  // categoryId: PropTypes.string.isRequired,
+  categoryName: PropTypes.string,
+  description: PropTypes.string,
+  fields: PropTypes.arrayOf(PropTypes.string),
+  primaryField: PropTypes.string,
+  tags: PropTypes.arrayOf(PropTypes.string),
+  creatorUsername: PropTypes.string,
 };
 
 export default EditCategory;
