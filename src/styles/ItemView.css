@@ -6,7 +6,7 @@
 }
 
 .item-title {
-  font-size: 1.8rem;
+  font-size: var(--font-large);
   text-align: center;
   margin-bottom: var(--padding-large);
   color: var(--secondary-color);
@@ -67,10 +67,15 @@
 
 .notes-textarea {
   width: 40rem;
-  height: 5rem;
+  height: var(--padding-xxlarge);
   resize: vertical;
   background-color: transparent;
   color:var(--secondary-color);
+}
+
+.item-input, .notes-textarea {
+  font-size: var(--font-sm);
+  font-family: inherit;
 }
 
 .item-input {
@@ -92,12 +97,6 @@
   border: none;
   outline: .05rem solid var(--quaternary-color);
   border-radius: var(--border-radius-small);
-}
-
-.notes-textarea:focus:not(:focus-visible), 
-.item-input:focus:not(:focus-visible) {
-  outline: none !important;
-  border: none !important;
 }
 
 .trash-icon {
