@@ -326,7 +326,16 @@ const CategoryDetail = () => {
               {/* <FaEdit className="icon" onClick={handleEditCategory} /> */}
               <FaEdit
                 className="icon"
-                onClick={() => navigate(`/categories/${categoryId}/edit`)}
+                onClick={() => navigate(`/categories/${categoryId}/edit`, {
+                  state: {
+                    categoryName,
+                    description,
+                    fields,
+                    primaryField,
+                    tags,
+                    creatorUsername,
+                  },
+                })}
               />
 
               {/* {canEdit && isEditingCategory && (
