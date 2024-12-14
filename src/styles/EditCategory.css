@@ -8,6 +8,7 @@
   max-width: 800px;
   margin: auto;
   position: relative;
+  font-family: inherit;
 }
 
 .edit-section, .field-section {
@@ -47,6 +48,7 @@
   border: 1px solid var(--quinary-color);
   border-radius: var(--border-radius-medium);
   background-color: transparent;
+  outline: none;
   color: var(--secondary-color);
 }
 
