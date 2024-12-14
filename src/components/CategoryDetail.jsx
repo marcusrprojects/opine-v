@@ -8,7 +8,6 @@ import { debounce } from 'lodash';
 import RankCategory from '../enums/RankCategory';
 import LoadingMessages from '../enums/LoadingMessages';
 import LoadingComponent from './LoadingComponent';
-import EditCategoryModal from './EditCategoryModal';
 import AddButton from './AddButton';
 import { useAuth } from '../context/useAuth';
 import { calculateCardColor } from '../utils/ranking';
@@ -169,9 +168,9 @@ const CategoryDetail = () => {
     });
   };
 
-  const handleEditCategory = () => {
-    setIsEditingCategory(true);
-  };
+  // const handleEditCategory = () => {
+  //   setIsEditingCategory(true);
+  // };
 
   const handleSaveFields = async (updatedFields, newPrimaryField, newTags) => {
     await canEditAction(async () => {
@@ -324,10 +323,14 @@ const CategoryDetail = () => {
               ) : (
                 <FaRegHeart className="icon" onClick={toggleLike} />
               )}
-              <FaEdit className="icon" onClick={handleEditCategory} />
+              {/* <FaEdit className="icon" onClick={handleEditCategory} /> */}
+              <FaEdit
+                className="icon"
+                onClick={() => navigate(`/categories/${categoryId}/edit`)}
+              />
 
-              {canEdit && isEditingCategory && (
-                <EditCategoryModal
+              {/* {canEdit && isEditingCategory && (
+                <EditCategory
                   fields={fields}
                   primaryField={primaryField}
                   categoryName={categoryName}
@@ -336,7 +339,7 @@ const CategoryDetail = () => {
                   onClose={handleCloseModal}
                   className={`${canEdit ? 'editable' : 'non-editable'}`}
                 />
-              )}
+              )} */}
 
               {canEdit &&
                 <FaTrash className={`icon ${canEdit ? 'editable' : 'non-editable'}`} onClick={handleDeleteCategory} />
