@@ -138,11 +138,20 @@
   border: 1px solid var(--quinary-color);
   border-radius: var(--border-radius-medium);
   padding: 0.5rem;
-  max-height: 150px;
-  overflow-y: auto;
+  max-height: 0;
+  overflow-y: hidden;
   display: flex;
   flex-direction: column;
   justify-self: center;
+  flex-direction: column;
+  justify-self: center;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.dropdown.expanded {
+  max-height: 10rem; /* Expanded height */
+  opacity: 1; /* Fully visible */
 }
 
 .dropdown-item {
