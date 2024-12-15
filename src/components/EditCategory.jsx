@@ -122,7 +122,6 @@ const EditCategory = () => {
 
   const handleTagInput = (e) => {
     setTagInput(e.target.value);
-    setShowDropdown(true);
   };
 
   const addTag = (tagId) => {
@@ -171,9 +170,10 @@ const EditCategory = () => {
     setTags(tags.filter((tag) => tag !== tagId));
   };
 
-  // TODO: determine whether to keep this.
-  const handleTagBlur = () => {
-    setTimeout(() => setShowDropdown(false), 150);
+  const handleTagBlur = (e) => {
+    if (!e.relatedTarget?.classList.contains('dropdown-item')) {
+      setTimeout(() => setShowDropdown(false), 150);
+    }
   };
 
   if (loading) {
@@ -247,25 +247,23 @@ const EditCategory = () => {
             onKeyDown={handleKeyPress}
             onFocus={() => setShowDropdown(true)}
           />
-          {showDropdown && (
-            <div className={`dropdown ${showDropdown ? 'expanded' : ''}`}>
-              {availableTags
-                .filter(
-                  (tag) =>
-                    tag.name.toLowerCase().includes(tagInput.toLowerCase()) &&
-                    !tags.includes(tag.id)
-                )
-                .map((tag) => (
-                  <div
-                    key={tag.id}
-                    onClick={() => addTag(tag.id)}
-                    className="dropdown-item"
-                  >
-                    {tag.name}
-                  </div>
-                ))}
-            </div>
-          )}
+          <div className={`dropdown ${showDropdown ? 'expanded' : ''}`}>
+            {availableTags
+              .filter(
+                (tag) =>
+                  tag.name.toLowerCase().includes(tagInput.toLowerCase()) &&
+                  !tags.includes(tag.id)
+              )
+              .map((tag) => (
+                <div
+                  key={tag.id}
+                  onClick={() => addTag(tag.id)}
+                  className="dropdown-item"
+                >
+                  {tag.name}
+                </div>
+              ))}
+          </div>
         </div>
         <div className="selected-tags">
           {tags.map((tagId) => {
