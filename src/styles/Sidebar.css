@@ -2,7 +2,7 @@
 .sidebar-toggle {
     position: fixed;
     top: var(--padding-medium);
-    left: var(--padding-large);
+    left: var(--padding-sm);
     color: var(--secondary-color);
     border: none;
     padding: var(--padding-medium);
@@ -47,7 +47,7 @@
 nav.sidebar {
     position: fixed;
     top: calc(var(--padding-small) + 7rem);
-    left: var(--padding-large);
+    left: var(--padding-sm);
     background-color: transparent;
     border-radius: var(--border-radius-medium);
     z-index: 10;
