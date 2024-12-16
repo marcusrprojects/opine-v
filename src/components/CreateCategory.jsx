@@ -138,7 +138,6 @@ const CreateCategory = () => {
           </div>
         ))}
 
-        {/* TagSelector Integration */}
         <h2>Tags</h2>
         <TagSelector
           tags={tags}
@@ -146,6 +145,7 @@ const CreateCategory = () => {
           availableTags={availableTags}
           setAvailableTags={setAvailableTags}
           db={db}
+          maxTags={5}
         />
 
         <div className="button-group">
