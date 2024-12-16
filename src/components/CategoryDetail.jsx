@@ -23,13 +23,10 @@ const CategoryDetail = () => {
   const [tags, setTags] = useState([]);
   const [categoryName, setCategoryName] = useState('');
   const [loading, setLoading] = useState(true);
-  const [liked, setLiked] = useState(false); // State to track if the board is liked
+  const [liked, setLiked] = useState(false);
   const navigate = useNavigate();
-  const [isEditingCategory, setIsEditingCategory] = useState(false);
-  const [description, setDescription] = useState(''); // Description state
+  const [description, setDescription] = useState('');
   const [creatorId, setCreatorId] = useState('');
-  const [isEditingDescription, setIsEditingDescription] = useState(false); // Editing state for description
-  const [isEditingCategoryName, setIsEditingCategoryName] = useState(false);
   const [creatorUsername, setCreatorUsername] = useState('');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [filterFields, setFilterFields] = useState([]);
@@ -168,48 +165,9 @@ const CategoryDetail = () => {
     });
   };
 
-  // const handleEditCategory = () => {
-  //   setIsEditingCategory(true);
-  // };
-
-  const handleSaveFields = async (updatedFields, newPrimaryField, newTags) => {
-    await canEditAction(async () => {
-      setFields(updatedFields);
-      setPrimaryField(newPrimaryField);
-      setTags(newTags);
-      setIsEditingCategory(false);
-      
-      try {
-        const categoryDocRef = doc(db, 'categories', categoryId);
-        await updateDoc(categoryDocRef, {
-          fields: updatedFields,
-          primaryField: newPrimaryField,
-          tags: newTags
-        });
-      } catch (error) {
-        handleError(error, "Error updating category fields.");
-      }
-    });
-  };
-
-  const handleCloseModal = () => {
-    setIsEditingCategory(false);
-  };
-
   const toggleFilter = () => {
     setFilterOpen((prev) => !prev);
   };
-
-  // const applyFilters = debounce(() => {
-  //   const filtered = items.filter(item => {
-  //     return Object.keys(filters).every(field => {
-  //       const filterValue = filters[field].toLowerCase();
-  //       const itemValue = item[field]?.toString().toLowerCase();
-  //       return itemValue?.includes(filterValue);
-  //     });
-  //   });
-  //   setFilteredItems(filtered);
-  // }, 300);
 
   const applyFilters = debounce(() => {
     const filtered = items.filter(item =>
@@ -226,30 +184,6 @@ const CategoryDetail = () => {
 
   const handleItemClick = (itemId, cardColor) => {
     navigate(`./item/${itemId}`, { state: { cardColor } });
-  };
-
-  const handleNameChange = async (newName) => {
-    await canEditAction(async () => {
-      setCategoryName(newName);
-      setIsEditingCategoryName(false);
-      try {
-        const categoryDocRef = doc(db, 'categories', categoryId);
-        await updateDoc(categoryDocRef, { name: newName });
-      } catch (error) {
-        handleError(error, "Error updating category name.");
-      }
-    }); 
-  };
-
-  const handleDescriptionChange = async (newDescription) => {
-    setDescription(newDescription);
-    setIsEditingDescription(false);
-    try {
-      const categoryDocRef = doc(db, 'categories', categoryId);
-      await updateDoc(categoryDocRef, { description: newDescription });
-    } catch (error) {
-      handleError(error, 'Error updating category description.');
-    }
   };
 
   useEffect(() => {
@@ -272,38 +206,10 @@ const CategoryDetail = () => {
     <div>
       <div className="category-detail-container">
 
-        <div className={`category-title ${canEdit ? 'editable' : 'non-editable'}`}>
-          {canEdit && isEditingCategoryName ? (
-            <input
-              type="text"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              onBlur={() => handleNameChange(categoryName)}
-              autoFocus
-            />
-          ) : (
-            <h2 onClick={() => setIsEditingCategoryName(true)}>
-              {categoryName || "Click to add a title..."}
-            </h2>
-          )}
-        </div>
-
-        <p className='username'>@{creatorUsername}</p>
-
-        {/* Editable Description */}
-        <div className={`category-description ${canEdit ? 'editable' : 'non-editable'}`}>
-          {canEdit && isEditingDescription ? (
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              onBlur={() => handleDescriptionChange(description)}
-              autoFocus
-            />
-          ) : (
-            <p onClick={() => canEdit && setIsEditingDescription(true)}>
-              {description || (canEdit ? "Click to add a description..." : "")}
-            </p>
-          )}
+        <div className='category-header'>
+          <h2 className='category-title'> {categoryName} </h2>
+          <p className='username'>@{creatorUsername}</p>
+          <p className='category-description'>{description}</p>
         </div>
 
         <div className="settings-actions-container">
@@ -337,18 +243,6 @@ const CategoryDetail = () => {
                   },
                 })}
               />
-
-              {/* {canEdit && isEditingCategory && (
-                <EditCategory
-                  fields={fields}
-                  primaryField={primaryField}
-                  categoryName={categoryName}
-                  tags={tags}
-                  onSave={handleSaveFields}
-                  onClose={handleCloseModal}
-                  className={`${canEdit ? 'editable' : 'non-editable'}`}
-                />
-              )} */}
 
               {canEdit &&
                 <FaTrash className={`icon ${canEdit ? 'editable' : 'non-editable'}`} onClick={handleDeleteCategory} />
@@ -393,18 +287,6 @@ const CategoryDetail = () => {
           </div>
         )}
 
-        {/* <div className="filters">
-          {fields.map((field, index) => (
-            <input
-              key={index}
-              type="text"
-              placeholder={`Filter by ${field}`}
-              value={filters[field] || ''}
-              onChange={(e) => handleFilterChange(field, e.target.value)}
-            />
-          ))}
-        </div> */}
-
         <div className="item-grid">
           {filteredItems.map((item) => {
             const rating = item.rating !== undefined ? item.rating : 1;
@@ -436,7 +318,6 @@ const CategoryDetail = () => {
         </div>
       </div>
 
-      {/* <AddButton onClick={() => navigate(`/categories/${categoryId}/add-item`)} className='good'/> */}
       <AddButton
         onClick={() =>
           canEditAction(() => navigate(`/categories/${categoryId}/add-item`))
