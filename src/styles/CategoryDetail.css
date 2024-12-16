@@ -12,7 +12,7 @@
 /* Grid layout for item cards, responsive */
 .item-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(18vw, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(16vw, 1fr));
     gap: var(--padding-ml);
     padding: 0;
 }
@@ -38,40 +38,46 @@
     align-items: center;
     justify-content: center;
     /* padding: var(--padding-xsmall) var(--padding-sm); */
-    gap:0 var(--padding-sm);
+    gap:0 var(--padding-small);
     margin:0;
     padding: 0;
     margin-bottom: var(--padding-sm);
     flex-wrap: nowrap;
 }
 
-.item-header h4.item-title {
-    font-size: var(--font-ml);
-    font-weight: var(--fw-medium);
+.item-header .item-title {
+    font-size: var(--font-medium);
+    font-weight: var(--fw-small);
     margin: 0;
     text-overflow: ellipsis;
+    padding: 0;
 }
 
-.item-title {
-    padding: 0;
+.category-header {
+    /* margin: 0;
+    padding: 0; */
 }
 
 .item-rating {
     background-color: var(--primary-color);
     color: var(--primary-color);
-    font-size: var(--font-medium);
-    font-weight: var(--fw-large);
-    filter: opacity(70%);
-    width: 3rem;
-    height: 3rem;
+    font-size: var(--font-small);
+    font-weight: var(--fw-sm);
+    
+    /* filter:saturate(70%); */
+    width: 2.5rem;
+    height: 2.5rem;
     aspect-ratio: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 14px;
     /* border: .05rem solid var(--secondary-color); */
-    padding: 0.03rem;
+    /* padding: 0.03rem; */
     flex-shrink: 0;
+
+    /* filter: opacity(70%); */
+    filter: sepia(50%);
 }
 
 /* Bottom of card */
@@ -92,6 +98,7 @@
 
 .field-pair {
     margin:0;
+    filter: brightness(90%);
 }
 
 /* .field-pair {
@@ -184,29 +191,19 @@
     outline: none;
 }
 
-.category-description, .category-title {
-  /* margin: 2rem 0; */
-  font-size: 1rem;
-  color: var(--secondary-color);
-  cursor: pointer;
+.category-title {
+    font-size: var(--font-ml);
+    font-weight: var(--fw-medium);
 }
 
-.category-description textarea, .category-title input {
-  text-align: center;
-  padding: var(--padding-sm) var(--padding-small);
-  width: 80%;
-  border-radius: var(--border-radius-small);
-  color: var(--secondary-color);
+.username {
+    font-size: var(--font-sm);
+    font-weight: var(--fw-xsmall);
 }
 
-.category-description p:hover, .category-title h2:hover {
-  filter: brightness(90%);
-}
-
-.category-description textarea:focus, .category-title input:focus{
-  border: none;
-  outline: .001rem solid var(--quinary-color);
-  background-color: var(--primary-color);
+.category-description {
+    font-size: var(--font-sm);
+    font-weight: var(--fw-xsmall);
 }
 
 .icon:hover {
@@ -222,11 +219,9 @@
 .settings-toggle {
   background: none;
   border: none;
-  cursor: pointer;
   color: var(--middle-color);
-  font-size: 1.5rem;
   outline: none;
-  margin:0;
+  margin: 0;
   display: flex;
   justify-content: left;
 }
