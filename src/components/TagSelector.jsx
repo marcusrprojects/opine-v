@@ -34,7 +34,7 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
       setTags([...tags, tagId]);
       setTagInput("");
       setShowDropdown(false);
-      setErrorMessage(""); // Clear any previous error
+      setErrorMessage("");
     }
   };
 
@@ -49,7 +49,7 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
         type="text"
         value={tagInput}
         onChange={(e) => {
-          setErrorMessage(""); // Clear any error when typing
+          setErrorMessage("");
           handleTagInput(e.target.value, setTagInput, setShowDropdown);
         }}
         onKeyDown={(e) => handleKeyPress(e, handleCustomTagWrapper)}
@@ -95,17 +95,17 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
 };
 
 TagSelector.propTypes = {
-  tags: PropTypes.arrayOf(PropTypes.string).isRequired, // IDs of selected tags
-  setTags: PropTypes.func.isRequired, // Function to update selected tags
+  tags: PropTypes.arrayOf(PropTypes.string).isRequired,
+  setTags: PropTypes.func.isRequired,
   availableTags: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
     })
-  ).isRequired, // Array of available tags with IDs and names
+  ).isRequired,
   setAvailableTags: PropTypes.func.isRequired,
-  db: PropTypes.object.isRequired, // Firestore database instance
-  maxTags: PropTypes.number, // Maximum number of tags allowed
+  db: PropTypes.object.isRequired,
+  maxTags: PropTypes.number,
 };
 
 export default TagSelector;
