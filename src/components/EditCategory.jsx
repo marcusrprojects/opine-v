@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
-import { db } from '../firebaseConfig';
-import { doc, getDoc, updateDoc, collection, getDocs, addDoc } from 'firebase/firestore';
+import { useState, useEffect } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
+import { FaTrash, FaPlus } from "react-icons/fa";
+import { db } from "../firebaseConfig";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import "../styles/EditCategory.css";
-import { handleError } from '../utils/errorUtils';
+import { handleError } from "../utils/errorUtils";
+import TagManager from "./TagManager";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -13,64 +14,38 @@ const EditCategory = () => {
   const navigate = useNavigate();
 
   // State
-  const [categoryName, setCategoryName] = useState(location.state?.categoryName || '');
-  const [description, setDescription] = useState(location.state?.description || '');
+  const [categoryName, setCategoryName] = useState(location.state?.categoryName || "");
+  const [description, setDescription] = useState(location.state?.description || "");
   const [fields, setFields] = useState(location.state?.fields || []);
-  const [primaryField, setPrimaryField] = useState(location.state?.primaryField || '');
+  const [primaryField, setPrimaryField] = useState(location.state?.primaryField || "");
   const [tags, setTags] = useState(location.state?.tags || []);
-  const [tagInput, setTagInput] = useState('');
-  const [availableTags, setAvailableTags] = useState([]);
-  const [newField, setNewField] = useState('');
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [newField, setNewField] = useState("");
   const [loading, setLoading] = useState(!location.state);
 
+  // Fetch category data on load
   useEffect(() => {
     if (!location.state) {
       const fetchCategoryData = async () => {
         try {
-          const categoryDocRef = doc(db, 'categories', categoryId);
+          const categoryDocRef = doc(db, "categories", categoryId);
           const categorySnapshot = await getDoc(categoryDocRef);
 
           if (categorySnapshot.exists()) {
             const data = categorySnapshot.data();
-            setCategoryName(data.name || '');
-            setDescription(data.description || '');
+            setCategoryName(data.name || "");
+            setDescription(data.description || "");
             setFields(data.fields || []);
-            setPrimaryField(data.primaryField || '');
+            setPrimaryField(data.primaryField || "");
             setTags(data.tags || []);
           }
-
-          const tagsCollectionRef = collection(db, 'tags');
-          const tagsSnapshot = await getDocs(tagsCollectionRef);
-          const tagsList = tagsSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            name: doc.data().name,
-          }));
-          setAvailableTags(tagsList);
         } catch (error) {
-          handleError(error, 'Error fetching category data:');
+          handleError(error, "Error fetching category data");
         } finally {
           setLoading(false);
         }
       };
 
       fetchCategoryData();
-    } else {
-      const fetchTags = async () => {
-        try {
-          const tagsCollectionRef = collection(db, 'tags');
-          const tagsSnapshot = await getDocs(tagsCollectionRef);
-          const tagsList = tagsSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            name: doc.data().name,
-          }));
-          setAvailableTags(tagsList);
-        } catch (error) {
-          handleError(error, 'Error fetching tags from Firestore:');
-        }
-      };
-
-      fetchTags();
     }
   }, [categoryId, location.state]);
 
@@ -91,7 +66,7 @@ const EditCategory = () => {
     }
 
     try {
-      const categoryDocRef = doc(db, 'categories', categoryId);
+      const categoryDocRef = doc(db, "categories", categoryId);
       await updateDoc(categoryDocRef, {
         name: categoryName,
         description,
@@ -108,72 +83,16 @@ const EditCategory = () => {
   const handleAddField = () => {
     if (newField && !fields.includes(newField)) {
       setFields([...fields, newField]);
-      setNewField('');
+      setNewField("");
     }
   };
 
   const handleRemoveField = (field) => {
     if (primaryField === field) {
-      alert('Select a new primary field before removing this one.');
+      alert("Select a new primary field before removing this one.");
       return;
     }
     setFields(fields.filter((f) => f !== field));
-  };
-
-  const handleTagInput = (e) => {
-    setTagInput(e.target.value);
-  };
-
-  const addTag = (tagId) => {
-    if (tags.length >= 5) {
-      alert("You can only add up to 5 tags.");
-      return;
-    }
-    if (!tags.includes(tagId)) {
-      setTags([...tags, tagId]);
-      setTagInput('');
-      setShowDropdown(false);
-    }
-  };
-
-  const handleCustomTag = async () => {
-    if (tagInput.trim() && tags.length < 5) {
-      const existingTag = availableTags.find(tag => tag.name.toLowerCase() === tagInput.toLowerCase());
-  
-      if (existingTag) {
-        // Add the existing tag's ID
-        addTag(existingTag.id);
-      } else {
-        try {
-          // Add new tag to Firestore and retrieve its ID
-          const newTagRef = await addDoc(collection(db, 'tags'), { name: tagInput });
-          const newTag = { id: newTagRef.id, name: tagInput };
-          setAvailableTags([...availableTags, newTag]); // Update available tags
-          addTag(newTag.id); // Add the newly created tag
-        } catch (error) {
-          handleError(error, "Error adding new tag.");
-        }
-      }
-      setTagInput(''); // Clear the input field
-      setShowDropdown(false); // Close the dropdown
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent form submission
-      handleCustomTag(); // Add the tag or create a new one
-    }
-  };
-
-  const handleRemoveTag = (tagId) => {
-    setTags(tags.filter((tag) => tag !== tagId));
-  };
-
-  const handleTagBlur = (e) => {
-    if (!e.relatedTarget?.classList.contains('dropdown-item')) {
-      setTimeout(() => setShowDropdown(false), 150);
-    }
   };
 
   if (loading) {
@@ -234,48 +153,11 @@ const EditCategory = () => {
         </div>
       </div>
 
-      <div className="edit-section">
-        <label className="edit-label">Tags:</label>
-        <div className="tag-dropdown-container">
-          <input
-            type="text"
-            value={tagInput}
-            onChange={handleTagInput}
-            placeholder="Add tag (1-5)"
-            className="edit-input"
-            onBlur={handleTagBlur}
-            onKeyDown={handleKeyPress}
-            onFocus={() => setShowDropdown(true)}
-          />
-          <div className={`dropdown ${showDropdown ? 'expanded' : ''}`}>
-            {availableTags
-              .filter(
-                (tag) =>
-                  tag.name.toLowerCase().includes(tagInput.toLowerCase()) &&
-                  !tags.includes(tag.id)
-              )
-              .map((tag) => (
-                <div
-                  key={tag.id}
-                  onClick={() => addTag(tag.id)}
-                  className="dropdown-item"
-                >
-                  {tag.name}
-                </div>
-              ))}
-          </div>
-        </div>
-        <div className="selected-tags">
-          {tags.map((tagId) => {
-            const tag = availableTags.find((t) => t.id === tagId);
-            return (
-              <span key={tagId} className="selected-tag">
-                {tag?.name} <FaMinus onClick={() => handleRemoveTag(tagId)} />
-              </span>
-            );
-          })}
-        </div>
-      </div>
+      <TagManager
+        db={db}
+        initialTags={tags}
+        onTagsChange={(updatedTags) => setTags(updatedTags)}
+      />
 
       <button onClick={handleSave} className="save-button">
         Save
