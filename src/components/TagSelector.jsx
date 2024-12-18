@@ -1,19 +1,34 @@
-import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { FaMinus } from 'react-icons/fa';
+import PropTypes from "prop-types";
+import { useState, useEffect } from "react";
+import { FaMinus } from "react-icons/fa";
+import { collection, getDocs } from "firebase/firestore";
 import { handleCustomTag, handleTagInput, handleKeyPress } from "../utils/tagUtils";
-import '../styles/TagSelector.css';
+import "../styles/TagSelector.css";
 
-const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTags = 5 }) => {
+const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
   const [tagInput, setTagInput] = useState("");
+  const [availableTags, setAvailableTags] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const tagsCollectionRef = collection(db, "tags");
+        const tagsSnapshot = await getDocs(tagsCollectionRef);
+        const tagsList = tagsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+        }));
+        setAvailableTags(tagsList);
+      } catch (error) {
+        console.error("Error fetching tags from Firestore:", error);
+      }
+    };
+    fetchTags();
+  }, [db]);
+
   const handleCustomTagWrapper = async () => {
-    if (!db) {
-      console.error("Database instance (db) is required for adding custom tags.");
-      return;
-    }
     await handleCustomTag({
       tagInput,
       availableTags,
@@ -39,7 +54,7 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
   };
 
   const handleRemoveTag = (tagIdToRemove) => {
-    setTags(tags.filter(tagId => tagId !== tagIdToRemove));
+    setTags(tags.filter((tagId) => tagId !== tagIdToRemove));
   };
 
   return (
@@ -55,16 +70,20 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
         onKeyDown={(e) => handleKeyPress(e, handleCustomTagWrapper)}
         placeholder={`Add a tag (up to ${maxTags})`}
         onFocus={() => setShowDropdown(true)}
-        className='field-input'
+        className="field-input"
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
       />
 
       {/* Dropdown */}
-      <div className={`dropdown ${showDropdown ? 'expanded' : ''}`}>
+      <div className={`dropdown ${showDropdown ? "expanded" : ""}`}>
         {availableTags
-          .filter(tag => tag.name.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(tag.id))
+          .filter(
+            (tag) =>
+              tag.name.toLowerCase().includes(tagInput.toLowerCase()) &&
+              !tags.includes(tag.id)
+          )
           .slice(0, 5)
-          .map(tag => (
+          .map((tag) => (
             <div
               key={tag.id}
               onClick={() => handleTagSuggestionClick(tag.id)}
@@ -76,12 +95,11 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
       </div>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
-      
 
       {/* Selected Tags */}
       <div className="selected-tags">
-        {tags.map(tagId => {
-          const tag = availableTags.find(t => t.id === tagId);
+        {tags.map((tagId) => {
+          const tag = availableTags.find((t) => t.id === tagId);
           return (
             <span key={tagId} className="selected-tag">
               {tag?.name || "Unknown Tag"}{" "}
@@ -97,13 +115,6 @@ const TagSelector = ({ tags, setTags, availableTags, setAvailableTags, db, maxTa
 TagSelector.propTypes = {
   tags: PropTypes.arrayOf(PropTypes.string).isRequired,
   setTags: PropTypes.func.isRequired,
-  availableTags: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  setAvailableTags: PropTypes.func.isRequired,
   db: PropTypes.object.isRequired,
   maxTags: PropTypes.number,
 };
