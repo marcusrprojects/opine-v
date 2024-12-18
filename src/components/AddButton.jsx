@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
-import { FaPlusCircle } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import '../styles/AddButton.css';
 
-const AddButton = ({ onClick, size = '3em', className = '' }) => (
+const AddButton = ({ onClick, size = '2em', className = '' }) => (
   <button onClick={onClick} className={`add-button ${className}`}>
-    <FaPlusCircle size={size} />
+    <FaPlus size={size} />
   </button>
 );
 

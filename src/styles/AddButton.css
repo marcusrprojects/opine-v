@@ -2,13 +2,13 @@
     border: none;
     background: none;
     transition: color 200ms;
-    border-radius: 100%;
-    aspect-ratio: 1;
+    /* border-radius: 100%; */
+    /* aspect-ratio: 1; */
     color: var(--quaternary-color);
 }
 
 .add-button:hover {
-    color: var(--middle-color);
+    color: var(--quinary-color);
     background: none;
 }
 
