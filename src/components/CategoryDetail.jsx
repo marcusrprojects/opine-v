@@ -300,9 +300,7 @@ const CategoryDetail = () => {
                 onClick={() => handleItemClick(itemId, cardColor)}
               >
                 <div className="item-header">
-                  {/* <div className="item-rating"> */}
-                    <span className="item-rating" style={{ color: cardColor}}>{rating.toFixed(1)}</span>
-                  {/* </div> */}
+                  <span className="item-rating" style={{ color: cardColor}}>{rating.toFixed(1)}</span>
                   <h4 className="item-title">{item[primaryField] || "Unnamed Item"}</h4>
                 </div>
                 {Object.keys(fields || {}).length > 1 && (
