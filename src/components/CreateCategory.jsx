@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { db } from '../firebaseConfig';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/useAuth'; // Use your AuthProvider
+import { useAuth } from '../context/useAuth';
 import '../styles/CreateCategory.css';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import TagSelector from './TagSelector';
@@ -12,28 +12,8 @@ const CreateCategory = () => {
   const [fields, setFields] = useState([{ name: 'Name' }]);
   const [primaryFieldIndex, setPrimaryFieldIndex] = useState(0);
   const [tags, setTags] = useState([]); // Store selected tag IDs
-  const [availableTags, setAvailableTags] = useState([]); // Store tags with IDs and names
   const { user } = useAuth(); // Access the user state
   const navigate = useNavigate();
-
-  // Fetch tags from Firestore on component mount
-  useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        const tagsCollectionRef = collection(db, 'tags');
-        const tagsSnapshot = await getDocs(tagsCollectionRef);
-        const tagsList = tagsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          name: doc.data().name,
-        }));
-        setAvailableTags(tagsList);
-      } catch (error) {
-        console.error("Error fetching tags from Firestore:", error);
-      }
-    };
-
-    fetchTags();
-  }, []);
 
   const addField = () => {
     setFields([...fields, { name: '' }]);
@@ -142,8 +122,6 @@ const CreateCategory = () => {
         <TagSelector
           tags={tags}
           setTags={setTags}
-          availableTags={availableTags}
-          setAvailableTags={setAvailableTags}
           db={db}
           maxTags={5}
         />
