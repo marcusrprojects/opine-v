@@ -6,7 +6,7 @@ import { db } from "../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import "../styles/EditCategory.css";
 import { handleError } from "../utils/errorUtils";
-import TagManager from "./TagManager";
+import TagSelector from "./TagSelector";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -153,10 +153,11 @@ const EditCategory = () => {
         </div>
       </div>
 
-      <TagManager
+      <TagSelector
+        tags={tags}
+        setTags={setTags}
         db={db}
-        initialTags={tags}
-        onTagsChange={(updatedTags) => setTags(updatedTags)}
+        maxTags={5}
       />
 
       <button onClick={handleSave} className="save-button">
