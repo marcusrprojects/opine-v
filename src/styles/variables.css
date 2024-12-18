@@ -14,21 +14,27 @@
   --active-color: #007acc;
   --error-color: #ff4d4d;
   --middle-color: #808080;
+  --lightness-adjustment: .7;
   
   --font-family: 'Inter', sans-serif;
   --font-xsmall: 0.75rem;
-  --font-small: 0.875rem; /* 14px */
+  --font-small: 0.875rem;
+  --font-sm: 1rem;
   --font-medium: 1.125rem; /* 18px */
   --font-ml: 1.3rem;
   --font-large: 1.5rem; /* 24px */
   --font-xlarge: 2rem; /* 32px */
 
   --fw-xsmall: 300; /* Light */
+  --fw-sx: 350;
   --fw-small: 400; /* Regular */
+  --fw-sm: 450;
   --fw-medium: 500; /* Medium */
+  --fw-ml: 550;
   --fw-large: 600; /* Semi-Bold */
   --fw-lx: 700;
   --fw-xlarge: 800; /* Extra-Bold */
+  --fw-xxlarge: 900;
 
   /* Spacing and Sizing */
   --padding-xsmall: 0.25rem;
@@ -56,6 +62,7 @@
     --quinary-color: #4a4a4a;
     --shadow-small: 2px 0 5px rgba(255, 255, 255, 0.1);
     --shadow-medium: 0 4px 8px rgba(255, 255, 255, 0.2);
+    --lightness-adjustment: 1.5;
   }
 }
 
@@ -70,6 +77,7 @@
   --quinary-color: #BFBFBF;
   --shadow-small: 2px 0 5px rgba(0, 0, 0, 0.1);
   --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --lightness-adjustment: .7;
 }
 
 /* Dark Mode Variables */
@@ -83,6 +91,7 @@
   --quinary-color: #4a4a4a;
   --shadow-small: 2px 0 5px rgba(255, 255, 255, 0.1);
   --shadow-medium: 0 4px 8px rgba(255, 255, 255, 0.2);
+  --lightness-adjustment: 1.5;
 }
 
 body {
