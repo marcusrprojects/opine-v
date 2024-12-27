@@ -1,11 +1,17 @@
 import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 import RankCategory from '../enums/RankCategory';
 
-const RankSelectionStep = ({ setRankCategory, onNext, onBack }) => {
+const RankSelectionStep = ({ setRankCategory, rankCategory, onNext }) => {
   const handleRankingChoice = (rank) => {
     setRankCategory(rank);
-    onNext();
   };
+
+  useEffect(() => {
+    if (rankCategory !== null) {
+      onNext();
+    }
+  }, [rankCategory, onNext]);
 
   return (
     <div className="add-item-container">
@@ -30,7 +36,7 @@ const RankSelectionStep = ({ setRankCategory, onNext, onBack }) => {
           Bad
         </button>
       </div>
-      <button className="button-nav" onClick={onBack}>Back</button>
+      {/* <button className="button-nav" onClick={onBack}>Back</button> */}
     </div>
   );
 };
@@ -38,8 +44,9 @@ const RankSelectionStep = ({ setRankCategory, onNext, onBack }) => {
 // PropTypes for validation
 RankSelectionStep.propTypes = {
   setRankCategory: PropTypes.func.isRequired,
+  rankCategory: PropTypes.number,
   onNext: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
+  // onBack: PropTypes.func.isRequired,
 };
 
 export default RankSelectionStep;

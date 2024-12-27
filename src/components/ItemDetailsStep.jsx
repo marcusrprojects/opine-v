@@ -1,80 +1,95 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
 import "../styles/ItemDetailsStep.css";
 
-const ItemDetailsStep = ({ primaryField, fields, itemData, updateItemData, onNext, isEditable }) => {
-  const [error, setError] = useState(null);
+const ItemDetailsStep = ({ 
+  primaryField, 
+  fields, 
+  itemData, 
+  updateItemData, 
+  isEditable, 
+  onValidationChange 
+}) => {
+  const [error, setError] = useState({}); // Track errors per field
   const CHAR_LIMIT = 32;
   const WORD_CHAR_LIMIT = 15;
-  const navigate = useNavigate();
-  const { categoryId } = useParams(); // Gets categoryId from URL parameters
 
-  const handleInputChange = (field, value) => {
+  const validateField = useCallback((field, value) => {
+    if (!value.trim()) {
+      return 'This field is required.';
+    }
     if (field === primaryField) {
       if (value.length > CHAR_LIMIT) {
-        setError(`Maximum ${CHAR_LIMIT} characters allowed for ${primaryField}`);
-        return;
+        return `Maximum ${CHAR_LIMIT} characters allowed.`;
       }
-      const words = value.split(' ');
-      if (words.some(word => word.length > WORD_CHAR_LIMIT)) {
-        setError(`Each word in the ${primaryField} field can have up to ${WORD_CHAR_LIMIT} characters.`);
-        return;
+      if (value.split(' ').some((word) => word.length > WORD_CHAR_LIMIT)) {
+        return `Each word can have up to ${WORD_CHAR_LIMIT} characters.`;
       }
     }
-    setError(null);
+    return null; // No error
+  }, [primaryField, CHAR_LIMIT, WORD_CHAR_LIMIT]);
+
+  const handleInputChange = (field, value) => {
+    const errorMessage = validateField(field, value);
+
+    // Update error state
+    setError((prev) => ({
+      ...prev,
+      [field]: errorMessage,
+    }));
+
+    // Notify parent about validation status
+    const allFieldsValid = fields.every(
+      (field) => !validateField(field, itemData[field] || '')
+    );
+    onValidationChange(allFieldsValid);
+
+    // Update item data
     updateItemData({ ...itemData, [field]: value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (fields.some(field => !itemData[field])) {
-      alert('Please fill in all required fields.');
-      return;
-    }
-    onNext();
-  };
+  useEffect(() => {
+    // Initial validation check
+    const allFieldsValid = fields.every(
+      (field) => !validateField(field, itemData[field] || '')
+    );
+    onValidationChange(allFieldsValid);
+  }, [itemData, fields, onValidationChange, validateField]);
 
-  const handleBack = () => {
-    navigate(`/categories/${categoryId}`);
+  const handleBlur = (field) => {
+    const errorMessage = validateField(field, itemData[field] || '');
+    setError((prev) => ({ ...prev, [field]: errorMessage }));
   };
 
   return (
     <div className="item-details-step-container">
       <h2>Item Details</h2>
-      <form onSubmit={handleSubmit}>
-        {fields.map((field, index) => (
-          <div key={index}>
-            <input
-              type="text"
-              placeholder={field}
-              value={itemData[field] || ''}
-              onChange={(e) => handleInputChange(field, e.target.value)}
-              readOnly={!isEditable}
-              className='field-data'
-              required
-            />
-            {field === primaryField && error && <p className="error-message">{error}</p>}
-          </div>
-        ))}
-
-        {/* Notes Field */}
-        <div>
-          <textarea
-            placeholder="Notes"
-            value={itemData.notes || ''}
-            onChange={(e) => handleInputChange('notes', e.target.value)}
+      {fields.map((field, index) => (
+        <div key={index} className="input-container">
+          <input
+            type="text"
+            placeholder={field}
+            value={itemData[field] || ''}
+            onChange={(e) => handleInputChange(field, e.target.value)}
             readOnly={!isEditable}
-            rows={4}
-            className="notes-field"
+            className={`field-data ${error[field] ? 'error' : ''}`}
+            onBlur={() => handleBlur(field)}
+            required
           />
+          {error[field] && <p className="error-message">{error[field]}</p>}
         </div>
+      ))}
 
-        <div className="button-nav-container">
-          <button className="button-nav" type="button" onClick={handleBack}>Back</button>
-          <button className="button-nav" type="submit" disabled={!!error}>Next</button>
-        </div>
-      </form>
+      <div>
+        <textarea
+          placeholder="Notes"
+          value={itemData.notes || ''}
+          onChange={(e) => handleInputChange('notes', e.target.value)}
+          readOnly={!isEditable}
+          rows={4}
+          className="notes-field"
+        />
+      </div>
     </div>
   );
 };
@@ -85,8 +100,8 @@ ItemDetailsStep.propTypes = {
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
   itemData: PropTypes.object.isRequired,
   updateItemData: PropTypes.func.isRequired,
-  onNext: PropTypes.func.isRequired,
   isEditable: PropTypes.bool.isRequired,
+  onValidationChange: PropTypes.func.isRequired,
 };
 
 export default ItemDetailsStep;

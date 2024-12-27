@@ -8,6 +8,15 @@
     color: var(--secondary-color);
 }
 
+.input-container {
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+    margin: var(--padding-medium) var(--padding-xsmall);
+    gap: var(--padding-small);
+    width: 20rem;
+}
+
 .notes-field {
   margin-top: 1rem;
   width: 65%;

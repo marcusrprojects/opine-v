@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 
-const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onBack, onSave }) => {
+const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onSave }) => {
   const [rankedItems, setRankedItems] = useState([]);
   const [comparisonItem, setComparisonItem] = useState(null);
   const [lo, setLo] = useState(0);
@@ -29,7 +29,7 @@ const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onBa
     };
 
     fetchRankedItems();
-  }, [categoryId, rankCategory, itemData, onSave, hasSavedInitialItem]);
+  }, [categoryId, rankCategory, itemData, onSave]);
 
   // Set initial comparison item if there are ranked items
   useEffect(() => {
@@ -76,7 +76,7 @@ const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onBa
           {primaryField ? comparisonItem?.[primaryField] : "Comparison Item"}
         </button>
       </div>
-      <button className="button-nav" onClick={onBack}>Back</button>
+      {/* <button className="button-nav" onClick={onBack}>Back</button> */}
     </div>
   ) : null;
 };
@@ -86,9 +86,9 @@ ComparisonStep.propTypes = {
   categoryId: PropTypes.string.isRequired,
   itemData: PropTypes.object.isRequired,
   primaryField: PropTypes.string.isRequired,
-  fields: PropTypes.arrayOf(PropTypes.string).isRequired,
+  // fields: PropTypes.arrayOf(PropTypes.string).isRequired,
   rankCategory: PropTypes.number.isRequired,
-  onBack: PropTypes.func.isRequired,
+  // onBack: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
 };
 

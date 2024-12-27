@@ -10,6 +10,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import "../styles/AddItemFlow.css";
 import { withLoading } from '../utils/loadingUtils';
 import LoadingMessages from '../enums/LoadingMessages';
+import NavPanel from './NavPanel';
 
 const AddItemFlow = () => {
   const { categoryId } = useParams();
@@ -20,24 +21,45 @@ const AddItemFlow = () => {
   const [fields, setFields] = useState([]);
   const [primaryField, setPrimaryField] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isFieldsLoading, setIsFieldsLoading] = useState(true); // New loading state for fields and primaryField
+  const [isFieldsLoading, setIsFieldsLoading] = useState(true);
+  const [isStepValid, setIsStepValid] = useState(false); // Track step validation
 
   useEffect(() => {
     const fetchFields = async () => {
-      setIsFieldsLoading(true); // Start loading
+      setIsFieldsLoading(true);
       const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
         setFields(categoryData.fields || []);
         setPrimaryField(categoryData.primaryField);
       }
-      setIsFieldsLoading(false); // End loading after fetching
+      setIsFieldsLoading(false);
     };
     fetchFields();
   }, [categoryId]);
 
-  const handleNext = () => setCurrentStep((prev) => prev + 1);
-  const handleBack = () => setCurrentStep((prev) => prev - 1);
+  // const handleNext = () => setCurrentStep((prev) => prev + 1);
+  const handleNext = () => {
+    if (!isStepValid && currentStep === 1) {
+      return; // Prevent navigating to the next step if validation fails
+    }
+
+    if (currentStep === 2 && rankCategory === null) {
+      // Prevent navigating to step 3 if rankCategory is not selected
+      alert("Please select a rank category before proceeding.");
+      return;
+    } 
+
+    setCurrentStep((prev) => prev + 1);
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+    } else {
+      navigate(`/categories/${categoryId}`);
+    }
+  };
 
   const handleSave = async (updatedRankedItems) => {
     await withLoading(setLoading, async () => {
@@ -50,28 +72,34 @@ const AddItemFlow = () => {
     setItemData(newData);
   };
 
-  // Show loading component if `loading` or `isFieldsLoading` is true
   if (loading || isFieldsLoading) {
     return <LoadingComponent message={LoadingMessages.SAVING} />;
   }
 
   return (
     <div className="add-item-container">
+      <NavPanel
+        onBack={handleBack}
+        onNext={handleNext}
+        isBackDisabled={currentStep === 1}
+        isNextDisabled={currentStep === 1 && !isStepValid} // Disable based on validation
+      />
+
       {currentStep === 1 && (
         <ItemDetailsStep
           fields={fields}
           primaryField={primaryField}
           itemData={itemData}
           updateItemData={updateItemData}
-          onNext={handleNext}
           isEditable={true}
+          onValidationChange={setIsStepValid} // Pass validation state to AddItemFlow
         />
       )}
       {currentStep === 2 && (
         <RankSelectionStep
           setRankCategory={setRankCategory}
+          rankCategory={rankCategory}
           onNext={handleNext}
-          onBack={handleBack}
         />
       )}
       {currentStep === 3 && (
@@ -81,7 +109,6 @@ const AddItemFlow = () => {
           fields={fields}
           primaryField={primaryField}
           rankCategory={rankCategory}
-          onBack={handleBack}
           onSave={handleSave}
         />
       )}
