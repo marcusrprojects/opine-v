@@ -37,6 +37,7 @@
   --fw-xxlarge: 900;
 
   /* Spacing and Sizing */
+  --padding-xxsmall: 0.125rem;
   --padding-xsmall: 0.25rem;
   --padding-small: 0.5rem;
   --padding-sm: 0.75rem;
