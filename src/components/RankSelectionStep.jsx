@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-import { useEffect } from 'react';
-import RankCategory from '../enums/RankCategory';
+import PropTypes from "prop-types";
+import { useEffect } from "react";
+import RankCategory from "../enums/RankCategory";
 
 const RankSelectionStep = ({ setRankCategory, rankCategory, onNext }) => {
   const handleRankingChoice = (rank) => {
