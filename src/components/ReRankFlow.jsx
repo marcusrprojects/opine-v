@@ -22,7 +22,7 @@ const ReRankFlow = () => {
   const [primaryField, setPrimaryField] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
-  const [isRankingComplete, setIsRankingComplete] = useState(false); // ✅ New state
+  const [isRankingComplete, setIsRankingComplete] = useState(false);
 
   useEffect(() => {
     if (!existingItem) {
@@ -104,7 +104,7 @@ const ReRankFlow = () => {
         isBackDisabled={currentStep === 1}
         isNextDisabled={
           (currentStep === 1 && rankCategory === null) ||
-          (currentStep === 2 && !isRankingComplete) // ✅ Prevents skipping ranking
+          (currentStep === 2 && !isRankingComplete)
         }
       />
 
@@ -123,7 +123,7 @@ const ReRankFlow = () => {
           primaryField={primaryField}
           rankCategory={rankCategory}
           onSave={handleSave}
-          setIsRankingComplete={setIsRankingComplete} // ✅ Pass down ranking state
+          setIsRankingComplete={setIsRankingComplete}
         />
       )}
     </div>
