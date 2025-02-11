@@ -3,32 +3,25 @@ import { useState, useEffect, useCallback } from "react";
 import "../styles/ItemDetailsStep.css";
 
 const ItemDetailsStep = ({
-  primaryField,
   fields,
   itemData,
   updateItemData,
   onValidationChange,
 }) => {
-  const [error, setError] = useState({}); // Track errors per field
-  const CHAR_LIMIT = 32;
-  const WORD_CHAR_LIMIT = 15;
+  const [error, setError] = useState({});
+  const CHAR_LIMIT = 64;
 
   const validateField = useCallback(
     (field, value) => {
       if (!value.trim()) {
         return "This field is required.";
       }
-      if (field === primaryField) {
-        if (value.length > CHAR_LIMIT) {
-          return `Maximum ${CHAR_LIMIT} characters allowed.`;
-        }
-        if (value.split(" ").some((word) => word.length > WORD_CHAR_LIMIT)) {
-          return `Each word can have up to ${WORD_CHAR_LIMIT} characters.`;
-        }
+      if (value.length > CHAR_LIMIT) {
+        return `Maximum ${CHAR_LIMIT} characters allowed.`;
       }
-      return null; // No error
+      return null;
     },
-    [primaryField, CHAR_LIMIT, WORD_CHAR_LIMIT]
+    [CHAR_LIMIT]
   );
 
   const handleInputChange = (field, value) => {

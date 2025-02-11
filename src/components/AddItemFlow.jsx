@@ -98,7 +98,6 @@ const AddItemFlow = () => {
       {currentStep === 1 && (
         <ItemDetailsStep
           fields={fields}
-          primaryField={primaryField}
           itemData={itemData}
           updateItemData={updateItemData}
           onValidationChange={setIsStepValid} // Pass validation state to AddItemFlow
