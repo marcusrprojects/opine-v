@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import ItemDetailsStep from './ItemDetailsStep';
-import RankSelectionStep from './RankSelectionStep';
-import ComparisonStep from './ComparisonStep';
-import LoadingComponent from './LoadingComponent';
-import { writeItemsToFirestore } from '../utils/ranking';
-import { db } from '../firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import ItemDetailsStep from "./ItemDetailsStep";
+import RankSelectionStep from "./RankSelectionStep";
+import ComparisonStep from "./ComparisonStep";
+import LoadingComponent from "./LoadingComponent";
+import { writeItemsToFirestore } from "../utils/ranking";
+import { db } from "../firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 import "../styles/AddItemFlow.css";
-import { withLoading } from '../utils/loadingUtils';
-import LoadingMessages from '../enums/LoadingMessages';
-import NavPanel from './NavPanel';
+import { withLoading } from "../utils/loadingUtils";
+import LoadingMessages from "../enums/LoadingMessages";
+import NavPanel from "./NavPanel";
 
 const AddItemFlow = () => {
   const { categoryId } = useParams();
@@ -27,7 +27,7 @@ const AddItemFlow = () => {
   useEffect(() => {
     const fetchFields = async () => {
       setIsFieldsLoading(true);
-      const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
+      const categoryDoc = await getDoc(doc(db, "categories", categoryId));
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
         setFields(categoryData.fields || []);
@@ -48,7 +48,7 @@ const AddItemFlow = () => {
       // Prevent navigating to step 3 if rankCategory is not selected
       alert("Please select a rank category before proceeding.");
       return;
-    } 
+    }
 
     setCurrentStep((prev) => prev + 1);
   };

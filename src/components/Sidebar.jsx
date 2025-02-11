@@ -13,7 +13,7 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
       clearTimeout(timeoutRef.current);
       if (sidebarOpen) {
         timeoutRef.current = setTimeout(() => {
-          toggleSidebar(); // Close the sidebar
+          toggleSidebar();
         }, 2500);
       }
     };

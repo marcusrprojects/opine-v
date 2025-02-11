@@ -43,7 +43,7 @@ function Login() {
 
   return (
     <div className="login-container">
-      <h2 className="login-title">{user ? 'Welcome' : 'Login'}</h2>
+      <h2 className="login-title">{user ? 'Welcome' : 'User Account'}</h2>
       {user ? (
         <div className="user-info">
           <p className="user-email">Logged in as: {user.email}</p>
