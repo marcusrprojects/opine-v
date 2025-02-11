@@ -1,76 +1,118 @@
-import { useState, useEffect } from 'react';
-import RankSelectionStep from './RankSelectionStep';
-import ComparisonStep from './ComparisonStep';
-import LoadingComponent from './LoadingComponent';
-import { refreshRankedItems, writeItemsToFirestore } from '../utils/ranking';
-import { db } from '../firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import LoadingMessages from '../enums/LoadingMessages';
+import { useState, useEffect } from "react";
+import RankSelectionStep from "./RankSelectionStep";
+import ComparisonStep from "./ComparisonStep";
+import LoadingComponent from "./LoadingComponent";
+import { refreshRankedItems, writeItemsToFirestore } from "../utils/ranking";
+import { db } from "../firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import LoadingMessages from "../enums/LoadingMessages";
+import NavPanel from "./NavPanel";
 
 const ReRankFlow = () => {
-  const { categoryId } = useParams(); // Retrieve categoryId from item data
+  const { categoryId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { existingItem } = location.state;
-  const initialRankCategory = existingItem.rankCategory; // Store initial rank category for comparison
+  const existingItem = location.state?.existingItem || null;
+  const initialRankCategory = existingItem?.rankCategory || null;
 
-  const [currentStep, setCurrentStep] = useState(1); // Start from RankSelectionStep
-  const [rankCategory, setRankCategory] = useState(initialRankCategory); // Track new rank category if it changes
+  const [currentStep, setCurrentStep] = useState(1);
+  const [rankCategory, setRankCategory] = useState(null);
   const [fields, setFields] = useState([]);
-  const [primaryField, setPrimaryField] = useState(null); // Add primaryField state
+  const [primaryField, setPrimaryField] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isFieldsLoading, setIsFieldsLoading] = useState(true);
+  const [isRankingComplete, setIsRankingComplete] = useState(false); // ✅ New state
 
   useEffect(() => {
-    // Fetch category fields and primaryField based on categoryId from item data
+    if (!existingItem) {
+      navigate(`/categories/${categoryId}`);
+      return;
+    }
+  }, [existingItem, navigate, categoryId]);
+
+  useEffect(() => {
     const fetchFields = async () => {
-      const categoryDoc = await getDoc(doc(db, 'categories', categoryId));
-      if (categoryDoc.exists()) {
-        const categoryData = categoryDoc.data();
-        setFields(categoryData.fields || []);
-        setPrimaryField(categoryData.primaryField); // Set primaryField from category data
+      setIsFieldsLoading(true);
+      try {
+        const categoryDoc = await getDoc(doc(db, "categories", categoryId));
+        if (categoryDoc.exists()) {
+          const categoryData = categoryDoc.data();
+          setFields(categoryData.fields || []);
+          setPrimaryField(categoryData.primaryField);
+        }
+      } catch (error) {
+        console.error("Error fetching fields:", error);
       }
+      setIsFieldsLoading(false);
     };
+
     fetchFields();
   }, [categoryId]);
 
-  const handleNext = () => setCurrentStep((prev) => prev + 1);
+  const handleNext = () => {
+    if (currentStep === 1 && rankCategory === null) {
+      console.warn("Trying to go to Step 2 without selecting a rank category");
+      alert("Please select a ranking category before proceeding.");
+      return;
+    }
+
+    if (currentStep === 2 && !isRankingComplete) {
+      console.warn("Trying to move forward before ranking is complete");
+      return; // Prevent skipping ranking process
+    }
+
+    setCurrentStep((prev) => prev + 1);
+  };
+
   const handleBack = () => {
-    if (currentStep > 1) setCurrentStep((prev) => prev - 1);
-    else navigate(`/categories/${categoryId}/item/${existingItem.id}`);
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+      setRankCategory(null);
+    } else {
+      navigate(`/categories/${categoryId}/item/${existingItem.id}`);
+    }
   };
 
   const handleSave = async (updatedRankedItems) => {
     setLoading(true);
 
-    // Update the new category, including the item in its new rank category
-    await writeItemsToFirestore(categoryId, updatedRankedItems, rankCategory);
+    try {
+      await writeItemsToFirestore(categoryId, updatedRankedItems, rankCategory);
 
-    // Check for cross-category re-ranking
-    const isCrossCategory = initialRankCategory !== rankCategory;
+      if (initialRankCategory !== rankCategory) {
+        await refreshRankedItems(categoryId, initialRankCategory);
+      }
 
-    if (isCrossCategory) {
-      // Update the old category to remove the item
-      await refreshRankedItems(categoryId, initialRankCategory);
+      navigate(`/categories/${categoryId}`);
+    } catch (error) {
+      console.error("Error saving re-ranked item:", error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-    navigate(`/categories/${categoryId}`);
   };
 
-  // Show loading component if `loading` is true
-  if (loading) {
+  if (loading || isFieldsLoading) {
     return <LoadingComponent message={LoadingMessages.UPDATING} />;
   }
 
   return (
     <div className="add-item-container">
+      <NavPanel
+        onBack={handleBack}
+        onNext={handleNext}
+        isBackDisabled={currentStep === 1}
+        isNextDisabled={
+          (currentStep === 1 && rankCategory === null) ||
+          (currentStep === 2 && !isRankingComplete) // ✅ Prevents skipping ranking
+        }
+      />
+
       {currentStep === 1 && (
         <RankSelectionStep
-          itemData={existingItem}
           setRankCategory={setRankCategory}
+          rankCategory={rankCategory}
           onNext={handleNext}
-          onBack={handleBack}
         />
       )}
       {currentStep === 2 && (
@@ -78,10 +120,10 @@ const ReRankFlow = () => {
           categoryId={categoryId}
           itemData={existingItem}
           fields={fields}
-          primaryField={primaryField} // Pass primaryField to ComparisonStep
+          primaryField={primaryField}
           rankCategory={rankCategory}
-          onBack={handleBack}
           onSave={handleSave}
+          setIsRankingComplete={setIsRankingComplete} // ✅ Pass down ranking state
         />
       )}
     </div>

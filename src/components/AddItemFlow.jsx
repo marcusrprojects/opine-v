@@ -23,6 +23,7 @@ const AddItemFlow = () => {
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
   const [isStepValid, setIsStepValid] = useState(false); // Track step validation
+  const [isRankingComplete, setIsRankingComplete] = useState(false);
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -50,10 +51,19 @@ const AddItemFlow = () => {
       return;
     }
 
+    // Prevent skipping forward in Step 3
+    if (currentStep === 3 && !isRankingComplete) {
+      alert("Please compare the necessary items.");
+      return;
+    }
+
     setCurrentStep((prev) => prev + 1);
   };
 
   const handleBack = () => {
+    if (currentStep === 3) {
+      setRankCategory(null); // Clear rank when going back to Step 2
+    }
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
     } else {
@@ -91,10 +101,10 @@ const AddItemFlow = () => {
           primaryField={primaryField}
           itemData={itemData}
           updateItemData={updateItemData}
-          isEditable={true}
           onValidationChange={setIsStepValid} // Pass validation state to AddItemFlow
         />
       )}
+
       {currentStep === 2 && (
         <RankSelectionStep
           setRankCategory={setRankCategory}
@@ -102,6 +112,7 @@ const AddItemFlow = () => {
           onNext={handleNext}
         />
       )}
+
       {currentStep === 3 && (
         <ComparisonStep
           categoryId={categoryId}
@@ -110,6 +121,7 @@ const AddItemFlow = () => {
           primaryField={primaryField}
           rankCategory={rankCategory}
           onSave={handleSave}
+          setIsRankingComplete={setIsRankingComplete}
         />
       )}
     </div>

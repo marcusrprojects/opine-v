@@ -1,37 +1,48 @@
-import PropTypes from 'prop-types';
-import { useEffect, useState, useRef } from 'react';
-import { db } from '../firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import PropTypes from "prop-types";
+import { useEffect, useState, useRef } from "react";
+import { db } from "../firebaseConfig";
+import { collection, getDocs } from "firebase/firestore";
 
-const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onSave }) => {
+const ComparisonStep = ({
+  categoryId,
+  itemData,
+  primaryField,
+  rankCategory,
+  onSave,
+  setIsRankingComplete,
+}) => {
   const [rankedItems, setRankedItems] = useState([]);
   const [comparisonItem, setComparisonItem] = useState(null);
   const [lo, setLo] = useState(0);
   const [hi, setHi] = useState(0);
-  const hasSavedInitialItem = useRef(false); // Track if initial item has been saved
+  const hasSavedInitialItem = useRef(false);
 
   useEffect(() => {
     const fetchRankedItems = async () => {
-      const itemsSnapshot = await getDocs(collection(db, `categories/${categoryId}/items`));
+      const itemsSnapshot = await getDocs(
+        collection(db, `categories/${categoryId}/items`)
+      );
       const itemsInRankCategory = itemsSnapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((item) => item.rankCategory === rankCategory && item.id !== itemData.id)
+        .filter(
+          (item) =>
+            item.rankCategory === rankCategory && item.id !== itemData.id
+        )
         .sort((a, b) => a.rating - b.rating);
 
       setRankedItems(itemsInRankCategory);
       setHi(itemsInRankCategory.length - 1);
 
-      // Check if no items are in rank category and ensure we save only once
       if (itemsInRankCategory.length === 0 && !hasSavedInitialItem.current) {
         onSave([{ ...itemData, rankCategory }]);
-        hasSavedInitialItem.current = true; // Set flag to prevent duplicate saves
+        hasSavedInitialItem.current = true;
+        setIsRankingComplete(true);
       }
     };
 
     fetchRankedItems();
-  }, [categoryId, rankCategory, itemData, onSave]);
+  }, [categoryId, rankCategory, itemData, onSave, setIsRankingComplete]);
 
-  // Set initial comparison item if there are ranked items
   useEffect(() => {
     if (rankedItems.length > 0) {
       const middleIndex = Math.floor((lo + hi) / 2);
@@ -57,7 +68,8 @@ const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onSa
       const updatedRankedItems = [...rankedItems];
       updatedRankedItems.splice(currentLo, 0, { ...itemData, rankCategory });
       setRankedItems(updatedRankedItems);
-      onSave(updatedRankedItems); // Call `onSave` with the updated ranking order
+      onSave(updatedRankedItems);
+      setIsRankingComplete(true); // Notify AddItemFlow that ranking is done
     } else {
       middleIndex = Math.floor((currentLo + currentHi) / 2);
       setComparisonItem(rankedItems[middleIndex]);
@@ -76,20 +88,17 @@ const ComparisonStep = ({ categoryId, itemData, primaryField, rankCategory, onSa
           {primaryField ? comparisonItem?.[primaryField] : "Comparison Item"}
         </button>
       </div>
-      {/* <button className="button-nav" onClick={onBack}>Back</button> */}
     </div>
   ) : null;
 };
 
-// PropTypes for validation
 ComparisonStep.propTypes = {
   categoryId: PropTypes.string.isRequired,
   itemData: PropTypes.object.isRequired,
   primaryField: PropTypes.string.isRequired,
-  // fields: PropTypes.arrayOf(PropTypes.string).isRequired,
   rankCategory: PropTypes.number.isRequired,
-  // onBack: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
+  setIsRankingComplete: PropTypes.func.isRequired, // New Prop
 };
 
 export default ComparisonStep;
