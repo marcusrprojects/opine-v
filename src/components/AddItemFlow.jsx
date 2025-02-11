@@ -39,7 +39,6 @@ const AddItemFlow = () => {
     fetchFields();
   }, [categoryId]);
 
-  // const handleNext = () => setCurrentStep((prev) => prev + 1);
   const handleNext = () => {
     if (!isStepValid && currentStep === 1) {
       return; // Prevent navigating to the next step if validation fails
