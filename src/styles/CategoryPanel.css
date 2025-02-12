@@ -1,0 +1,48 @@
+.floating-back-panel {
+  position: fixed;
+  left: var(--padding-xlarge);
+  top: 2.5rem;
+  padding: var(--padding-medium);
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  z-index: 1000;
+  align-items: center;
+}
+
+.floating-back-panel .nav-back-button,
+.floating-back-panel .add-button {
+  background: none;
+  color: var(--secondary-color);
+  border: none;
+  outline: none;
+  margin: 0;
+  padding: 0;
+  width: 2rem;
+  height: 2rem;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.nav-back-button:hover,
+.add-button:hover {
+  transform: scale(1.1);
+  color: var(--middle-color);
+  background: none;
+}
+
+.nav-back-button:focus,
+.add-button:focus {
+  outline: none;
+}
+
+.add-button:disabled {
+  color: var(--quinary-color);
+  cursor: default;
+  transform: scale(1.1);
+}

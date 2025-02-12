@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
+import CategoryPanel from "./CategoryPanel";
+
 import {
   collection,
   doc,
@@ -223,9 +225,17 @@ const CategoryDetail = () => {
     return <LoadingComponent message={LoadingMessages.FETCHING} />;
   }
 
+  const handleBack = () => navigate("/categories");
+  const handleAddItem = () => navigate(`/categories/${categoryId}/add-item`);
+
   return (
     <div>
       <div className="category-detail-container">
+        <CategoryPanel
+          onBack={handleBack}
+          onAdd={handleAddItem}
+          isAddDisabled={false}
+        />
         <div className="category-detail-header">
           <h2 className="category-title"> {categoryName} </h2>
           <p className="username">@{creatorUsername}</p>
@@ -357,9 +367,9 @@ const CategoryDetail = () => {
       />
       <br></br>
       {/* Back Button */}
-      <button onClick={() => navigate("/categories")} className="back-button">
+      {/* <button onClick={() => navigate("/categories")} className="back-button">
         Back
-      </button>
+      </button> */}
     </div>
   );
 };
