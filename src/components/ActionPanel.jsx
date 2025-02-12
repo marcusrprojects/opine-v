@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import "../styles/ActionPanel.css";
-import { FaTimes, FaCheck } from "react-icons/fa"; // Icons for Cancel and OK
+import { FaTimes, FaCheck } from "react-icons/fa";
 
 const ActionPanel = ({ onCancel, onConfirm, isConfirmDisabled }) => {
   return (
