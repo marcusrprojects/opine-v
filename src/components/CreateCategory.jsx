@@ -6,13 +6,14 @@ import { useAuth } from "../context/useAuth";
 import "../styles/CreateCategory.css";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import TagSelector from "./TagSelector";
+import ActionPanel from "./ActionPanel";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
   const [fields, setFields] = useState([{ name: "Name" }]);
   const [primaryFieldIndex, setPrimaryFieldIndex] = useState(0);
   const [tags, setTags] = useState([]); // Store selected tag IDs
-  const { user } = useAuth(); // Access the user state
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const addField = () => {
@@ -67,9 +68,17 @@ const CreateCategory = () => {
 
   return (
     <div className="create-category-container">
+      <ActionPanel
+        onCancel={() => navigate("/categories")} // Navigate back
+        onConfirm={handleSubmit} // Handle submission
+        isConfirmDisabled={
+          !categoryName || fields.length === 0 || tags.length === 0
+        } // Disable if incomplete
+      />
+
       <h2>Create a Category</h2>
 
-      <form onSubmit={handleSubmit} className="category-form">
+      <form className="category-form">
         {/* Category Name Section */}
         <div className="category-name-group">
           <h3>Category Name</h3>
@@ -134,14 +143,6 @@ const CreateCategory = () => {
         <div className="tags-group">
           <h3>Tags</h3>
           <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
-        </div>
-
-        {/* Buttons Section */}
-        <div className="button-group">
-          <button type="button" onClick={() => navigate("/categories")}>
-            Back
-          </button>
-          <button type="submit">OK</button>
         </div>
       </form>
     </div>
