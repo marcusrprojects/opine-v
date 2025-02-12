@@ -1,16 +1,40 @@
+.create-category-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--padding-sm);
+  /* padding: var(--padding-medium); */
+  /* max-width: 40vw; */
+  margin: 0 auto;
+}
+
+.category-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-ml);
+  align-items: center;
+}
+
+.category-name-group,
+.attributes-group,
+.tags-group,
+.button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--padding-small);
+  /* width: 100%; */
+}
+
 .field-container {
   display: flex;
-  justify-content: center;
-  position: relative; /* Allows absolute positioning for child elements */
-  padding: var(--padding-medium);
   align-items: center;
   gap: var(--padding-small);
 }
 
 .primary-field-radio {
   position: relative;
-  margin-left: 10px;
-  cursor: pointer;
+  /* margin-left: 10px; */
 }
 
 .primary-field-radio .tooltip {
@@ -33,7 +57,7 @@
 }
 
 .primary-field {
-  accent-color: var(--secondary-color); /* Changes the color of the radio button */
+  accent-color: var(--secondary-color);
 }
 
 .primary-field-radio:hover .tooltip {
@@ -41,54 +65,52 @@
   opacity: 1;
 }
 
-#attributes {
-  margin-bottom: var(--padding-medium);
-  margin-top: var(--padding-large);
-}
-
 .field-input{
   background-color: transparent;
   border: 1px solid var(--quaternary-color);
-  width: 20vw;
+  width: 18vw;
   border-radius: var(--border-radius-medium);
   padding: var(--padding-medium);
   font-size: var(--font-medium);
   color: var(--secondary-color);
 }
 
+h3 {
+  font-weight: var(--fw-sm);
+}
+
 .field-input:focus {
   outline:none;
 }
 
-.primary-field-radio {
+/* .primary-field-radio {
   margin-right: .5rem;
-}
+} */
 
-.add-field-button {
-  background: none; /* Remove background */
-  border: none; /* Remove border */
-  color: var(--highlight-color); /* Set color to match icon color */
-  cursor: pointer;
-  padding: 0; /* Remove padding for a closer fit to the icon */
-  transition: color 0.3s ease; /* Optional hover effect */
-  /* border-radius: 60%; */
-  margin-top: var(--padding-medium);
-}
-
-.add-field-button:focus {
-  outline: none;
-}
-
-.add-field-button:hover {
-  color: var(--quinary-color); /* Change color slightly on hover */
+/* .add-field-button {
   background: none;
-}
+  border: none;
+  color: var(--highlight-color);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.3s ease;
+  margin-top: var(--padding-medium);
+} */
+
+/* .add-field-button:focus {
+  outline: none;
+} */
+
+/* .add-field-button:hover {
+  color: var(--quinary-color);
+  background: none;
+} */
 
 .button-group {
   display: flex; /* Enables gap to work */
-  gap: 1rem; /* Adjust this value as needed */
+  flex-direction: row;
+  gap: 1rem;
   justify-content: center; /* Center align buttons if needed */
-  margin-top: var(--padding-medium);
 }
 
 .button-group button {
@@ -96,14 +118,15 @@
   border-radius: var(--border-radius-medium);
   color: var(--secondary-color);
   border: none;
-}
-
-.field-input:hover {
-  background-color: var(--tertiary-color);
+  margin: 0;
 }
 
 .button-group button:hover {
   background-color: var(--quaternary-color);
+}
+
+.field-input:hover {
+  /* background-color: var(--tertiary-color); */
 }
 
 .field-container .default-delete, .field-container .primary-delete {
@@ -117,24 +140,11 @@
 .field-container .default-delete:hover, .add-field-icon:hover {
   color: var(--secondary-color);
 }
-/* 
-.default-delete:hover {
-  color: var(--middle-color);
-} */
 
 .field-container .primary-delete {
   cursor: not-allowed;
   color: var(--tertiary-color);
 }
-
-/* Container wrapping the input and dropdown */
-/* .tag-dropdown-container {
-  position: relative;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-} */
 
 /* Dropdown styling */
 .dropdown {
