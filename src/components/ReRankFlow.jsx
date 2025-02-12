@@ -98,19 +98,10 @@ const ReRankFlow = () => {
 
   return (
     <div className="add-item-container">
-      {/* <NavPanel
-        onBack={handleBack}
-        onNext={handleNext}
-        isBackDisabled={currentStep === 1}
-        isNextDisabled={
-          (currentStep === 1 && rankCategory === null) ||
-          (currentStep === 2 && !isRankingComplete)
-        }
-      /> */}
       <NavPanel
         onBack={handleBack}
         onNext={handleNext}
-        isBackDisabled={currentStep === 1}
+        isBackDisabled={false}
         isNextDisabled={currentStep === 1 && rankCategory === null}
         currentStep={currentStep}
         totalSteps={2} // Adjust as per the Re-Ranking Flow

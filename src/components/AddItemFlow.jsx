@@ -96,7 +96,7 @@ const AddItemFlow = () => {
       <NavPanel
         onBack={handleBack}
         onNext={handleNext}
-        isBackDisabled={currentStep === 1}
+        isBackDisabled={false}
         isNextDisabled={currentStep === 1 && !isStepValid}
         currentStep={currentStep}
         totalSteps={3} // Adjust if needed
