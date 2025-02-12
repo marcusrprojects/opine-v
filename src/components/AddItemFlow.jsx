@@ -87,11 +87,19 @@ const AddItemFlow = () => {
 
   return (
     <div className="add-item-container">
-      <NavPanel
+      {/* <NavPanel
         onBack={handleBack}
         onNext={handleNext}
         isBackDisabled={currentStep === 1}
         isNextDisabled={currentStep === 1 && !isStepValid} // Disable based on validation
+      /> */}
+      <NavPanel
+        onBack={handleBack}
+        onNext={handleNext}
+        isBackDisabled={currentStep === 1}
+        isNextDisabled={currentStep === 1 && !isStepValid}
+        currentStep={currentStep}
+        totalSteps={3} // Adjust if needed
       />
 
       {currentStep === 1 && (
