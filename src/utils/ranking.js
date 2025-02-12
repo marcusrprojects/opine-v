@@ -2,27 +2,30 @@ import { db } from "../firebaseConfig";
 import { writeBatch, doc, collection, getDocs } from "firebase/firestore";
 import RankCategory from "../enums/RankCategory";
 
-// Helper function to write items to Firestore with adjusted ratings
 export const writeItemsToFirestore = async (
   categoryId,
   items,
   rankCategory
 ) => {
-  const totalRange = (1 / 3) * 10;
+  const totalRange = (1 / 3) * 10; // Each category gets a third of the 10-point range
+
+  // Dynamic offset: The first item should not start at the exact lower boundary
+  const dynamicOffset = totalRange / items.length;
+  console.log("Dynamic offset: ", dynamicOffset);
+
   const minRating =
     rankCategory === RankCategory.GOOD
-      ? totalRange * 2
+      ? (2 / 3) * 10 + dynamicOffset
       : rankCategory === RankCategory.OKAY
-      ? totalRange
-      : 0;
+      ? (1 / 3) * 10 + dynamicOffset
+      : dynamicOffset;
 
-  // Check if there is only one item and assign it a middle rating directly
   if (items.length === 1) {
-    items[0].rating = minRating + totalRange / 2;
+    items[0].rating = minRating + totalRange / 2; // Single item is placed in the middle
   } else {
-    // Adjust ratings for multiple items
+    // Adjust ratings dynamically within the category range
     items.forEach((item, index) => {
-      item.rating = minRating + (totalRange / (items.length - 1)) * index;
+      item.rating = minRating + index * dynamicOffset;
     });
   }
 
