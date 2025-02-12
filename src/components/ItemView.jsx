@@ -1,18 +1,18 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { db } from '../firebaseConfig';
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { FaTrash } from 'react-icons/fa';
+import { useState, useEffect, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { db } from "../firebaseConfig";
+import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { FaTrash } from "react-icons/fa";
 import "../styles/ItemView.css";
-import { refreshRankedItems, calculateCardColor } from '../utils/ranking';
-import { useAuth } from '../context/useAuth';
+import { refreshRankedItems, calculateCardColor } from "../utils/ranking";
+import { useAuth } from "../context/useAuth";
 
 const ItemView = () => {
   const { user } = useAuth();
   const { categoryId, itemId } = useParams();
   const navigate = useNavigate();
   const [itemData, setItemData] = useState({});
-  const [creatorId, setCreatorId] = useState('');
+  const [creatorId, setCreatorId] = useState("");
   const [editingField, setEditingField] = useState(null);
   const [primaryField, setPrimaryField] = useState(null);
   const [orderedFields, setOrderedFields] = useState([]);
@@ -23,7 +23,9 @@ const ItemView = () => {
 
   useEffect(() => {
     const fetchItem = async () => {
-      const itemDoc = await getDoc(doc(db, `categories/${categoryId}/items`, itemId));
+      const itemDoc = await getDoc(
+        doc(db, `categories/${categoryId}/items`, itemId)
+      );
       const categoryDoc = await getDoc(doc(db, `categories`, categoryId));
 
       if (itemDoc.exists()) {
@@ -76,7 +78,9 @@ const ItemView = () => {
   };
 
   const handleReRank = () => {
-    navigate(`/categories/${categoryId}/items/${itemId}/rerank`, { state: { existingItem: itemData } });
+    navigate(`/categories/${categoryId}/items/${itemId}/rerank`, {
+      state: { existingItem: itemData },
+    });
   };
 
   const cardColor = useMemo(() => {
@@ -90,18 +94,20 @@ const ItemView = () => {
       <div>
         {canEdit && (
           <FaTrash
-            className={`trash-icon ${canEdit ? 'editable' : 'non-editable'}`}
+            className={`trash-icon ${canEdit ? "editable" : "non-editable"}`}
             onClick={handleDelete}
           />
         )}
 
-        <h2 className="item-title">{itemData[primaryField] || "Unnamed Item"}</h2>
+        <h2 className="item-title">
+          {itemData[primaryField] || "Unnamed Item"}
+        </h2>
 
         <div className="rating-container">
           <div
             id="rating-display"
             className="item-rating"
-            style={{ backgroundColor: cardColor }}
+            style={{ outlineColor: cardColor }}
             onClick={handleReRank}
           >
             {parseFloat(itemData.rating || 0).toFixed(1)}
@@ -112,7 +118,7 @@ const ItemView = () => {
         {orderedFields.map((field, index) => (
           <div
             key={index}
-            className={`item-field ${canEdit ? 'editable' : 'non-editable'}`}
+            className={`item-field ${canEdit ? "editable" : "non-editable"}`}
             onClick={() => setEditingField(field)}
           >
             <div className="field-content">
@@ -120,14 +126,16 @@ const ItemView = () => {
               {canEdit && editingField === field ? (
                 <input
                   type="text"
-                  value={itemData[field] || ''}
+                  value={itemData[field] || ""}
                   onChange={(e) => handleChange(field, e.target.value)}
                   onBlur={() => handleSaveField(field)}
                   autoFocus
                   className="item-input"
                 />
               ) : (
-                <span className="item-value">{itemData[field] || "Click to edit"}</span>
+                <span className="item-value">
+                  {itemData[field] || "Click to edit"}
+                </span>
               )}
             </div>
           </div>
@@ -135,14 +143,14 @@ const ItemView = () => {
 
         {/* Render "Notes" field separately */}
         <div
-          className={`item-field ${canEdit ? 'editable' : 'non-editable'}`}
+          className={`item-field ${canEdit ? "editable" : "non-editable"}`}
           onClick={() => setEditingField("notes")}
         >
           <div className="field-content">
             <label className="item-label">Notes:</label>
             {editingField === "notes" ? (
               <textarea
-                value={itemData.notes || ''}
+                value={itemData.notes || ""}
                 onChange={(e) => handleChange("notes", e.target.value)}
                 onBlur={() => handleSaveField("notes")}
                 autoFocus
@@ -158,7 +166,10 @@ const ItemView = () => {
           </div>
         </div>
 
-        <button id="back-button" onClick={() => navigate(`/categories/${categoryId}`)}>
+        <button
+          id="back-button"
+          onClick={() => navigate(`/categories/${categoryId}`)}
+        >
           Back
         </button>
       </div>
