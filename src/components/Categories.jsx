@@ -1,17 +1,23 @@
-import { useEffect, useState, useRef } from 'react';
-import { db } from '../firebaseConfig';
-import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useRef } from "react";
+import { db } from "../firebaseConfig";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "../styles/Categories.css";
-import AddButton from './AddButton';
-import { useAuth } from '../context/useAuth';
-import { debounce } from 'lodash';
-import { FaHeart, FaRegHeart, FaSearch } from 'react-icons/fa'; // Icons for like/dislike
+import AddButton from "./AddButton";
+import { useAuth } from "../context/useAuth";
+import { debounce } from "lodash";
+import { FaHeart, FaRegHeart, FaSearch } from "react-icons/fa"; // Icons for like/dislike
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [filteredCategories, setFilteredCategories] = useState([]);
-  const [searchInput, setSearchInput] = useState(''); // Unified search input
+  const [searchInput, setSearchInput] = useState(""); // Unified search input
   const [selectedTags, setSelectedTags] = useState([]); // Selected tags
   const [tagMap, setTagMap] = useState({}); // Store tag IDs and names
   const [loading, setLoading] = useState(true);
@@ -48,20 +54,20 @@ const Categories = () => {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const tagSnapshot = await getDocs(collection(db, 'tags'));
+        const tagSnapshot = await getDocs(collection(db, "tags"));
         const tagList = tagSnapshot.docs.reduce((acc, doc) => {
           acc[doc.id] = doc.data().name;
           return acc;
         }, {});
         setTagMap(tagList);
       } catch (error) {
-        console.error('Error fetching tags: ', error);
+        console.error("Error fetching tags: ", error);
       }
     };
 
     const fetchCategories = async () => {
       try {
-        const categorySnapshot = await getDocs(collection(db, 'categories'));
+        const categorySnapshot = await getDocs(collection(db, "categories"));
         const categoryList = categorySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -69,14 +75,14 @@ const Categories = () => {
         setCategories(categoryList);
         setFilteredCategories(categoryList);
       } catch (error) {
-        console.error('Error fetching categories: ', error);
+        console.error("Error fetching categories: ", error);
       }
     };
 
     const fetchLikedCategories = async () => {
       if (user) {
         try {
-          const userDocRef = doc(db, 'users', user.uid);
+          const userDocRef = doc(db, "users", user.uid);
           const userDocSnapshot = await getDoc(userDocRef);
           if (userDocSnapshot.exists()) {
             const userData = userDocSnapshot.data();
@@ -84,7 +90,7 @@ const Categories = () => {
             setLikedCategories(likedCategoryIds); // Directly set IDs
           }
         } catch (error) {
-          console.error('Error fetching liked categories:', error);
+          console.error("Error fetching liked categories:", error);
         }
       }
     };
@@ -117,20 +123,26 @@ const Categories = () => {
     setSelectedTags(updatedTags);
 
     // Apply the filter with the current tags
-    debouncedFilterRef.current('', updatedTags, categories, tagMap, setFilteredCategories); // Pass an empty searchInput
+    debouncedFilterRef.current(
+      "",
+      updatedTags,
+      categories,
+      tagMap,
+      setFilteredCategories
+    ); // Pass an empty searchInput
 
     // Clear the search input after filtering is applied
-    setSearchInput(''); // Reset input value
+    setSearchInput(""); // Reset input value
     setShowDropdown(false); // Hide the dropdown
   };
 
   const toggleLike = async (categoryId) => {
     if (!user) {
-      alert('You need to log in to like categories.');
+      alert("You need to log in to like categories.");
       return;
     }
 
-    const userDocRef = doc(db, 'users', user.uid);
+    const userDocRef = doc(db, "users", user.uid);
     const updatedLikes = likedCategories.includes(categoryId)
       ? likedCategories.filter((id) => id !== categoryId) // Remove like
       : [...likedCategories, categoryId]; // Add like
@@ -139,7 +151,7 @@ const Categories = () => {
       await updateDoc(userDocRef, { likedCategories: updatedLikes });
       setLikedCategories(updatedLikes);
     } catch (error) {
-      console.error('Error updating likes:', error);
+      console.error("Error updating likes:", error);
     }
   };
 
@@ -186,9 +198,12 @@ const Categories = () => {
             {showDropdown && searchInput && (
               <div className="tag-dropdown">
                 {Object.entries(tagMap)
-                  .filter(([tagId, tagName]) =>
-                    tagName.toLowerCase().includes(searchInput.toLowerCase()) &&
-                    !selectedTags.includes(tagId)
+                  .filter(
+                    ([tagId, tagName]) =>
+                      tagName
+                        .toLowerCase()
+                        .includes(searchInput.toLowerCase()) &&
+                      !selectedTags.includes(tagId)
                   )
                   .map(([tagId, tagName]) => (
                     <div
@@ -233,37 +248,40 @@ const Categories = () => {
                 <h4 className="category-title">{category.name}</h4>
               </div>
               <div className="category-content">
-                {category.fields
-                  .filter((field) => field !== category.primaryField)
-                  .join(', ')}
+                {category.fields && category.fields.length > 1 ? (
+                  category.fields
+                    .filter((field) => field !== category.primaryField)
+                    .join(", ")
+                ) : (
+                  <span>N/A</span>
+                )}
               </div>
-
               <div className="like-container">
-              {likedCategories.includes(category.id) ? (
-                <FaHeart
-                  className="like-icon liked"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent navigation
-                    toggleLike(category.id);
-                  }}
-                />
-              ) : (
-                <FaRegHeart
-                  className="like-icon"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent navigation
-                    toggleLike(category.id);
-                  }}
-                />
-              )}
-            </div>
+                {likedCategories.includes(category.id) ? (
+                  <FaHeart
+                    className="like-icon liked"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent navigation
+                      toggleLike(category.id);
+                    }}
+                  />
+                ) : (
+                  <FaRegHeart
+                    className="like-icon"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent navigation
+                      toggleLike(category.id);
+                    }}
+                  />
+                )}
+              </div>
 
               <div className="category-tags">
                 {category.tags && category.tags.length > 0 ? (
                   <div className="tag-container">
                     {category.tags.map((tagId) => (
                       <span key={tagId} className="tag-chip">
-                        {tagMap[tagId] || 'Unknown Tag'}
+                        {tagMap[tagId] || "Unknown Tag"}
                       </span>
                     ))}
                   </div>
