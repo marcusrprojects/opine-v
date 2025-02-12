@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: var(--padding-medium);
-  gap: var(--padding-small);
+  /* margin-top: var(--padding-medium); */
+  /* gap: var(--padding-small); */
 }
 
 /* Dropdown Styling */
@@ -12,7 +12,7 @@
   background-color: var(--primary-color);
   border: 0.1rem solid transparent;
   border-radius: var(--border-radius-medium);
-  padding: var(--padding-small);
+  /* padding: var(--padding-small); */
   overflow: hidden;
   z-index: 10;
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
