@@ -1,24 +1,24 @@
-import { useEffect, useState } from "react";
-import { db } from "../firebaseConfig";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { useState } from "react";
+// import { db } from "../firebaseConfig";
+// import {
+//   collection,
+//   doc,
+//   getDoc,
+//   getDocs,
+//   query,
+//   where,
+// } from "firebase/firestore";
 import { useAuth } from "../context/useAuth";
-import CategoryCollection from "./CategoryCollection";
+// import CategoryCollection from "./CategoryCollection";
 import { useNavigate } from "react-router-dom";
 import "../styles/Profile.css";
 import { FaEdit } from "react-icons/fa";
 
 const Profile = () => {
   const { user } = useAuth();
-  const [likedCategories, setLikedCategories] = useState([]);
-  const [ownCategories, setOwnCategories] = useState([]);
-  const [tagMap, setTagMap] = useState({});
+  // const [likedCategories, setLikedCategories] = useState([]);
+  // const [ownCategories, setOwnCategories] = useState([]);
+  // const [tagMap, setTagMap] = useState({});
   const [coverPhoto, setCoverPhoto] = useState(null); // Current cover photo
   const [tempCoverPhoto, setTempCoverPhoto] = useState(null); // Temporary photo during editing
   const [dragging, setDragging] = useState(false);
@@ -27,53 +27,53 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUserCategories = async () => {
-      if (!user) return;
+  // useEffect(() => {
+  //   const fetchUserCategories = async () => {
+  //     if (!user) return;
 
-      // Fetch user's document to get likedCategories
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnapshot = await getDoc(userDocRef);
+  //     // Fetch user's document to get likedCategories
+  //     const userDocRef = doc(db, "users", user.uid);
+  //     const userDocSnapshot = await getDoc(userDocRef);
 
-      if (userDocSnapshot.exists()) {
-        const userData = userDocSnapshot.data();
-        const likedCategoryIds = userData.likedCategories || [];
+  //     if (userDocSnapshot.exists()) {
+  //       const userData = userDocSnapshot.data();
+  //       const likedCategoryIds = userData.likedCategories || [];
 
-        // Fetch liked categories by their IDs
-        const likedCategoryDocs = await Promise.all(
-          likedCategoryIds.map(async (categoryId) => {
-            const categoryDocRef = doc(db, "categories", categoryId);
-            const categoryDocSnapshot = await getDoc(categoryDocRef);
-            return { id: categoryId, ...categoryDocSnapshot.data() };
-          })
-        );
+  //       // Fetch liked categories by their IDs
+  //       const likedCategoryDocs = await Promise.all(
+  //         likedCategoryIds.map(async (categoryId) => {
+  //           const categoryDocRef = doc(db, "categories", categoryId);
+  //           const categoryDocSnapshot = await getDoc(categoryDocRef);
+  //           return { id: categoryId, ...categoryDocSnapshot.data() };
+  //         })
+  //       );
 
-        setLikedCategories(likedCategoryDocs);
-      }
+  //       setLikedCategories(likedCategoryDocs);
+  //     }
 
-      // Fetch categories created by the user
-      const createdQuery = query(
-        collection(db, "categories"),
-        where("createdBy", "==", user.uid)
-      );
-      const createdSnapshot = await getDocs(createdQuery);
-      setOwnCategories(
-        createdSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
-    };
+  //     // Fetch categories created by the user
+  //     const createdQuery = query(
+  //       collection(db, "categories"),
+  //       where("createdBy", "==", user.uid)
+  //     );
+  //     const createdSnapshot = await getDocs(createdQuery);
+  //     setOwnCategories(
+  //       createdSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+  //     );
+  //   };
 
-    const fetchTags = async () => {
-      const tagSnapshot = await getDocs(collection(db, "tags"));
-      const tagList = tagSnapshot.docs.reduce((acc, doc) => {
-        acc[doc.id] = doc.data().name;
-        return acc;
-      }, {});
-      setTagMap(tagList);
-    };
+  //   const fetchTags = async () => {
+  //     const tagSnapshot = await getDocs(collection(db, "tags"));
+  //     const tagList = tagSnapshot.docs.reduce((acc, doc) => {
+  //       acc[doc.id] = doc.data().name;
+  //       return acc;
+  //     }, {});
+  //     setTagMap(tagList);
+  //   };
 
-    fetchTags();
-    fetchUserCategories();
-  }, [user]);
+  //   fetchTags();
+  //   fetchUserCategories();
+  // }, [user]);
 
   const handleCoverPhotoChange = (e) => {
     const file = e.target.files[0];
@@ -185,11 +185,11 @@ const Profile = () => {
       )}
       <div>
         <h3>Your Categories</h3>
-        <CategoryCollection categories={ownCategories} tagMap={tagMap} />
+        {/* <CategoryCollection categories={ownCategories} tagMap={tagMap} /> */}
       </div>
       <div>
         <h3>Liked Categories</h3>
-        <CategoryCollection categories={likedCategories} tagMap={tagMap} />
+        {/* <CategoryCollection categories={likedCategories} tagMap={tagMap} /> */}
       </div>
     </div>
   );
