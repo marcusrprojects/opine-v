@@ -1,0 +1,18 @@
+.item-card .rating {
+  font-size: var(--font-sm);
+  font-weight: var(--fw-xlarge);
+  padding: var(--padding-xsmall);
+  border-radius: var(--padding-sm);
+  filter: brightness(92%);
+  color: var(--primary-color);
+}
+
+.item-card .item-value {
+  padding: var(--padding-small);
+  border-radius: var(--border-radius-medium);
+  margin: 0;
+  font-size: var(--font-small);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
