@@ -125,10 +125,6 @@ h3 {
   background-color: var(--quaternary-color);
 }
 
-.field-input:hover {
-  /* background-color: var(--tertiary-color); */
-}
-
 .field-container .default-delete, .field-container .primary-delete {
   transition: color 0.3s ease;
 }

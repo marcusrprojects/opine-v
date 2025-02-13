@@ -7,7 +7,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 20vw; /* Ensures it doesn't break UI */
 }
 
 .item-title {
@@ -28,10 +27,6 @@
 
 /* Grid layout for item cards, responsive */
 .item-grid {
-    /* display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(14vw, 1fr));
-    gap: var(--padding-ml); */
-
     display: flex;
     flex-wrap: wrap;
     gap: var(--padding-medium);
