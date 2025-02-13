@@ -1,11 +1,18 @@
-import { useEffect, useState } from 'react';
-import { db } from '../firebaseConfig';
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
-import { useAuth } from '../context/useAuth';
-import CategoryCollection from './CategoryCollection';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { db } from "../firebaseConfig";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { useAuth } from "../context/useAuth";
+import CategoryCollection from "./CategoryCollection";
+import { useNavigate } from "react-router-dom";
 import "../styles/Profile.css";
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit } from "react-icons/fa";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -25,7 +32,7 @@ const Profile = () => {
       if (!user) return;
 
       // Fetch user's document to get likedCategories
-      const userDocRef = doc(db, 'users', user.uid);
+      const userDocRef = doc(db, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
 
       if (userDocSnapshot.exists()) {
@@ -35,7 +42,7 @@ const Profile = () => {
         // Fetch liked categories by their IDs
         const likedCategoryDocs = await Promise.all(
           likedCategoryIds.map(async (categoryId) => {
-            const categoryDocRef = doc(db, 'categories', categoryId);
+            const categoryDocRef = doc(db, "categories", categoryId);
             const categoryDocSnapshot = await getDoc(categoryDocRef);
             return { id: categoryId, ...categoryDocSnapshot.data() };
           })
@@ -45,13 +52,18 @@ const Profile = () => {
       }
 
       // Fetch categories created by the user
-      const createdQuery = query(collection(db, 'categories'), where('createdBy', '==', user.uid));
+      const createdQuery = query(
+        collection(db, "categories"),
+        where("createdBy", "==", user.uid)
+      );
       const createdSnapshot = await getDocs(createdQuery);
-      setOwnCategories(createdSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      setOwnCategories(
+        createdSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      );
     };
 
     const fetchTags = async () => {
-      const tagSnapshot = await getDocs(collection(db, 'tags'));
+      const tagSnapshot = await getDocs(collection(db, "tags"));
       const tagList = tagSnapshot.docs.reduce((acc, doc) => {
         acc[doc.id] = doc.data().name;
         return acc;
@@ -107,7 +119,7 @@ const Profile = () => {
     setIsEditing(false);
 
     // Reset the file input so it can be triggered again
-    const fileInput = document.getElementById('cover-photo-input');
+    const fileInput = document.getElementById("cover-photo-input");
     if (fileInput) fileInput.value = null;
   };
 
@@ -115,10 +127,16 @@ const Profile = () => {
     return (
       <div className="login-prompt">
         <h2>Profile</h2>
-        <p>Please log in or sign up to view your categories and liked categories.</p>
+        <p>
+          Please log in or sign up to view your categories and liked categories.
+        </p>
         <div className="auth-buttons">
-          <button className="login-button" onClick={() => navigate('/login')}>Log In</button>
-          <button className="signup-button" onClick={() => navigate('/signup')}>Sign Up</button>
+          <button className="login-button" onClick={() => navigate("/login")}>
+            Log In
+          </button>
+          <button className="signup-button" onClick={() => navigate("/signup")}>
+            Sign Up
+          </button>
         </div>
       </div>
     );
@@ -129,7 +147,7 @@ const Profile = () => {
       <div
         className="cover-photo"
         style={{
-          backgroundImage: tempCoverPhoto ? `url(${tempCoverPhoto})` : 'none',
+          backgroundImage: tempCoverPhoto ? `url(${tempCoverPhoto})` : "none",
           backgroundPosition: `${tempPosition.x}px ${tempPosition.y}px`,
         }}
         onMouseDown={isEditing ? handleMouseDown : null}
@@ -143,7 +161,7 @@ const Profile = () => {
         </div>
         <button
           className="edit-cover-photo-button"
-          onClick={() => document.getElementById('cover-photo-input').click()}
+          onClick={() => document.getElementById("cover-photo-input").click()}
         >
           <FaEdit />
         </button>
@@ -151,14 +169,18 @@ const Profile = () => {
           type="file"
           accept="image/*"
           id="cover-photo-input"
-          style={{ display: 'none' }}
+          style={{ display: "none" }}
           onChange={handleCoverPhotoChange}
         />
       </div>
       {isEditing && (
         <div className="edit-controls">
-          <button onClick={confirmPosition} className="confirm-button">Confirm</button>
-          <button onClick={cancelEdit} className="cancel-button">Cancel</button>
+          <button onClick={confirmPosition} className="confirm-button">
+            Confirm
+          </button>
+          <button onClick={cancelEdit} className="cancel-button">
+            Cancel
+          </button>
         </div>
       )}
       <div>
