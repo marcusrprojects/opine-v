@@ -7,6 +7,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import "../styles/EditCategory.css";
 import { handleError } from "../utils/errorUtils";
 import TagSelector from "./TagSelector";
+import ActionPanel from "./Navigation/ActionPanel";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -14,10 +15,16 @@ const EditCategory = () => {
   const navigate = useNavigate();
 
   // State
-  const [categoryName, setCategoryName] = useState(location.state?.categoryName || "");
-  const [description, setDescription] = useState(location.state?.description || "");
+  const [categoryName, setCategoryName] = useState(
+    location.state?.categoryName || ""
+  );
+  const [description, setDescription] = useState(
+    location.state?.description || ""
+  );
   const [fields, setFields] = useState(location.state?.fields || []);
-  const [primaryField, setPrimaryField] = useState(location.state?.primaryField || "");
+  const [primaryField, setPrimaryField] = useState(
+    location.state?.primaryField || ""
+  );
   const [tags, setTags] = useState(location.state?.tags || []);
   const [newField, setNewField] = useState("");
   const [loading, setLoading] = useState(!location.state);
@@ -101,6 +108,12 @@ const EditCategory = () => {
 
   return (
     <div className="edit-category-container">
+      <ActionPanel
+        onCancel={() => navigate(`/categories/${categoryId}`)}
+        onConfirm={handleSave}
+        isConfirmDisabled={false}
+      />
+
       <h2 className="edit-category-title">{categoryName || "Edit Category"}</h2>
 
       <div className="edit-section">
@@ -135,7 +148,10 @@ const EditCategory = () => {
               <label htmlFor={`field-radio-${field}`} className="property-pair">
                 {field}
               </label>
-              <FaTrash onClick={() => handleRemoveField(field)} className="icon delete-icon" />
+              <FaTrash
+                onClick={() => handleRemoveField(field)}
+                className="icon delete-icon"
+              />
             </li>
           ))}
         </ul>
@@ -153,19 +169,7 @@ const EditCategory = () => {
         </div>
       </div>
 
-      <TagSelector
-        tags={tags}
-        setTags={setTags}
-        db={db}
-        maxTags={5}
-      />
-
-      <button onClick={handleSave} className="save-button">
-        Save
-      </button>
-      <button onClick={() => navigate(`/categories/${categoryId}`)} className="cancel-button">
-        Cancel
-      </button>
+      <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
     </div>
   );
 };

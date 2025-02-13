@@ -9,10 +9,10 @@ import {
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import "../styles/Categories.css";
-import AddButton from "./AddButton";
 import { useAuth } from "../context/useAuth";
 import { debounce } from "lodash";
-import { FaHeart, FaRegHeart, FaSearch } from "react-icons/fa"; // Icons for like/dislike
+import { FaHeart, FaRegHeart, FaSearch } from "react-icons/fa";
+import AddPanel from "./Navigation/AddPanel";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -175,6 +175,8 @@ const Categories = () => {
     <div>
       <h2>Categories</h2>
 
+      <AddPanel onAdd={() => navigate("/create-category")} />
+
       <div className="search-container">
         <button
           className="search-icon"
@@ -295,8 +297,6 @@ const Categories = () => {
           ))
         )}
       </div>
-
-      <AddButton onClick={() => navigate(`/create-category`)} />
     </div>
   );
 };

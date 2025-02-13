@@ -6,6 +6,7 @@ import { FaTrash } from "react-icons/fa";
 import "../styles/ItemView.css";
 import { refreshRankedItems, calculateCardColor } from "../utils/ranking";
 import { useAuth } from "../context/useAuth";
+import BackPanel from "./Navigation/BackPanel";
 
 const ItemView = () => {
   const { user } = useAuth();
@@ -92,6 +93,8 @@ const ItemView = () => {
   return (
     <div className={`item-view-container`}>
       <div>
+        <BackPanel onBack={() => navigate(`/categories/${categoryId}`)} />
+
         {canEdit && (
           <FaTrash
             className={`trash-icon ${canEdit ? "editable" : "non-editable"}`}
@@ -165,13 +168,6 @@ const ItemView = () => {
             )}
           </div>
         </div>
-
-        <button
-          id="back-button"
-          onClick={() => navigate(`/categories/${categoryId}`)}
-        >
-          Back
-        </button>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
-import CategoryPanel from "./CategoryPanel";
+import CategoryPanel from "./Navigation/CategoryPanel";
 
 import {
   collection,
@@ -26,7 +26,7 @@ import { debounce } from "lodash";
 import RankCategory from "../enums/RankCategory";
 import LoadingMessages from "../enums/LoadingMessages";
 import LoadingComponent from "./LoadingComponent";
-import AddButton from "./AddButton";
+// import AddButton from "./AddButton";
 import { useAuth } from "../context/useAuth";
 import { calculateCardColor } from "../utils/ranking";
 import { handleError } from "../utils/errorUtils";
@@ -359,17 +359,6 @@ const CategoryDetail = () => {
           })}
         </div>
       </div>
-
-      <AddButton
-        onClick={() =>
-          canEditAction(() => navigate(`/categories/${categoryId}/add-item`))
-        }
-      />
-      <br></br>
-      {/* Back Button */}
-      {/* <button onClick={() => navigate("/categories")} className="back-button">
-        Back
-      </button> */}
     </div>
   );
 };
