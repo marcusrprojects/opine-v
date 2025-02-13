@@ -104,7 +104,7 @@ const ReRankFlow = () => {
         isBackDisabled={false}
         isNextDisabled={currentStep === 1 && rankCategory === null}
         currentStep={currentStep}
-        totalSteps={2} // Adjust as per the Re-Ranking Flow
+        totalSteps={2}
       />
 
       <div className="add-item-container">

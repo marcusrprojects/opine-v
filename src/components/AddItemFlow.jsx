@@ -93,7 +93,7 @@ const AddItemFlow = () => {
         isBackDisabled={false}
         isNextDisabled={currentStep === 1 && !isStepValid}
         currentStep={currentStep}
-        totalSteps={3} // Adjust if needed
+        totalSteps={3}
       />
 
       <div className="add-item-container">
