@@ -20,11 +20,15 @@
 
 #rating-display {
   cursor: pointer;
+  outline: .1rem solid var(--quaternary-color);
+  padding: var(--padding-small);
   transition: transform 0.3s ease;
+  background-color: transparent;
+  color: var(--secondary-color);
 }
 
 #rating-display:hover {
-  filter:brightness(90%);
+  /* filter:brightness(90%); */
   transform: scale(1.2);
 }
 

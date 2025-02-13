@@ -1,18 +1,19 @@
 .category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: var(--padding-ml);
   padding: 0;
-  /* width: 90vw;
-  margin: 0 auto;
+  margin: var(--padding-xsmall);
+
+  display: flex;
+  flex-wrap: wrap;
+  /* gap: var(--padding-medium); */
   justify-content: center;
-  align-items: start; */
+  align-items: flex-start;
 }
 
 .category-card {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* overflow: hidden; */
   position: relative;
   border-radius: var(--border-radius-medium);
   border: .01rem solid var(--quinary-color);
@@ -40,9 +41,27 @@
   font-weight: var(--fw-medium);
 }
 
+.category-title {
+  font-size: var(--font-ml);
+  /* margin: var(--padding-xsmall) 0 0 0; */
+  
+  font-weight: var(--fw-medium);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* Ensure it stays centered */
+  max-width: 16vw;  /* Restrict width */
+  display: inline-block; /* Keeps it centered while applying max-width */
+  text-align: center; /* Ensures text inside remains centered */
+
+  padding: 0 var(--padding-xlarge);
+}
+
 /* Bottom of card */
 .category-content {
-  flex-grow: 1;
+  /* flex-grow: 1; */
   font-size: var(--font-sm);
   padding: var(--padding-small);
 }
@@ -56,7 +75,7 @@
 } */
 
 .tag-chip {
-  display: inline-flex;
+  /* display: inline-flex; */
   align-items: center;
   justify-content: center;
   padding: 0.3rem 0.6rem;
@@ -68,6 +87,13 @@
   border: .08rem solid var(--quinary-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: var(--padding-xsmall) var(--padding-small);
+
+  max-width: 6rem; /* Prevents long tags from stretching */
+  /* white-space: nowrap; */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  text-align: center;
 }
 
 .tag-chip, #tag-unknown {
@@ -107,6 +133,10 @@
   gap: 0.5rem;
   justify-content: center;
   margin-bottom: var(--padding-small);
+}
+
+.tag-container {
+  margin: 0 var(--padding-sm);
 }
 
 .selected-tags {
