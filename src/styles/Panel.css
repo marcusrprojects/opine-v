@@ -1,0 +1,11 @@
+.panel {
+  position: fixed;
+  left: var(--padding-xlarge);
+  top: 2.5rem;
+  padding: var(--padding-medium);
+  display: flex;
+  flex-direction: row;
+  gap: var(--padding-medium);
+  z-index: 1000;
+  align-items: center;
+}
