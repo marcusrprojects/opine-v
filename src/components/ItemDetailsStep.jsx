@@ -89,7 +89,6 @@ const ItemDetailsStep = ({
 
 // PropTypes for validation
 ItemDetailsStep.propTypes = {
-  primaryField: PropTypes.string.isRequired,
   fields: PropTypes.arrayOf(PropTypes.string).isRequired,
   itemData: PropTypes.object.isRequired,
   updateItemData: PropTypes.func.isRequired,
