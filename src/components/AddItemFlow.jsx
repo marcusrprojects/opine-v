@@ -10,7 +10,7 @@ import { doc, getDoc } from "firebase/firestore";
 import "../styles/AddItemFlow.css";
 import { withLoading } from "../utils/loadingUtils";
 import LoadingMessages from "../enums/LoadingMessages";
-import NavPanel from "./NavPanel";
+import NavPanel from "./Navigation/NavPanel";
 
 const AddItemFlow = () => {
   const { categoryId } = useParams();
@@ -86,13 +86,7 @@ const AddItemFlow = () => {
   }
 
   return (
-    <div className="add-item-container">
-      {/* <NavPanel
-        onBack={handleBack}
-        onNext={handleNext}
-        isBackDisabled={currentStep === 1}
-        isNextDisabled={currentStep === 1 && !isStepValid} // Disable based on validation
-      /> */}
+    <div>
       <NavPanel
         onBack={handleBack}
         onNext={handleNext}
@@ -102,34 +96,36 @@ const AddItemFlow = () => {
         totalSteps={3} // Adjust if needed
       />
 
-      {currentStep === 1 && (
-        <ItemDetailsStep
-          fields={fields}
-          itemData={itemData}
-          updateItemData={updateItemData}
-          onValidationChange={setIsStepValid} // Pass validation state to AddItemFlow
-        />
-      )}
+      <div className="add-item-container">
+        {currentStep === 1 && (
+          <ItemDetailsStep
+            fields={fields}
+            itemData={itemData}
+            updateItemData={updateItemData}
+            onValidationChange={setIsStepValid} // Pass validation state to AddItemFlow
+          />
+        )}
 
-      {currentStep === 2 && (
-        <RankSelectionStep
-          setRankCategory={setRankCategory}
-          rankCategory={rankCategory}
-          onNext={handleNext}
-        />
-      )}
+        {currentStep === 2 && (
+          <RankSelectionStep
+            setRankCategory={setRankCategory}
+            rankCategory={rankCategory}
+            onNext={handleNext}
+          />
+        )}
 
-      {currentStep === 3 && (
-        <ComparisonStep
-          categoryId={categoryId}
-          itemData={itemData}
-          fields={fields}
-          primaryField={primaryField}
-          rankCategory={rankCategory}
-          onSave={handleSave}
-          setIsRankingComplete={setIsRankingComplete}
-        />
-      )}
+        {currentStep === 3 && (
+          <ComparisonStep
+            categoryId={categoryId}
+            itemData={itemData}
+            fields={fields}
+            primaryField={primaryField}
+            rankCategory={rankCategory}
+            onSave={handleSave}
+            setIsRankingComplete={setIsRankingComplete}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -7,7 +7,7 @@ import { db } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import LoadingMessages from "../enums/LoadingMessages";
-import NavPanel from "./NavPanel";
+import NavPanel from "./Navigation/NavPanel";
 
 const ReRankFlow = () => {
   const { categoryId } = useParams();
@@ -97,7 +97,7 @@ const ReRankFlow = () => {
   }
 
   return (
-    <div className="add-item-container">
+    <div>
       <NavPanel
         onBack={handleBack}
         onNext={handleNext}
@@ -107,24 +107,26 @@ const ReRankFlow = () => {
         totalSteps={2} // Adjust as per the Re-Ranking Flow
       />
 
-      {currentStep === 1 && (
-        <RankSelectionStep
-          setRankCategory={setRankCategory}
-          rankCategory={rankCategory}
-          onNext={handleNext}
-        />
-      )}
-      {currentStep === 2 && (
-        <ComparisonStep
-          categoryId={categoryId}
-          itemData={existingItem}
-          fields={fields}
-          primaryField={primaryField}
-          rankCategory={rankCategory}
-          onSave={handleSave}
-          setIsRankingComplete={setIsRankingComplete}
-        />
-      )}
+      <div className="add-item-container">
+        {currentStep === 1 && (
+          <RankSelectionStep
+            setRankCategory={setRankCategory}
+            rankCategory={rankCategory}
+            onNext={handleNext}
+          />
+        )}
+        {currentStep === 2 && (
+          <ComparisonStep
+            categoryId={categoryId}
+            itemData={existingItem}
+            fields={fields}
+            primaryField={primaryField}
+            rankCategory={rankCategory}
+            onSave={handleSave}
+            setIsRankingComplete={setIsRankingComplete}
+          />
+        )}
+      </div>
     </div>
   );
 };
