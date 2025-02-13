@@ -6,13 +6,13 @@ import { useAuth } from "../context/useAuth";
 import "../styles/CreateCategory.css";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import TagSelector from "./TagSelector";
-import ActionPanel from "./ActionPanel";
+import ActionPanel from "./Navigation/ActionPanel";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
   const [fields, setFields] = useState([{ name: "Name" }]);
   const [primaryFieldIndex, setPrimaryFieldIndex] = useState(0);
-  const [tags, setTags] = useState([]); // Store selected tag IDs
+  const [tags, setTags] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -69,11 +69,11 @@ const CreateCategory = () => {
   return (
     <div className="create-category-container">
       <ActionPanel
-        onCancel={() => navigate("/categories")} // Navigate back
-        onConfirm={handleSubmit} // Handle submission
+        onCancel={() => navigate("/categories")}
+        onConfirm={handleSubmit}
         isConfirmDisabled={
           !categoryName || fields.length === 0 || tags.length === 0
-        } // Disable if incomplete
+        }
       />
 
       <h2>Create a Category</h2>
