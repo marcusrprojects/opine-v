@@ -35,7 +35,9 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 12rem;
 }
+
 
 .card-content {
   display: flex;
@@ -44,8 +46,8 @@
   align-items: center;
   justify-content: center;
   color: var(--middle-color);
-  padding: var(--padding-xxsmall);
   border-radius: var(--border-radius-medium);
+  margin: var(--padding-small) 0;
 }
 
 .card-footer {
