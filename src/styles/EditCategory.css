@@ -4,7 +4,6 @@
   align-items: center;
   padding: 2rem;
   gap: 2rem;
-  max-width: 800px;
   margin: auto;
   position: relative;
   font-family: inherit;
@@ -21,10 +20,6 @@
   gap: var(--padding-medium);
 }
 
-.field-section {
-  width: 50%;
-}
-
 .edit-category-title {
   /* font-size: 2rem; */
   font-weight: var(--fw-medium);
@@ -38,17 +33,19 @@
   justify-content: center;
   gap: var(--padding-ml);
   padding: var(--padding-sm) 0;
-  border-bottom: 1px solid var(--quinary-color);
+}
+
+.edit-list-item:hover {
+  border-bottom: 0.1px solid var(--quinary-color);
 }
 
 .edit-title, .edit-description, .edit-input {
   /* width: 100%; */
   padding: var(--padding-sm);
-  border: 1px solid var(--quinary-color);
+  border: 0.5px solid var(--quinary-color);
   border-radius: var(--border-radius-medium);
   background-color: transparent;
   outline: none;
-  color: var(--secondary-color);
 }
 
 .edit-description {
@@ -66,8 +63,8 @@
   align-items: center;
   position: relative;
   justify-content: center;
-  gap: var(--padding-sm);
-  margin: var(--padding-small) 0;
+  gap: var(--padding-small);
+  /* margin: var(--padding-small) 0; */
 }
 
 .property-pair {
