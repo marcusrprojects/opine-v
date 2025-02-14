@@ -18,7 +18,7 @@ const CategoryCard = ({ category, onClick, onLike, liked }) => {
           {liked ? <FaHeart /> : <FaRegHeart />}
         </span>
       </div>
-      <p className="card-content">
+      <p className="card-content category-card-content">
         {category.fields.length > 0 ? category.fields.join(", ") : "No fields"}
       </p>
       <span className="card-tags">

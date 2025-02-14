@@ -16,3 +16,20 @@
 .category-card .like-icon:hover {
   transform: scale(1.1);
 }
+
+.category-card-content {
+    max-width: 11rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  text-align: left;
+}
+
+.card-tags {
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 12rem;
+}
