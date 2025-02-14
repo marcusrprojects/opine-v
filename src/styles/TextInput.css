@@ -1,0 +1,15 @@
+.text-input {
+  padding: var(--padding-small);
+  border-radius: var(--border-radius-medium);
+  border: 0.01rem solid var(--quinary-color);
+  font-size: var(--font-small);
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 12rem;
+  color: var(--secondary-color);
+  background-color: transparent;
+}
+
+.text-input:focus {
+  border-color: var(--middle-color);
+}
