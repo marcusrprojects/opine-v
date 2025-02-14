@@ -25,6 +25,9 @@
   transition: transform 0.3s ease;
   background-color: transparent;
   color: var(--secondary-color);
+  border-radius: var(--padding-sm);
+  font-weight: var(--fw-xlarge);
+  /* font-size: var(--font-sm); */
 }
 
 #rating-display:hover {
@@ -65,7 +68,7 @@
 }
 
 .item-label {
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-ml);
   color: var(--secondary-color);
 }
 
