@@ -8,6 +8,8 @@ import "../styles/EditCategory.css";
 import { handleError } from "../utils/errorUtils";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
+import TextInput from "./TextInput";
+import Button from "./Navigation/Button";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -156,16 +158,12 @@ const EditCategory = () => {
           ))}
         </ul>
         <div className="edit-add-field">
-          <input
-            type="text"
+          <TextInput
             placeholder="Add new field"
             value={newField}
             onChange={(e) => setNewField(e.target.value)}
-            className="edit-input"
           />
-          <button onClick={handleAddField} className="edit-add-button">
-            <FaPlus />
-          </button>
+          <Button onClick={handleAddField} title="Add Field" icon={FaPlus} />
         </div>
       </div>
 

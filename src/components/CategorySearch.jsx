@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import TextInput from "./TextInput";
 import "../styles/CategorySearch.css";
 
 const CategorySearch = ({
@@ -8,12 +9,11 @@ const CategorySearch = ({
 }) => {
   return (
     <div className="search-container">
-      <input
-        type="text"
+      <TextInput
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder={placeholder}
-        className="search-input"
+        className="search-input" // Optional: extra classes specific to search styling
       />
     </div>
   );
