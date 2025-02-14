@@ -101,7 +101,7 @@
   border-color: var(--secondary-color);
 }
 
-.edit-category-container button {
+.edit-add-button {
   padding: var(--padding-sm) var(--padding-ml);
   margin: 0;
   margin-right: 0.5rem;
@@ -112,7 +112,7 @@
   cursor: pointer;
 }
 
-.edit-category-container button:hover {
+.edit-add-button:hover {
   background-color: var(--quinary-color);
 }
 
