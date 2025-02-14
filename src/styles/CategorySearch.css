@@ -8,24 +8,8 @@
   margin: var(--padding-medium) auto;
 }
 
-/* Styling for the search icon */
-.search-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin: 0;
-  color: var(--secondary-color);
-  transition: transform 0.2s ease, color 0.2s ease;
-  outline: none;
-}
-
-.search-icon:hover {
-  transform: scale(1.2);
-  color: var(--middle-color);
-}
-
 /* Styling for the search input field */
-.search-input {
+/* .search-input {
   padding: var(--padding-small);
   border-radius: var(--border-radius-medium);
   border: 0.01rem solid var(--quinary-color);
@@ -35,8 +19,8 @@
   width: 11rem;
   color: var(--secondary-color);
   background-color: transparent;
-}
+} */
 
-.search-input:focus {
+/* .search-input:focus {
     border-color: var(--middle-color);
-}
+} */
