@@ -1,0 +1,7 @@
+.item-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--padding-medium);
+  justify-content: center;
+  align-items: flex-start;
+}
