@@ -47,7 +47,7 @@
   justify-content: center;
   color: var(--middle-color);
   border-radius: var(--border-radius-medium);
-  margin: var(--padding-small) 0;
+  margin: var(--padding-xxsmall) 0;
 }
 
 .card-footer {
