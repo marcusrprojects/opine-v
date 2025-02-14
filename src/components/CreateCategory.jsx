@@ -7,6 +7,8 @@ import "../styles/CreateCategory.css";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
+import TextInput from "./TextInput";
+import RadioInput from "./RadioInput";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -82,12 +84,10 @@ const CreateCategory = () => {
         {/* Category Name Section */}
         <div className="category-name-group">
           <h3>Category Name</h3>
-          <input
-            type="text"
-            placeholder="Category Name"
+          <TextInput
             value={categoryName}
-            className="field-input"
             onChange={(e) => setCategoryName(e.target.value)}
+            placeholder="Category Name"
             required
           />
         </div>
@@ -98,8 +98,7 @@ const CreateCategory = () => {
           {fields.map((field, index) => (
             <div key={index} className="field-container">
               <label className="primary-field-radio">
-                <input
-                  type="radio"
+                <RadioInput
                   name="primaryField"
                   checked={primaryFieldIndex === index}
                   onChange={() => setPrimaryFieldIndex(index)}
@@ -109,12 +108,10 @@ const CreateCategory = () => {
                   <span className="tooltip">Primary Field</span>
                 )}
               </label>
-              <input
-                type="text"
-                placeholder={`Field #${index + 1}`}
+              <TextInput
                 value={field.name}
                 onChange={(e) => handleFieldChange(index, e.target.value)}
-                className="field-input"
+                placeholder={`Field #${index + 1}`}
                 required
               />
               <div className="field-actions">
