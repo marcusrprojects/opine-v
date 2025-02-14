@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaSearch } from "react-icons/fa";
 import Panel from "./Panel";
 import Button from "./Button";
 
-const AddPanel = ({ onAdd, isAddDisabled }) => {
+const AddSearchPanel = ({ onAdd, onToggleSearch, isAddDisabled }) => {
   return (
     <Panel>
       <Button
@@ -12,13 +12,19 @@ const AddPanel = ({ onAdd, isAddDisabled }) => {
         icon={FaPlus}
         disabled={isAddDisabled}
       />
+      <Button
+        onClick={onToggleSearch}
+        title="Search Categories"
+        icon={FaSearch}
+      />
     </Panel>
   );
 };
 
-AddPanel.propTypes = {
+AddSearchPanel.propTypes = {
   onAdd: PropTypes.func.isRequired,
+  onToggleSearch: PropTypes.func.isRequired,
   isAddDisabled: PropTypes.bool,
 };
 
-export default AddPanel;
+export default AddSearchPanel;
