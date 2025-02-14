@@ -125,7 +125,7 @@ const ItemView = () => {
             onClick={() => setEditingField(field)}
           >
             <div className="field-content">
-              <label className="item-label">{field}:</label>
+              <label className="item-label">{field}</label>
               {canEdit && editingField === field ? (
                 <input
                   type="text"
@@ -150,7 +150,7 @@ const ItemView = () => {
           onClick={() => setEditingField("notes")}
         >
           <div className="field-content">
-            <label className="item-label">Notes:</label>
+            <label className="item-label">Notes</label>
             {editingField === "notes" ? (
               <textarea
                 value={itemData.notes || ""}

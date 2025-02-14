@@ -1,6 +1,6 @@
-// CategoryFilters.jsx
 import PropTypes from "prop-types";
 import "../styles/CategorySettings.css";
+import TextInput from "./TextInput";
 
 const CategoryFilters = ({
   fields,
@@ -28,12 +28,10 @@ const CategoryFilters = ({
       <div className="filter-inputs">
         {filterFieldsSelected.map((field) => (
           <div key={field} className="filter-input-container">
-            <input
-              type="text"
+            <TextInput
               placeholder={`Filter by ${field}`}
               value={filters[field] || ""}
               onChange={(e) => onFilterChange(field, e.target.value)}
-              className="filters"
             />
           </div>
         ))}

@@ -1,4 +1,3 @@
-// CategoryDetail.jsx
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
@@ -158,7 +157,7 @@ const CategoryDetail = () => {
 
   // Navigation and action handlers
   const handleItemClick = (itemId) => {
-    navigate(`/categories/${categoryId}/items/${itemId}`);
+    navigate(`./item/${itemId}`);
   };
   const handleBack = () => navigate("/categories");
   const handleAddItem = () => navigate(`/categories/${categoryId}/add-item`);
