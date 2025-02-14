@@ -57,6 +57,7 @@ const Categories = () => {
           return {
             id: doc.id,
             ...data,
+            // Create an array of tag names for easy searching.
             tagNames: (data.tags || []).map(
               (tagId) => tagMap[tagId] || "Unknown"
             ),
@@ -71,7 +72,7 @@ const Categories = () => {
     if (user) {
       fetchLikedCategories();
     }
-    // Load tags then categories
+    // Load tags then categories (ensuring tagMap is set before mapping tagNames)
     fetchTags().then(fetchCategories);
   }, [user, tagMap]);
 
@@ -97,12 +98,19 @@ const Categories = () => {
     }
   };
 
-  // Filter categories based on search term
+  // Filter categories by searching in both name and tagNames.
   const filteredCategories = useMemo(() => {
     if (!searchTerm.trim()) return categories;
-    return categories.filter((category) =>
-      category.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const searchLower = searchTerm.toLowerCase();
+    return categories.filter((category) => {
+      const nameMatches = category.name.toLowerCase().includes(searchLower);
+      const tagMatches =
+        category.tagNames &&
+        category.tagNames.some((tagName) =>
+          tagName.toLowerCase().includes(searchLower)
+        );
+      return nameMatches || tagMatches;
+    });
   }, [searchTerm, categories]);
 
   // Toggle search box visibility
