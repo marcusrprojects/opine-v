@@ -1,19 +1,47 @@
-import { useEffect, useState } from "react";
+// CategoryDetail.jsx
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+  updateDoc,
+  arrayRemove,
+  arrayUnion,
+} from "firebase/firestore";
 import ItemList from "./ItemList";
 import CategoryPanel from "./Navigation/CategoryPanel";
+import CategoryFilters from "./CategoryFilters";
+import { useAuth } from "../context/useAuth";
+import { handleError } from "../utils/errorUtils";
+// import "../styles/CategorySettings.css";
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Data states
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
   const [primaryField, setPrimaryField] = useState(null);
   const [orderedFields, setOrderedFields] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [creatorId, setCreatorId] = useState(null);
+  const [creatorUsername, setCreatorUsername] = useState("");
 
+  // UI states
+  const [loading, setLoading] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({});
+  const [filterFields, setFilterFields] = useState([]);
+  const [liked, setLiked] = useState(false);
+
+  // Fetch category and items data
   useEffect(() => {
     const fetchCategory = async () => {
       try {
@@ -24,6 +52,15 @@ const CategoryDetail = () => {
           setCategory(categoryData);
           setPrimaryField(categoryData.primaryField);
           setOrderedFields(categoryData.fields || []);
+          if (categoryData.createdBy) {
+            setCreatorId(categoryData.createdBy);
+            const creatorDocRef = doc(db, "users", categoryData.createdBy);
+            const creatorSnapshot = await getDoc(creatorDocRef);
+            if (creatorSnapshot.exists()) {
+              const creatorData = creatorSnapshot.data();
+              setCreatorUsername(creatorData.username || "Unknown User");
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching category details:", error);
@@ -41,40 +78,162 @@ const CategoryDetail = () => {
           id: doc.id,
           ...doc.data(),
         }));
-
-        // ✅ Sort items before setting state
+        // Sort items: highest rating first, then tie-breaker by rankCategory
         const sortedItems = [...itemList].sort((a, b) => {
           if (b.rating !== a.rating) {
-            return b.rating - a.rating; // ✅ Highest-rated first
+            return b.rating - a.rating;
           }
-          return b.rankCategory - a.rankCategory; // ✅ Tie-breaker by rank
+          return b.rankCategory - a.rankCategory;
         });
-
         setItems(sortedItems);
+        setFilteredItems(sortedItems);
       } catch (error) {
         console.error("Error fetching items:", error);
       }
     };
 
-    fetchCategory();
-    fetchItems();
-    setLoading(false);
+    Promise.all([fetchCategory(), fetchItems()]).then(() => {
+      setLoading(false);
+    });
   }, [categoryId]);
+
+  // Fetch liked state for logged-in user
+  useEffect(() => {
+    const fetchLikedState = async () => {
+      if (!user) return;
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userDocRef);
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          setLiked(userData.likedCategories?.includes(categoryId));
+        }
+      } catch (error) {
+        handleError(error, "Error fetching liked state.");
+      }
+    };
+    fetchLikedState();
+  }, [user, categoryId]);
+
+  // Compute if user can edit the category (if user is creator)
+  const canEdit = useMemo(() => {
+    return user && creatorId && user.uid === creatorId;
+  }, [user, creatorId]);
+
+  // Auto-hide settings after 4 seconds if filter panel is not open
+  useEffect(() => {
+    let timeoutId;
+    if (showSettings && !filterOpen) {
+      timeoutId = setTimeout(() => setShowSettings(false), 4000);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [showSettings, filterOpen]);
+
+  // Apply filters (debounced) when filters, filterFields, or items change
+  useEffect(() => {
+    const debounceApplyFilters = setTimeout(() => {
+      if (filterFields.length === 0) {
+        setFilteredItems(items);
+        return;
+      }
+      const filtered = items.filter((item) =>
+        filterFields.every((field) =>
+          (item[field] || "")
+            .toString()
+            .toLowerCase()
+            .includes((filters[field] || "").toLowerCase())
+        )
+      );
+      setFilteredItems(filtered);
+    }, 300);
+    return () => clearTimeout(debounceApplyFilters);
+  }, [filters, filterFields, items]);
 
   if (loading) {
     return <p>Loading category details...</p>;
   }
-
   if (!category) {
     return <p>Category not found.</p>;
   }
 
+  // Navigation and action handlers
   const handleItemClick = (itemId) => {
     navigate(`/categories/${categoryId}/items/${itemId}`);
   };
-
   const handleBack = () => navigate("/categories");
   const handleAddItem = () => navigate(`/categories/${categoryId}/add-item`);
+  const handleEditCategory = () =>
+    navigate(`/categories/${categoryId}/edit`, {
+      state: {
+        categoryName: category.name,
+        description: category.description,
+        fields: orderedFields,
+        primaryField,
+        creatorUsername,
+      },
+    });
+  const handleDeleteCategory = async () => {
+    if (window.confirm("Are you sure you want to delete this category?")) {
+      try {
+        await deleteDoc(doc(db, "categories", categoryId));
+        navigate("/categories");
+      } catch (error) {
+        handleError(error, "Error deleting category.");
+      }
+    }
+  };
+
+  const toggleLikeCategory = async () => {
+    if (!user) {
+      alert("You must be logged in to like a category.");
+      return;
+    }
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      if (liked) {
+        await updateDoc(userDocRef, {
+          likedCategories: arrayRemove(categoryId),
+        });
+      } else {
+        await updateDoc(userDocRef, {
+          likedCategories: arrayUnion(categoryId),
+        });
+      }
+      setLiked(!liked);
+    } catch (error) {
+      handleError(error, "Error updating like state.");
+    }
+  };
+
+  // Settings toggle: when closing settings, also close the filter panel
+  const handleSettingsToggle = () => {
+    setShowSettings((prev) => {
+      if (prev) {
+        setFilterOpen(false);
+      }
+      return !prev;
+    });
+  };
+
+  // Toggle the filter sub-panel
+  const toggleFilter = () => {
+    setFilterOpen((prev) => !prev);
+  };
+
+  // Update a specific filter value
+  const handleFilterChange = (field, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // Toggle whether a field is active for filtering
+  const handleFilterFieldChange = (field) => {
+    setFilterFields((prev) =>
+      prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]
+    );
+  };
 
   return (
     <div className="category-detail-container">
@@ -82,13 +241,35 @@ const CategoryDetail = () => {
         onBack={handleBack}
         onAdd={handleAddItem}
         isAddDisabled={false}
+        onToggleFilter={toggleFilter}
+        onLike={toggleLikeCategory}
+        isLiked={liked}
+        onEdit={handleEditCategory}
+        onDelete={handleDeleteCategory}
+        showSettings={showSettings}
+        onSettingsToggle={handleSettingsToggle}
+        canEdit={canEdit}
       />
+
       <h2>{category.name}</h2>
       <p className="category-description">
         {category.description || "No description available."}
       </p>
+      <p className="creator-username">@{creatorUsername}</p>
+
+      {/* Render the filter UI above the item list if filters are toggled open */}
+      {filterOpen && (
+        <CategoryFilters
+          fields={orderedFields}
+          filterFieldsSelected={filterFields}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          onFilterFieldChange={handleFilterFieldChange}
+        />
+      )}
+
       <ItemList
-        items={items}
+        items={filteredItems}
         primaryField={primaryField}
         orderedFields={orderedFields}
         onItemClick={handleItemClick}
