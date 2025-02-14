@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { db } from "../firebaseConfig";
 import {
   collection,
@@ -8,21 +8,23 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import AddPanel from "../components/Navigation/AddPanel";
+import AddSearchPanel from "../components/Navigation/AddSearchPanel";
 import { useAuth } from "../context/useAuth";
 import CategoryList from "./CategoryList";
+import CategorySearch from "../components/CategorySearch";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [likedCategories, setLikedCategories] = useState([]);
-  const [tagMap, setTagMap] = useState({}); // Store { tagId: tagName } mapping
+  const [tagMap, setTagMap] = useState({}); // { tagId: tagName }
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showSearchBox, setShowSearchBox] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
     const fetchLikedCategories = async () => {
       if (!user) return;
-
       try {
         const userDocRef = doc(db, "users", user.uid);
         const userDocSnapshot = await getDoc(userDocRef);
@@ -38,12 +40,12 @@ const Categories = () => {
       try {
         const tagSnapshot = await getDocs(collection(db, "tags"));
         const tags = tagSnapshot.docs.reduce((acc, doc) => {
-          acc[doc.id] = doc.data().name; // Store tag name by ID
+          acc[doc.id] = doc.data().name;
           return acc;
         }, {});
         setTagMap(tags);
       } catch (error) {
-        console.error("Error fetching tags: ", error);
+        console.error("Error fetching tags:", error);
       }
     };
 
@@ -67,11 +69,11 @@ const Categories = () => {
     };
 
     if (user) {
-      fetchLikedCategories(); // Ensure liked categories are fetched first
+      fetchLikedCategories();
     }
-
-    fetchTags().then(fetchCategories); // Load categories after tags are set
-  }, [user, tagMap]); // Depend only on `user`
+    // Load tags then categories
+    fetchTags().then(fetchCategories);
+  }, [user, tagMap]);
 
   const handleCategoryClick = (categoryId) => {
     navigate(`/categories/${categoryId}`);
@@ -82,31 +84,57 @@ const Categories = () => {
       alert("Log in to like categories.");
       return;
     }
-
     const userDocRef = doc(db, "users", user.uid);
     const isLiked = likedCategories.includes(categoryId);
     const updatedLikes = isLiked
       ? likedCategories.filter((id) => id !== categoryId)
       : [...likedCategories, categoryId];
-
     try {
       await updateDoc(userDocRef, { likedCategories: updatedLikes });
-      setLikedCategories(updatedLikes); // Immediately update UI after Firestore update
+      setLikedCategories(updatedLikes);
     } catch (error) {
       console.error("Error updating likes:", error);
     }
   };
 
+  // Filter categories based on search term
+  const filteredCategories = useMemo(() => {
+    if (!searchTerm.trim()) return categories;
+    return categories.filter((category) =>
+      category.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, categories]);
+
+  // Toggle search box visibility
+  const toggleSearchBox = () => {
+    setShowSearchBox((prev) => !prev);
+  };
+
   return (
     <div className="categories-container">
       <h2>Categories</h2>
+
+      {/* Render the action panel with Add & Search buttons */}
+      <AddSearchPanel
+        onAdd={() => navigate("/create-category")}
+        onToggleSearch={toggleSearchBox}
+        isAddDisabled={false}
+      />
+
+      {/* Render the search box above the category list if toggled open */}
+      {showSearchBox && (
+        <CategorySearch
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
+      )}
+
       <CategoryList
-        categories={categories}
+        categories={filteredCategories}
         onCategoryClick={handleCategoryClick}
         onLike={toggleLike}
         likedCategories={likedCategories}
       />
-      <AddPanel onAdd={() => navigate("/create-category")} />
     </div>
   );
 };
