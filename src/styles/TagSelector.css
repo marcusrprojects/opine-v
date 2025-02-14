@@ -9,21 +9,22 @@
 /* Dropdown Styling */
 .dropdown {
   display: block;
-  background-color: var(--primary-color);
-  border: 0.1rem solid transparent;
-  border-radius: var(--border-radius-medium);
+  /* background-color: var(--primary-color); */
+  /* border: 0.1rem solid transparent; */
+  /* border-radius: var(--border-radius-medium); */
   /* padding: var(--padding-small); */
-  overflow: hidden;
-  z-index: 10;
+  /* overflow: hidden; */
+  /* z-index: 10; */
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
   opacity: 0;
   max-height: 0;
+  width: 12rem;
 }
 
 /* Show Dropdown */
 .dropdown.expanded {
-  display: flex;
-  flex-direction: column;
+  /* display: flex; */
+  /* flex-direction: column; */
   /* position: fixed; */
   max-height: 10rem;
   opacity: 1;
