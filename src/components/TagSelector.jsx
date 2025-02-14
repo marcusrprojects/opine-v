@@ -2,7 +2,12 @@ import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import { FaMinus } from "react-icons/fa";
 import { collection, getDocs } from "firebase/firestore";
-import { handleCustomTag, handleTagInput, handleKeyPress } from "../utils/tagUtils";
+import {
+  handleCustomTag,
+  handleTagInput,
+  handleKeyPress,
+} from "../utils/tagUtils";
+import TextInput from "./TextInput";
 import "../styles/TagSelector.css";
 
 const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
@@ -59,18 +64,17 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
 
   return (
     <div className="tag-selector">
-      {/* Input Field */}
-      <input
-        type="text"
+      {/* Input Field using TextInput */}
+      <TextInput
         value={tagInput}
         onChange={(e) => {
           setErrorMessage("");
           handleTagInput(e.target.value, setTagInput, setShowDropdown);
         }}
-        onKeyDown={(e) => handleKeyPress(e, handleCustomTagWrapper)}
         placeholder={`Add a tag (up to ${maxTags})`}
+        onKeyDown={(e) => handleKeyPress(e, handleCustomTagWrapper)}
+        // className="field-input"
         onFocus={() => setShowDropdown(true)}
-        className="field-input"
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
       />
 
@@ -86,8 +90,8 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
           .map((tag) => (
             <div
               key={tag.id}
-              onClick={() => handleTagSuggestionClick(tag.id)}
               className="dropdown-item"
+              onClick={() => handleTagSuggestionClick(tag.id)}
             >
               {tag.name}
             </div>
