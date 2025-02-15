@@ -10,6 +10,7 @@ import {
   updateDoc,
   arrayRemove,
   arrayUnion,
+  writeBatch,
 } from "firebase/firestore";
 import ItemList from "./ItemList";
 import CategoryPanel from "./Navigation/CategoryPanel";
@@ -171,13 +172,29 @@ const CategoryDetail = () => {
         creatorUsername,
       },
     });
+
   const handleDeleteCategory = async () => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
+        // 1) Delete all items in the subcollection
+        const itemsCollectionRef = collection(
+          db,
+          `categories/${categoryId}/items`
+        );
+        const itemsSnapshot = await getDocs(itemsCollectionRef);
+
+        // Use a batch to delete subcollection docs
+        const batch = writeBatch(db);
+        itemsSnapshot.forEach((itemDoc) => {
+          batch.delete(itemDoc.ref);
+        });
+        await batch.commit();
+
+        // 2) Delete the parent category document
         await deleteDoc(doc(db, "categories", categoryId));
         navigate("/categories");
       } catch (error) {
-        handleError(error, "Error deleting category.");
+        handleError(error, "Error deleting category and its items.");
       }
     }
   };
