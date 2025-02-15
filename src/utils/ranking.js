@@ -15,14 +15,15 @@ export const writeItemsToFirestore = async (
 
   const minRating =
     rankCategory === RankCategory.GOOD
-      ? (2 / 3) * 10 + dynamicOffset
+      ? (2 / 3) * 10
       : rankCategory === RankCategory.OKAY
-      ? (1 / 3) * 10 + dynamicOffset
-      : dynamicOffset;
+      ? (1 / 3) * 10
+      : 0;
 
   if (items.length === 1) {
     items[0].rating = minRating + totalRange / 2; // Single item is placed in the middle
   } else {
+    rankCategory += dynamicOffset;
     // Adjust ratings dynamically within the category range
     items.forEach((item, index) => {
       item.rating = minRating + index * dynamicOffset;
