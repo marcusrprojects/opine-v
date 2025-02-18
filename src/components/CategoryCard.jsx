@@ -10,7 +10,7 @@ const CategoryCard = ({ category, onClick, onLike, liked }) => {
         <h4 className="card-title">{category.name}</h4>
         <span
           onClick={(e) => {
-            e.stopPropagation(); // Prevents click from triggering card navigation
+            e.stopPropagation();
             onLike();
           }}
           className="like-icon"
