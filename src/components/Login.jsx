@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import "../styles/Authentication.css";
@@ -8,26 +12,57 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [resetMessage, setResetMessage] = useState("");
   const { user } = useAuth();
   const auth = getAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      navigate("/profile");
+      navigate("/profile", { replace: true });
     }
   }, [user, navigate]);
 
-  const handleLogin = (e) => {
+  // ✅ Function to validate email format
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setResetMessage("");
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => navigate("/profile"))
-      .catch((error) => {
-        setError(error.message);
-        console.error("Error logging in:", error.message);
-      });
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/profile", { replace: true });
+    } catch (err) {
+      setError("Invalid email or password."); // Generic error message for security
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    setError("");
+    setResetMessage("");
+
+    if (!email) {
+      setError("Please enter your email to reset password.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetMessage(
+        "If an account exists with this email, a reset link has been sent."
+      );
+    } catch (err) {
+      setError("An error occurred. Please try again later.");
+    }
   };
 
   return (
@@ -40,19 +75,30 @@ function Login() {
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError("");
+              setResetMessage("");
+            }}
           />
           <input
             className="input-field"
             type="password"
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError("");
+              setResetMessage("");
+            }}
           />
           <button className="submit-button" type="submit">
             Login
           </button>
         </form>
+
+        {error && <p className="error-message">{error}</p>}
+        {resetMessage && <p className="success-message">{resetMessage}</p>}
 
         <p className="switch-link">
           Don&apos;t have an account?
@@ -62,10 +108,14 @@ function Login() {
           >
             Sign Up
           </button>
+          <button
+            className="navigate-button forgot-password"
+            onClick={handlePasswordReset}
+          >
+            Forgot Password?
+          </button>
         </p>
       </div>
-
-      {error && <p className="error-message">{error}</p>}
     </div>
   );
 }
