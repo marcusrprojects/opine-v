@@ -1,7 +1,7 @@
-import { useAuth } from "../context/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
+import EditPanel from "../components/Navigation/EditPanel"; // New panel for edit button
 import "../styles/Profile.css";
-import { FaEdit } from "react-icons/fa";
 import CategoryCollection from "./CategoryCollection";
 
 const Profile = () => {
@@ -27,17 +27,16 @@ const Profile = () => {
     );
   }
 
+  const handleEditProfile = () => {
+    navigate("./edit");
+  };
+
   return (
     <div className="profile-container">
+      <EditPanel onEdit={handleEditProfile} />
       <div className="profile-header">
         <h2>{user.name || "Anonymous"}</h2>
         <h3>@{user.username || "unknown"}</h3>
-        <button
-          className="edit-profile-button"
-          onClick={() => navigate("/edit-profile")}
-        >
-          <FaEdit />
-        </button>
       </div>
       <div className="profile-categories-section">
         <CategoryCollection />
