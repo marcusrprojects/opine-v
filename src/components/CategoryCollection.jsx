@@ -5,7 +5,7 @@ import { useAuth } from "../context/useAuth";
 import { useTagMap } from "../context/useTagMap";
 import { useLikedCategories } from "../context/useLikedCategories"; // ✅ New Like Context
 import CategoryList from "./CategoryList";
-import "../styles/Profile.css";
+// import "../styles/Profile.css";
 import { db } from "../firebaseConfig";
 
 const CategoryCollection = () => {
@@ -49,7 +49,7 @@ const CategoryCollection = () => {
 
   return (
     <div className="profile-categories-container">
-      <h2>My Categories</h2>
+      {/* <h2>My Categories</h2> */}
       <CategoryList
         categories={myCategories}
         onCategoryClick={handleCategoryClick}
