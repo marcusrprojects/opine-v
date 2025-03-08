@@ -3,7 +3,6 @@ import { db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import AddSearchPanel from "../components/Navigation/AddSearchPanel";
-import { useAuth } from "../context/useAuth";
 import { useTagMap } from "../context/useTagMap";
 import { useLikedCategories } from "../context/LikedCategoriesContext"; // ✅ New
 import CategoryList from "./CategoryList";
