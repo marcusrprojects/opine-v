@@ -36,7 +36,7 @@ const Profile = () => {
           className="edit-profile-button"
           onClick={() => navigate("/edit-profile")}
         >
-          <FaEdit /> Edit Profile
+          <FaEdit />
         </button>
       </div>
       <div className="profile-categories-section">
