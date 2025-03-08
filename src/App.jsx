@@ -16,7 +16,10 @@ import ItemView from "./components/ItemView";
 import ReRankFlow from "./components/ReRankFlow";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import EditCategory from "./components/EditCategory";
-import { TagProvider } from "./context/TagContext.jsx";
+
+// Context Providers
+import { LikedCategoriesProvider } from "./context/LikedCategoriesContext";
+import { TagProvider } from "./context/TagContext";
 
 /**
  * App component is the main entry point for the application.
@@ -33,61 +36,66 @@ function App() {
 
   return (
     <div className="App">
-      <Router>
+      <LikedCategoriesProvider>
         <TagProvider>
-          <div className="App-layout">
-            {/* Pass the sidebar state and toggle function as props */}
-            <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+          <Router>
+            <div className="App-layout">
+              {/* Pass the sidebar state and toggle function as props */}
+              <Sidebar
+                sidebarOpen={sidebarOpen}
+                toggleSidebar={toggleSidebar}
+              />
 
-            {/* Main content area */}
-            <div className={`main-content`}>
-              <Routes>
-                <Route exact path="/" element={<Home />} />
-                <Route path="/categories" element={<Categories />} />
-                <Route
-                  path="/create-category"
-                  element={
-                    <ProtectedRoute>
-                      <CreateCategory />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/categories/:categoryId"
-                  element={<CategoryDetail />}
-                />
-                <Route
-                  path="/categories/:categoryId/edit"
-                  element={<EditCategory />}
-                />
-                <Route
-                  path="/categories/:categoryId/add-item"
-                  element={
-                    <ProtectedRoute>
-                      <AddItem />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/categories/:categoryId/item/:itemId"
-                  element={<ItemView />}
-                />
-                <Route
-                  path="/categories/:categoryId/items/:itemId/rerank"
-                  element={
-                    <ProtectedRoute>
-                      <ReRankFlow />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-              </Routes>
+              {/* Main content area */}
+              <div className={`main-content`}>
+                <Routes>
+                  <Route exact path="/" element={<Home />} />
+                  <Route path="/categories" element={<Categories />} />
+                  <Route
+                    path="/create-category"
+                    element={
+                      <ProtectedRoute>
+                        <CreateCategory />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/categories/:categoryId"
+                    element={<CategoryDetail />}
+                  />
+                  <Route
+                    path="/categories/:categoryId/edit"
+                    element={<EditCategory />}
+                  />
+                  <Route
+                    path="/categories/:categoryId/add-item"
+                    element={
+                      <ProtectedRoute>
+                        <AddItem />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/categories/:categoryId/item/:itemId"
+                    element={<ItemView />}
+                  />
+                  <Route
+                    path="/categories/:categoryId/items/:itemId/rerank"
+                    element={
+                      <ProtectedRoute>
+                        <ReRankFlow />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                </Routes>
+              </div>
             </div>
-          </div>
+          </Router>
         </TagProvider>
-      </Router>
+      </LikedCategoriesProvider>
     </div>
   );
 }
