@@ -1,6 +1,7 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import EditPanel from "../components/Navigation/EditPanel"; // New panel for edit button
+import EditPanel from "./Navigation/EditLogoutPanel"; // New panel for edit button
 import "../styles/Profile.css";
 import CategoryCollection from "./CategoryCollection";
 
@@ -8,28 +9,18 @@ const Profile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  if (!user) {
-    return (
-      <div className="login-prompt">
-        <h2>Profile</h2>
-        <p>
-          Please log in or sign up to view your categories and liked categories.
-        </p>
-        <div className="auth-buttons">
-          <button className="login-button" onClick={() => navigate("/login")}>
-            Log In
-          </button>
-          <button className="signup-button" onClick={() => navigate("/signup")}>
-            Sign Up
-          </button>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   const handleEditProfile = () => {
-    navigate("./edit");
+    navigate("/profile/edit");
   };
+
+  // 🔹 Prevent rendering if user is not logged in (avoids errors)
+  if (!user) return null;
 
   return (
     <div className="profile-container">
