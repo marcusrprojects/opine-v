@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Sidebar.css";
 import PropTypes from "prop-types";
-import { FaBars, FaUser, FaHome, FaSignInAlt } from "react-icons/fa";
+import { FaBars, FaUser, FaHome } from "react-icons/fa";
 import ThemeToggle from "./ThemeToggle";
 
 const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
@@ -55,9 +55,9 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
           <FaUser />
         </Link>
 
-        <Link to="/login" title="Login" className="link-icon">
+        {/* <Link to="/login" title="Login" className="link-icon">
           <FaSignInAlt />
-        </Link>
+        </Link> */}
 
         <div className="link-icon" title="Theme">
           <ThemeToggle />
