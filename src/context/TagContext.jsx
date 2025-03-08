@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+// src/context/TagContext.jsx
+import { createContext, useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
-export const useTagMap = () => {
+export const TagContext = createContext(null);
+
+export const TagProvider = ({ children }) => {
   const [tagMap, setTagMap] = useState({});
 
   useEffect(() => {
@@ -10,7 +13,6 @@ export const useTagMap = () => {
       collection(db, "tags"),
       (snapshot) => {
         const tags = snapshot.docs.reduce((acc, doc) => {
-          // Normalize tag names for consistency.
           acc[doc.id] = doc.data().name.trim().toLowerCase();
           return acc;
         }, {});
@@ -23,5 +25,5 @@ export const useTagMap = () => {
     return () => unsubscribe();
   }, []);
 
-  return tagMap;
+  return <TagContext.Provider value={tagMap}>{children}</TagContext.Provider>;
 };
