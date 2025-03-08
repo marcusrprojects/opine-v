@@ -4,7 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import AddSearchPanel from "../components/Navigation/AddSearchPanel";
 import { useTagMap } from "../context/useTagMap";
-import { useLikedCategories } from "../context/LikedCategoriesContext"; // ✅ New
+import { useLikedCategories } from "../context/useLikedCategories";
 import CategoryList from "./CategoryList";
 import CategorySearch from "../components/CategorySearch";
 
@@ -14,7 +14,7 @@ const Categories = () => {
   const [showSearchBox, setShowSearchBox] = useState(false);
   const navigate = useNavigate();
   const tagMap = useTagMap();
-  const { likedCategories, toggleLikeCategory } = useLikedCategories(); // ✅ Use Context
+  const { likedCategories, toggleLikeCategory } = useLikedCategories();
 
   useEffect(() => {
     const fetchCategories = async () => {
