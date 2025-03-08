@@ -5,7 +5,7 @@ import { FaEdit, FaSignOutAlt } from "react-icons/fa";
 import { useAuth } from "../../context/useAuth";
 
 const EditLogoutPanel = ({ onEdit }) => {
-  const { logout } = useAuth(); // Get logout function from AuthContext
+  const { logout } = useAuth();
 
   return (
     <Panel>
