@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import AddSearchPanel from "../components/Navigation/AddSearchPanel";
 import { useAuth } from "../context/useAuth";
-import { useTagMap } from "../context/TagContext";
+import { useTagMap } from "../context/useTagMap";
 import CategoryList from "./CategoryList";
 import CategorySearch from "../components/CategorySearch";
 
