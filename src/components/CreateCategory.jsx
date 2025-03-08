@@ -14,7 +14,7 @@ const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
   const [fields, setFields] = useState([{ name: "Name" }]);
   const [primaryFieldIndex, setPrimaryFieldIndex] = useState(0);
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState([]); // Stores tag IDs
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -46,17 +46,17 @@ const CreateCategory = () => {
       alert("You must be logged in to create a category.");
       return;
     }
-    if (!categoryName || fields.length === 0 || tags.length === 0) {
+    if (!categoryName.trim() || fields.length === 0 || tags.length === 0) {
       alert("Category name, fields, and at least one tag are required.");
       return;
     }
 
     try {
       const newCategory = {
-        name: categoryName,
+        name: categoryName.trim(),
         primaryField: fields[primaryFieldIndex].name,
         fields: fields.map((field) => field.name),
-        tags,
+        tags, // ✅ Assume these are valid tag IDs.
         createdBy: user.uid,
         createdAt: new Date().toISOString(),
       };
@@ -74,7 +74,7 @@ const CreateCategory = () => {
         onCancel={() => navigate("/categories")}
         onConfirm={handleSubmit}
         isConfirmDisabled={
-          !categoryName || fields.length === 0 || tags.length === 0
+          !categoryName.trim() || fields.length === 0 || tags.length === 0
         }
       />
 
