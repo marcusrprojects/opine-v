@@ -4,13 +4,11 @@ import { auth } from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
@@ -37,12 +35,12 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  // ✅ Define Logout Function
-  const logout = async () => {
+  // ✅ Logout function takes `navigate` as an argument
+  const logout = async (navigate) => {
     try {
       await signOut(auth);
       setUser(null);
-      navigate("/login"); // ✅ Redirect user to Login page
+      if (navigate) navigate("/login");
     } catch (error) {
       console.error("Error logging out:", error);
     }
