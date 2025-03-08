@@ -8,7 +8,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { user } = useAuth(); // ✅ Get user from AuthContext
+  const { user } = useAuth();
   const auth = getAuth();
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ function Login() {
     setError("");
 
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => navigate("/profile")) // ✅ Redirect after successful login
+      .then(() => navigate("/profile"))
       .catch((error) => {
         setError(error.message);
         console.error("Error logging in:", error.message);
