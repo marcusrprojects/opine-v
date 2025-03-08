@@ -1,19 +1,20 @@
 import { createContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { auth } from "../firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       if (authUser) {
-        // Fetch additional user details from Firestore
         const userDocRef = doc(db, "users", authUser.uid);
         const userDocSnap = await getDoc(userDocRef);
 
@@ -26,17 +27,31 @@ export const AuthProvider = ({ children }) => {
             username: userData.username,
           });
         } else {
-          setUser(authUser); // Fallback in case Firestore document is not found
+          setUser(authUser);
         }
       } else {
         setUser(null);
       }
     });
+
     return unsubscribe;
   }, []);
 
+  // ✅ Define Logout Function
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      navigate("/login"); // ✅ Redirect user to Login page
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
