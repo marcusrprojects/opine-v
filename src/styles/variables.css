@@ -103,7 +103,7 @@ body {
 }
 
 h2 {
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-sm);
 }
 
 h4 {
