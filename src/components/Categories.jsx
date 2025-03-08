@@ -10,17 +10,18 @@ import {
 import { useNavigate } from "react-router-dom";
 import AddSearchPanel from "../components/Navigation/AddSearchPanel";
 import { useAuth } from "../context/useAuth";
+import { useTagMap } from "../context/TagContext";
 import CategoryList from "./CategoryList";
 import CategorySearch from "../components/CategorySearch";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [likedCategories, setLikedCategories] = useState([]);
-  const [tagMap, setTagMap] = useState({}); // { tagId: tagName }
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const tagMap = useTagMap();
 
   useEffect(() => {
     const fetchLikedCategories = async () => {
@@ -36,19 +37,6 @@ const Categories = () => {
       }
     };
 
-    const fetchTags = async () => {
-      try {
-        const tagSnapshot = await getDocs(collection(db, "tags"));
-        const tags = tagSnapshot.docs.reduce((acc, doc) => {
-          acc[doc.id] = doc.data().name;
-          return acc;
-        }, {});
-        setTagMap(tags);
-      } catch (error) {
-        console.error("Error fetching tags:", error);
-      }
-    };
-
     const fetchCategories = async () => {
       try {
         const categorySnapshot = await getDocs(collection(db, "categories"));
@@ -57,7 +45,6 @@ const Categories = () => {
           return {
             id: doc.id,
             ...data,
-            // Create an array of tag names for easy searching.
             tagNames: (data.tags || []).map(
               (tagId) => tagMap[tagId] || "Unknown"
             ),
@@ -72,8 +59,7 @@ const Categories = () => {
     if (user) {
       fetchLikedCategories();
     }
-    // Load tags then categories (ensuring tagMap is set before mapping tagNames)
-    fetchTags().then(fetchCategories);
+    fetchCategories();
   }, [user, tagMap]);
 
   const handleCategoryClick = (categoryId) => {
@@ -98,7 +84,6 @@ const Categories = () => {
     }
   };
 
-  // Filter categories by searching in both name and tagNames.
   const filteredCategories = useMemo(() => {
     if (!searchTerm.trim()) return categories;
     const searchLower = searchTerm.toLowerCase();
@@ -113,7 +98,6 @@ const Categories = () => {
     });
   }, [searchTerm, categories]);
 
-  // Toggle search box visibility
   const toggleSearchBox = () => {
     setShowSearchBox((prev) => !prev);
   };
@@ -122,14 +106,14 @@ const Categories = () => {
     <div className="categories-container">
       <h2>Categories</h2>
 
-      {/* Render the action panel with Add & Search buttons */}
+      {/* Action panel with Add & Search buttons */}
       <AddSearchPanel
         onAdd={() => navigate("/create-category")}
         onToggleSearch={toggleSearchBox}
         isAddDisabled={false}
       />
 
-      {/* Render the search box above the category list if toggled open */}
+      {/* Search box */}
       {showSearchBox && (
         <CategorySearch
           searchTerm={searchTerm}
@@ -137,6 +121,7 @@ const Categories = () => {
         />
       )}
 
+      {/* Render filtered categories */}
       <CategoryList
         categories={filteredCategories}
         onCategoryClick={handleCategoryClick}
