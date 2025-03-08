@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import AddSearchPanel from "../components/Navigation/AddSearchPanel";
 import { useTagMap } from "../context/useTagMap";
 import { useLikedCategories } from "../context/useLikedCategories";
+import { useAuth } from "../context/useAuth";
 import CategoryList from "./CategoryList";
 import CategorySearch from "../components/CategorySearch";
 
@@ -15,6 +16,7 @@ const Categories = () => {
   const navigate = useNavigate();
   const tagMap = useTagMap();
   const { likedCategories, toggleLikeCategory } = useLikedCategories();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -41,6 +43,14 @@ const Categories = () => {
 
   const handleCategoryClick = (categoryId) => {
     navigate(`/categories/${categoryId}`);
+  };
+
+  const handleLike = (categoryId) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    toggleLikeCategory(categoryId);
   };
 
   const filteredCategories = useMemo(() => {
@@ -74,7 +84,7 @@ const Categories = () => {
       <CategoryList
         categories={filteredCategories}
         onCategoryClick={handleCategoryClick}
-        onLike={toggleLikeCategory}
+        onLike={handleLike}
         likedCategories={likedCategories}
       />
     </div>
