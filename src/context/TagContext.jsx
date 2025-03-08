@@ -1,7 +1,7 @@
-// src/context/TagContext.jsx
 import { createContext, useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
+import PropTypes from "prop-types";
 
 export const TagContext = createContext(null);
 
@@ -26,4 +26,8 @@ export const TagProvider = ({ children }) => {
   }, []);
 
   return <TagContext.Provider value={tagMap}>{children}</TagContext.Provider>;
+};
+
+TagProvider.propTypes = {
+  children: PropTypes.node.isRequired, // Ensures `children` is a valid React node
 };

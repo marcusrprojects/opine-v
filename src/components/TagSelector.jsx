@@ -1,37 +1,26 @@
 import PropTypes from "prop-types";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FaMinus } from "react-icons/fa";
-import { collection, getDocs } from "firebase/firestore";
+import TextInput from "./TextInput";
+import "../styles/TagSelector.css";
+import { useTagMap } from "../context/useTagMap";
 import {
   handleCustomTag,
   handleTagInput,
   handleKeyPress,
-} from "../utils/tagUtils";
-import TextInput from "./TextInput";
-import "../styles/TagSelector.css";
+} from "../utils/tagUtil";
 
 const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
   const [tagInput, setTagInput] = useState("");
-  const [availableTags, setAvailableTags] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        const tagsCollectionRef = collection(db, "tags");
-        const tagsSnapshot = await getDocs(tagsCollectionRef);
-        const tagsList = tagsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name,
-        }));
-        setAvailableTags(tagsList);
-      } catch (error) {
-        console.error("Error fetching tags from Firestore:", error);
-      }
-    };
-    fetchTags();
-  }, [db]);
+  // Get global tag mapping
+  const tagMap = useTagMap();
+  const availableTags = Object.entries(tagMap).map(([id, name]) => ({
+    id,
+    name,
+  }));
 
   const handleCustomTagWrapper = async () => {
     await handleCustomTag({
@@ -39,7 +28,7 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
       availableTags,
       tags,
       setTags,
-      setAvailableTags,
+      setAvailableTags: () => {}, // No-op since tagMap is global
       setTagInput,
       db,
     });
@@ -64,7 +53,6 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
 
   return (
     <div className="tag-selector">
-      {/* Input Field using TextInput */}
       <TextInput
         value={tagInput}
         onChange={(e) => {
@@ -73,40 +61,37 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
         }}
         placeholder={`Add a tag (up to ${maxTags})`}
         onKeyDown={(e) => handleKeyPress(e, handleCustomTagWrapper)}
-        // className="field-input"
         onFocus={() => setShowDropdown(true)}
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
       />
 
-      {/* Dropdown */}
       <div className={`dropdown ${showDropdown ? "expanded" : ""}`}>
         {availableTags
           .filter(
-            (tag) =>
-              tag.name.toLowerCase().includes(tagInput.toLowerCase()) &&
-              !tags.includes(tag.id)
+            ({ id, name }) =>
+              name.toLowerCase().includes(tagInput.toLowerCase()) &&
+              !tags.includes(id)
           )
           .slice(0, 5)
-          .map((tag) => (
+          .map(({ id, name }) => (
             <div
-              key={tag.id}
+              key={id}
               className="dropdown-item"
-              onClick={() => handleTagSuggestionClick(tag.id)}
+              onClick={() => handleTagSuggestionClick(id)}
             >
-              {tag.name}
+              {name}
             </div>
           ))}
       </div>
 
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-      {/* Selected Tags */}
       <div className="selected-tags">
         {tags.map((tagId) => {
-          const tag = availableTags.find((t) => t.id === tagId);
+          const tagName = tagMap[tagId];
           return (
             <span key={tagId} className="selected-tag">
-              {tag?.name || "Unknown Tag"}{" "}
+              {tagName || "Unknown Tag"}{" "}
               <FaMinus onClick={() => handleRemoveTag(tagId)} />
             </span>
           );
