@@ -1,24 +1,27 @@
 import { createContext, useEffect, useState } from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../firebaseConfig";
-import { useAuth } from "./useAuth"; // Ensure user authentication is available
 import PropTypes from "prop-types";
+import { db } from "../firebaseConfig";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useAuth } from "./useAuth";
 
 export const LikedCategoriesContext = createContext();
 
 export const LikedCategoriesProvider = ({ children }) => {
-  const { user } = useAuth();
   const [likedCategories, setLikedCategories] = useState([]);
+  const { user } = useAuth();
 
+  // 🔹 Fetch Liked Categories on User Change
   useEffect(() => {
-    if (!user) return;
-
     const fetchLikedCategories = async () => {
+      if (!user) {
+        setLikedCategories([]);
+        return;
+      }
       try {
         const userDocRef = doc(db, "users", user.uid);
-        const userDocSnapshot = await getDoc(userDocRef);
-        if (userDocSnapshot.exists()) {
-          setLikedCategories(userDocSnapshot.data().likedCategories || []);
+        const userSnapshot = await getDoc(userDocRef);
+        if (userSnapshot.exists()) {
+          setLikedCategories(userSnapshot.data().likedCategories || []);
         }
       } catch (error) {
         console.error("Error fetching liked categories:", error);
@@ -28,6 +31,7 @@ export const LikedCategoriesProvider = ({ children }) => {
     fetchLikedCategories();
   }, [user]);
 
+  // 🔹 Toggle Like Category
   const toggleLikeCategory = async (categoryId) => {
     if (!user) {
       alert("Log in to like categories.");
@@ -42,7 +46,7 @@ export const LikedCategoriesProvider = ({ children }) => {
         : [...likedCategories, categoryId];
 
       await updateDoc(userDocRef, { likedCategories: updatedLikes });
-      setLikedCategories(updatedLikes); // Instantly update local state
+      setLikedCategories(updatedLikes);
     } catch (error) {
       console.error("Error updating likes:", error);
     }
@@ -50,7 +54,7 @@ export const LikedCategoriesProvider = ({ children }) => {
 
   return (
     <LikedCategoriesContext.Provider
-      value={{ likedCategories, toggleLikeCategory }}
+      value={{ likedCategories, setLikedCategories, toggleLikeCategory }} // ✅ Restored toggle function
     >
       {children}
     </LikedCategoriesContext.Provider>
@@ -58,5 +62,5 @@ export const LikedCategoriesProvider = ({ children }) => {
 };
 
 LikedCategoriesProvider.propTypes = {
-  children: PropTypes.node.isRequired, // Ensures `children` is a valid React node
+  children: PropTypes.node.isRequired,
 };
