@@ -1,9 +1,16 @@
 import PropTypes from "prop-types";
 import Card from "./Card";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { useTagMap } from "../context/useTagMap";
 import "../styles/CategoryCard.css";
 
 const CategoryCard = ({ category, onClick, onLike, liked }) => {
+  const tagMap = useTagMap();
+
+  const tagNames = (category.tags || []).map(
+    (tagId) => tagMap[tagId] || "Unknown"
+  );
+
   return (
     <Card onClick={onClick}>
       <div className="card-header">
@@ -22,9 +29,7 @@ const CategoryCard = ({ category, onClick, onLike, liked }) => {
         {category.fields.length > 0 ? category.fields.join(", ") : "No fields"}
       </p>
       <span className="card-tags">
-        {category.tagNames.length > 0
-          ? category.tagNames.join(", ")
-          : "No tags"}
+        {tagNames.length > 0 ? tagNames.join(", ") : "No tags"}
       </span>
     </Card>
   );
