@@ -16,7 +16,7 @@ const EditCategory = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // State
+  // Local state
   const [categoryName, setCategoryName] = useState(
     location.state?.categoryName || ""
   );
@@ -31,7 +31,7 @@ const EditCategory = () => {
   const [newField, setNewField] = useState("");
   const [loading, setLoading] = useState(!location.state);
 
-  // Fetch category data on load
+  // Fetch category data if not provided via location.state
   useEffect(() => {
     if (!location.state) {
       const fetchCategoryData = async () => {
@@ -58,17 +58,16 @@ const EditCategory = () => {
     }
   }, [categoryId, location.state]);
 
+  // Save changes to Firestore
   const handleSave = async () => {
     if (!categoryName.trim()) {
       alert("Category name is required.");
       return;
     }
-
     if (fields.length === 0) {
       alert("At least one field is required.");
       return;
     }
-
     if (!primaryField || !fields.includes(primaryField)) {
       alert("A valid primary field must be selected.");
       return;
@@ -89,6 +88,7 @@ const EditCategory = () => {
     }
   };
 
+  // Handle adding a new field
   const handleAddField = () => {
     if (newField && !fields.includes(newField)) {
       setFields([...fields, newField]);
@@ -96,6 +96,7 @@ const EditCategory = () => {
     }
   };
 
+  // Handle removing a field
   const handleRemoveField = (field) => {
     if (primaryField === field) {
       alert("Select a new primary field before removing this one.");
@@ -118,6 +119,7 @@ const EditCategory = () => {
 
       <h2 className="edit-category-title">{categoryName || "Edit Category"}</h2>
 
+      {/* Edit Title & Description */}
       <div className="edit-section">
         <label className="edit-label">Title</label>
         <input
@@ -126,6 +128,7 @@ const EditCategory = () => {
           value={categoryName}
           onChange={(e) => setCategoryName(e.target.value)}
         />
+
         <label className="edit-label">Description</label>
         <textarea
           className="edit-description"
@@ -134,6 +137,7 @@ const EditCategory = () => {
         />
       </div>
 
+      {/* Fields Management */}
       <div className="field-section">
         <label className="edit-label">Fields</label>
         <ul className="edit-list">
@@ -157,6 +161,7 @@ const EditCategory = () => {
             </li>
           ))}
         </ul>
+
         <div className="edit-add-field">
           <TextInput
             placeholder="Add new field"
@@ -167,7 +172,8 @@ const EditCategory = () => {
         </div>
       </div>
 
-      <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
+      {/* Tag Selector (now using TagContext!) */}
+      <TagSelector tags={tags} setTags={setTags} maxTags={5} />
     </div>
   );
 };
@@ -178,7 +184,6 @@ EditCategory.propTypes = {
   fields: PropTypes.arrayOf(PropTypes.string),
   primaryField: PropTypes.string,
   tags: PropTypes.arrayOf(PropTypes.string),
-  creatorUsername: PropTypes.string,
 };
 
 export default EditCategory;
