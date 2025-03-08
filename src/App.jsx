@@ -16,6 +16,7 @@ import ItemView from "./components/ItemView";
 import ReRankFlow from "./components/ReRankFlow";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import EditCategory from "./components/EditCategory";
+import ForgotPassword from "./components/ForgotPassword";
 
 // Context Providers
 import { LikedCategoriesProvider } from "./context/LikedCategoriesContext";
@@ -90,6 +91,7 @@ function App() {
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
                 </Routes>
               </div>
             </div>
