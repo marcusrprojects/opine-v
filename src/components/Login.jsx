@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react';
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import "../styles/Authentication.css";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // State to hold error message
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(""); // State to hold error message
   const [user, setUser] = useState(null); // State to track the current user
   const auth = getAuth();
   const navigate = useNavigate();
@@ -21,29 +26,29 @@ function Login() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    setError(''); // Clear previous error before attempting login
+    setError(""); // Clear previous error before attempting login
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log('Logged in:', userCredential.user);
+        console.log("Logged in:", userCredential.user);
       })
       .catch((error) => {
         setError(error.message); // Set the error message in state
-        console.error('Error logging in:', error.message);
+        console.error("Error logging in:", error.message);
       });
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      console.log('Logged out successfully');
+      console.log("Logged out successfully");
     } catch (error) {
-      console.error('Error logging out:', error.message);
+      console.error("Error logging out:", error.message);
     }
   };
 
   return (
     <div className="login-container">
-      <h2 className="login-title">{user ? 'Welcome' : 'User Account'}</h2>
+      <h2 className="login-title">{user ? "Welcome" : "User Account"}</h2>
       {user ? (
         <div className="user-info">
           <p className="user-email">Logged in as: {user.email}</p>
@@ -52,7 +57,7 @@ function Login() {
           </button>
         </div>
       ) : (
-        <div className='login-contents'>
+        <div className="login-contents">
           <form className="login-form" onSubmit={handleLogin}>
             <input
               className="input-field"
@@ -73,13 +78,12 @@ function Login() {
               Login
             </button>
           </form>
-          
 
           <p className="switch-link">
             Don&apos;t have an account?
             <button
               className="navigate-button"
-              onClick={() => navigate('/signup')}
+              onClick={() => navigate("/signup")}
             >
               Sign Up
             </button>

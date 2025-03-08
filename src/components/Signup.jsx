@@ -1,15 +1,26 @@
-import { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import "../styles/Authentication.css";
-import { doc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
 function Signup() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState(null);
   const [isChecking, setIsChecking] = useState(false);
   const auth = getAuth();
@@ -34,7 +45,10 @@ function Signup() {
   const isUsernameUnique = async (username) => {
     setIsChecking(true);
     const usersRef = collection(db, "users");
-    const usernameQuery = query(usersRef, where("username", "==", username.toLowerCase()));
+    const usernameQuery = query(
+      usersRef,
+      where("username", "==", username.toLowerCase())
+    );
     const usernameSnapshot = await getDocs(usernameQuery);
     setIsChecking(false);
     return usernameSnapshot.empty; // Returns true if no users have this username
@@ -52,7 +66,7 @@ function Signup() {
       return `Username cannot exceed ${maxLength} characters.`;
     }
     if (!usernameRegex.test(username)) {
-      return 'Username can only contain letters, numbers, underscores, and periods.';
+      return "Username can only contain letters, numbers, underscores, and periods.";
     }
     return null; // No errors
   };
@@ -80,22 +94,26 @@ function Signup() {
         return;
       }
 
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Update the user's profile with the display name
       await updateProfile(user, { displayName });
 
-      console.log('Signed up:', user);
+      console.log("Signed up:", user);
 
       // Add the new user to Firestore
       await addUserToCollection(user, displayName, username.toLowerCase());
 
       // Redirect to home or another route on successful signup
-      navigate('/');
+      navigate("/");
     } catch (error) {
       setError(error.message); // Set error message to display to user
-      console.error('Error signing up:', error.message);
+      console.error("Error signing up:", error.message);
     }
   };
 
@@ -136,11 +154,7 @@ function Signup() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button
-            className="submit-button"
-            type="submit"
-            disabled={isChecking}
-          >
+          <button className="submit-button" type="submit" disabled={isChecking}>
             {isChecking ? "Checking..." : "Sign Up"}
           </button>
 
@@ -152,7 +166,7 @@ function Signup() {
           Already have an account?
           <button
             className="navigate-button"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
           >
             Login
           </button>
