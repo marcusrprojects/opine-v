@@ -1,33 +1,32 @@
 import { useEffect, useState } from "react";
+import { db } from "../firebaseConfig";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useTagMap } from "../context/useTagMap";
-import { useLikedCategories } from "../context/useLikedCategories"; // ✅ New Like Context
+import { useLikedCategories } from "../context/useLikedCategories"; // ✅ Import like context
 import CategoryList from "./CategoryList";
 // import "../styles/Profile.css";
-import { db } from "../firebaseConfig";
 
 const CategoryCollection = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { likedCategories, toggleLikeCategory } = useLikedCategories(); // ✅ Use Like Context
   const [myCategories, setMyCategories] = useState([]);
   const tagMap = useTagMap();
+  const { likedCategories, toggleLikeCategory } = useLikedCategories();
 
   useEffect(() => {
     if (!user) return;
 
-    const fetchData = async () => {
+    const fetchMyCategories = async () => {
       try {
-        // 🔹 Fetch My Categories in bulk
-        const categoryQuery = query(
+        const q = query(
           collection(db, "categories"),
           where("createdBy", "==", user.uid)
         );
-        const categorySnapshot = await getDocs(categoryQuery);
+        const querySnapshot = await getDocs(q);
         setMyCategories(
-          categorySnapshot.docs.map((doc) => ({
+          querySnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
             tagNames: (doc.data().tags || []).map(
@@ -36,12 +35,19 @@ const CategoryCollection = () => {
           }))
         );
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching user categories:", error);
       }
     };
-
-    fetchData();
+    fetchMyCategories();
   }, [user, tagMap]);
+
+  const handleLike = (categoryId) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    toggleLikeCategory(categoryId);
+  };
 
   const handleCategoryClick = (categoryId) => {
     navigate(`/categories/${categoryId}`);
@@ -53,8 +59,8 @@ const CategoryCollection = () => {
       <CategoryList
         categories={myCategories}
         onCategoryClick={handleCategoryClick}
-        onLike={toggleLikeCategory} // ✅ Use context toggle function
-        likedCategories={likedCategories} // ✅ Use context state
+        onLike={handleLike}
+        likedCategories={likedCategories}
       />
     </div>
   );
