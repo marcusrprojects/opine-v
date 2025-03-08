@@ -1,25 +1,18 @@
 import { useEffect, useState } from "react";
-import { db } from "../firebaseConfig";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import { useTagMap } from "../context/useTagMap"; // Efficient tag lookup
+import { useTagMap } from "../context/useTagMap";
+import { useLikedCategories } from "../context/useLikedCategories"; // ✅ New Like Context
 import CategoryList from "./CategoryList";
 import "../styles/Profile.css";
+import { db } from "../firebaseConfig";
 
 const CategoryCollection = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { likedCategories, toggleLikeCategory } = useLikedCategories(); // ✅ Use Like Context
   const [myCategories, setMyCategories] = useState([]);
-  const [likedCategories, setLikedCategories] = useState([]);
   const tagMap = useTagMap();
 
   useEffect(() => {
@@ -42,31 +35,6 @@ const CategoryCollection = () => {
             ),
           }))
         );
-
-        // Fetch Liked Categories Efficiently
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnapshot = await getDoc(userDocRef);
-        if (userSnapshot.exists()) {
-          const likedIds = userSnapshot.data().likedCategories || [];
-          if (likedIds.length > 0) {
-            const likedQuery = query(
-              collection(db, "categories"),
-              where("__name__", "in", likedIds)
-            );
-            const likedSnapshot = await getDocs(likedQuery);
-            setLikedCategories(
-              likedSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-                tagNames: (doc.data().tags || []).map(
-                  (tagId) => tagMap[tagId] || "Unknown"
-                ), // ✅ Use tag map
-              }))
-            );
-          } else {
-            setLikedCategories([]);
-          }
-        }
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -74,35 +42,6 @@ const CategoryCollection = () => {
 
     fetchData();
   }, [user, tagMap]);
-
-  const toggleLike = async (categoryId) => {
-    if (!user) {
-      alert("Log in to like categories.");
-      return;
-    }
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      const userSnapshot = await getDoc(userDocRef);
-      let currentLikes = userSnapshot.exists()
-        ? userSnapshot.data().likedCategories || []
-        : [];
-      const isLiked = currentLikes.includes(categoryId);
-      const updatedLikes = isLiked
-        ? currentLikes.filter((id) => id !== categoryId)
-        : [...currentLikes, categoryId];
-
-      await updateDoc(userDocRef, { likedCategories: updatedLikes });
-
-      // 🔹 Update UI Instantly Instead of Waiting for Refresh
-      setLikedCategories((prevLiked) =>
-        isLiked
-          ? prevLiked.filter((cat) => cat.id !== categoryId)
-          : [...prevLiked, myCategories.find((cat) => cat.id === categoryId)]
-      );
-    } catch (error) {
-      console.error("Error updating likes:", error);
-    }
-  };
 
   const handleCategoryClick = (categoryId) => {
     navigate(`/categories/${categoryId}`);
@@ -114,8 +53,8 @@ const CategoryCollection = () => {
       <CategoryList
         categories={myCategories}
         onCategoryClick={handleCategoryClick}
-        onLike={toggleLike}
-        likedCategories={likedCategories}
+        onLike={toggleLikeCategory} // ✅ Use context toggle function
+        likedCategories={likedCategories} // ✅ Use context state
       />
     </div>
   );
