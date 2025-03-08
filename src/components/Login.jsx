@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-} from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import "../styles/Authentication.css";
@@ -12,7 +8,6 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [resetMessage, setResetMessage] = useState("");
   const { user } = useAuth();
   const auth = getAuth();
   const navigate = useNavigate();
@@ -23,45 +18,15 @@ function Login() {
     }
   }, [user, navigate]);
 
-  // ✅ Function to validate email format
-  const isValidEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    setResetMessage("");
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/profile", { replace: true });
-    } catch (err) {
-      setError("Invalid email or password."); // Generic error message for security
-    }
-  };
-
-  const handlePasswordReset = async () => {
-    setError("");
-    setResetMessage("");
-
-    if (!email) {
-      setError("Please enter your email to reset password.");
-      return;
-    }
-
-    if (!isValidEmail(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    try {
-      await sendPasswordResetEmail(auth, email);
-      setResetMessage(
-        "If an account exists with this email, a reset link has been sent."
-      );
-    } catch (err) {
-      setError("An error occurred. Please try again later.");
+    } catch {
+      setError("Invalid email or password."); // Generic error message
     }
   };
 
@@ -75,22 +40,16 @@ function Login() {
             type="email"
             placeholder="Email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setError("");
-              setResetMessage("");
-            }}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <input
             className="input-field"
             type="password"
             placeholder="Password"
             value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setError("");
-              setResetMessage("");
-            }}
+            onChange={(e) => setPassword(e.target.value)}
+            required
           />
           <button className="submit-button" type="submit">
             Login
@@ -98,7 +57,6 @@ function Login() {
         </form>
 
         {error && <p className="error-message">{error}</p>}
-        {resetMessage && <p className="success-message">{resetMessage}</p>}
 
         <p className="switch-link">
           Don&apos;t have an account?
@@ -110,7 +68,7 @@ function Login() {
           </button>
           <button
             className="navigate-button forgot-password"
-            onClick={handlePasswordReset}
+            onClick={() => navigate("/forgot-password")}
           >
             Forgot Password?
           </button>
