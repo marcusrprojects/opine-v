@@ -1,18 +1,16 @@
 /* Common Styles */
 .input-field {
-  width: 100%;
-  padding: var(--padding-small);
-  margin-bottom: var(--padding-medium);
+  /* width: 100%; */
+  padding: var(--padding-sm);
   border: 0.05rem solid var(--quaternary-color);
-  border-radius: var(--border-radius-small);
+  border-radius: var(--border-radius-medium);
   font-size: var(--font-small);
-  font-family: var(--font-family);
-  background-color: var(--primary-color);
+  background-color: transparent;
   color: var(--secondary-color);
 }
 
 .signup-form, .login-form {
-  gap: 1rem !important;
+  gap: var(--padding-medium);
   display: flex;
   flex-direction: column;
 }
@@ -23,15 +21,15 @@
 }
 
 .submit-button {
-  padding: var(--padding-small) var(--padding-medium);
-  width:fit-content;
+  /* padding: var(--padding-small) var(--padding-medium); */
+  /* width:fit-content; */
   align-self: center;
   background-color: var(--tertiary-color);
   color: var(--secondary-color);
   border: none;
-  border-radius: var(--border-radius-small);
+  border-radius: var(--border-radius-medium);
   font-size: var(--font-small);
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-small);
   cursor: pointer;
   transition: background-color 0.3s ease;
   margin: 0;
@@ -84,7 +82,7 @@
 .signup-title, .login-title {
   /* text-align: center; */
   font-size: var(--font-large);
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-small);
   color: var(--secondary-color);
   margin-bottom: var(--padding-large);
 }
