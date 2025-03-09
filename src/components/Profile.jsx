@@ -16,13 +16,15 @@ const Profile = ({ userId = null }) => {
   const isCurrentUser = userId === null || userId === user?.uid;
   const isFollowing = user && userId && following.has(userId);
 
-  // State for dynamically loaded display name and username
+  // State for dynamically loaded user details
   const [displayName, setDisplayName] = useState(
     isCurrentUser ? user?.name : "Anonymous"
   );
   const [username, setUsername] = useState(
     isCurrentUser ? user?.username : "unknown"
   );
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
   // Redirect guests to login page
   useEffect(() => {
@@ -31,31 +33,45 @@ const Profile = ({ userId = null }) => {
     }
   }, [user, navigate]);
 
-  // Fetch display name & username if viewing another user’s profile
+  // Fetch user profile details including name, username, followers, and following
   useEffect(() => {
-    if (!isCurrentUser && userId) {
-      const fetchUserProfile = async () => {
-        try {
-          const userDocRef = doc(db, "users", userId);
-          const userSnapshot = await getDoc(userDocRef);
-          if (userSnapshot.exists()) {
-            const userData = userSnapshot.data();
-            setDisplayName(userData.name || "Anonymous");
-            setUsername(userData.username || "unknown");
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-          setDisplayName("Unknown User");
-          setUsername("unknown");
-        }
-      };
+    const fetchUserProfile = async () => {
+      const targetUserId = isCurrentUser ? user?.uid : userId;
+      if (!targetUserId) return;
 
-      fetchUserProfile();
-    }
-  }, [userId, isCurrentUser]);
+      try {
+        const userDocRef = doc(db, "users", targetUserId);
+        const userSnapshot = await getDoc(userDocRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          setDisplayName(userData.name || "Anonymous");
+          setUsername(userData.username || "unknown");
+          setFollowersCount(userData.followers?.length || 0);
+          setFollowingCount(userData.following?.length || 0);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        setDisplayName("Unknown User");
+        setUsername("unknown");
+        setFollowersCount(0);
+        setFollowingCount(0);
+      }
+    };
+
+    fetchUserProfile();
+  }, [userId, isCurrentUser, user?.uid]);
 
   const handleEditProfile = () => {
     navigate("/profile/edit");
+  };
+
+  const handleViewFollowers = () => {
+    navigate(`/profile/${userId || user?.uid}/followers`);
+  };
+
+  const handleViewFollowing = () => {
+    navigate(`/profile/${userId || user?.uid}/following`);
   };
 
   if (!user) return null;
@@ -67,7 +83,7 @@ const Profile = ({ userId = null }) => {
         <h2>{displayName}</h2>
         <h3>@{username}</h3>
 
-        {/* Show Follow Button only for other users */}
+        {/* Follow/Unfollow Button */}
         {!isCurrentUser && (
           <button
             className="follow-button"
@@ -76,7 +92,18 @@ const Profile = ({ userId = null }) => {
             {isFollowing ? "Unfollow" : "Follow"}
           </button>
         )}
+
+        {/* Followers & Following Info */}
+        <div className="follow-info">
+          <span className="follow-link" onClick={handleViewFollowers}>
+            {followersCount} Followers
+          </span>
+          <span className="follow-link" onClick={handleViewFollowing}>
+            {followingCount} Following
+          </span>
+        </div>
       </div>
+
       <div className="profile-categories-section">
         <CategoryCollection />
       </div>
