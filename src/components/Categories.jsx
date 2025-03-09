@@ -8,6 +8,8 @@ import { useLikedCategories } from "../context/useLikedCategories";
 import { useAuth } from "../context/useAuth";
 import CategoryList from "./CategoryList";
 import CategorySearch from "../components/CategorySearch";
+import { useFollow } from "../context/useFollow";
+import { PRIVACY_LEVELS } from "../constants/privacy";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -17,21 +19,28 @@ const Categories = () => {
   const tagMap = useTagMap();
   const { likedCategories, toggleLikeCategory } = useLikedCategories();
   const { user } = useAuth();
+  const { following } = useFollow();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const categorySnapshot = await getDocs(collection(db, "categories"));
-        const categoryList = categorySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            tagNames: (data.tags || []).map(
-              (tagId) => tagMap[tagId] || "Unknown"
-            ),
-          };
-        });
+        const categoryList = categorySnapshot.docs
+          .map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              tagNames: (data.tags || []).map(
+                (tagId) => tagMap[tagId] || "Unknown"
+              ),
+            };
+          })
+          .filter((category) => {
+            if (category.privacy === PRIVACY_LEVELS.PUBLIC) return true;
+            return user && following.has(category.createdBy);
+          });
+
         setCategories(categoryList);
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -39,7 +48,7 @@ const Categories = () => {
     };
 
     fetchCategories();
-  }, [tagMap]);
+  }, [tagMap, user, following]);
 
   const handleCategoryClick = (categoryId) => {
     navigate(`/categories/${categoryId}`);
