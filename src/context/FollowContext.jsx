@@ -1,78 +1,70 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useAuth } from "./useAuth";
 import { db } from "../firebaseConfig";
 import {
   doc,
-  setDoc,
-  deleteDoc,
-  collection,
-  onSnapshot,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
-import { useAuth } from "./useAuth";
 
-const FollowContext = createContext();
+export const FollowContext = createContext();
 
 export const FollowProvider = ({ children }) => {
   const { user } = useAuth();
   const [following, setFollowing] = useState(new Set());
-  const [followers, setFollowers] = useState(new Set());
 
+  // Fetch following list when user changes
   useEffect(() => {
     if (!user) {
       setFollowing(new Set());
-      setFollowers(new Set());
       return;
     }
 
-    const followingRef = collection(db, `users/${user.uid}/following`);
-    const followersRef = collection(db, `users/${user.uid}/followers`);
-
-    const unsubscribeFollowing = onSnapshot(followingRef, (snapshot) => {
-      setFollowing(new Set(snapshot.docs.map((doc) => doc.id)));
-    });
-
-    const unsubscribeFollowers = onSnapshot(followersRef, (snapshot) => {
-      setFollowers(new Set(snapshot.docs.map((doc) => doc.id)));
-    });
-
-    return () => {
-      unsubscribeFollowing();
-      unsubscribeFollowers();
+    const fetchFollowing = async () => {
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userDocRef);
+        if (userSnapshot.exists()) {
+          setFollowing(new Set(userSnapshot.data().following || []));
+        }
+      } catch (error) {
+        console.error("Error fetching following list:", error);
+      }
     };
+
+    fetchFollowing();
   }, [user]);
 
   const toggleFollow = async (targetUserId) => {
     if (!user) {
-      alert("You must be logged in to follow users.");
+      alert("Log in to follow users.");
       return;
     }
 
-    const userFollowingRef = doc(
-      db,
-      `users/${user.uid}/following`,
-      targetUserId
-    );
-    const targetFollowerRef = doc(
-      db,
-      `users/${targetUserId}/followers`,
-      user.uid
-    );
-
     try {
-      if (following.has(targetUserId)) {
-        await deleteDoc(userFollowingRef);
-        await deleteDoc(targetFollowerRef);
+      const userDocRef = doc(db, "users", user.uid);
+      const isFollowing = following.has(targetUserId);
+      const updatedFollowing = new Set(following);
+
+      if (isFollowing) {
+        updatedFollowing.delete(targetUserId);
+        await updateDoc(userDocRef, { following: arrayRemove(targetUserId) });
       } else {
-        await setDoc(userFollowingRef, { timestamp: Date.now() });
-        await setDoc(targetFollowerRef, { timestamp: Date.now() });
+        updatedFollowing.add(targetUserId);
+        await updateDoc(userDocRef, { following: arrayUnion(targetUserId) });
       }
+
+      setFollowing(updatedFollowing);
     } catch (error) {
-      console.error("Error updating follow status:", error);
+      console.error("Error updating following list:", error);
     }
   };
 
   return (
-    <FollowContext.Provider value={{ following, followers, toggleFollow }}>
+    <FollowContext.Provider value={{ following, toggleFollow }}>
       {children}
     </FollowContext.Provider>
   );
