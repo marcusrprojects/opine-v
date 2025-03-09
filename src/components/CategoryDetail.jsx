@@ -17,12 +17,15 @@ import CategoryPanel from "./Navigation/CategoryPanel";
 import CategoryFilters from "./CategoryFilters";
 import { useAuth } from "../context/useAuth";
 import { handleError } from "../utils/errorUtils";
+import { PRIVACY_LEVELS } from "../constants/privacy";
+import { useFollow } from "../context/useFollow";
 // import "../styles/CategorySettings.css";
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { following } = useFollow();
 
   // Data states
   const [category, setCategory] = useState(null);
@@ -97,6 +100,19 @@ const CategoryDetail = () => {
     });
   }, [categoryId]);
 
+  useEffect(() => {
+    if (!category) return;
+
+    if (category.privacy === PRIVACY_LEVELS.FRIENDS_ONLY) {
+      if (
+        !user ||
+        (!following.has(category.createdBy) && user.uid !== category.createdBy)
+      ) {
+        navigate("/categories");
+      }
+    }
+  }, [category, user, following, navigate]);
+
   // Fetch liked state for logged-in user
   useEffect(() => {
     const fetchLikedState = async () => {
@@ -117,7 +133,7 @@ const CategoryDetail = () => {
 
   // Compute if user can edit the category (if user is creator)
   const canEdit = useMemo(() => {
-    return user && creatorId && user.uid === creatorId;
+    return !!(user && creatorId && user.uid === creatorId);
   }, [user, creatorId]);
 
   // Auto-hide settings after 4 seconds if filter panel is not open
