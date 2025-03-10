@@ -83,16 +83,6 @@ const Profile = ({ userId = null }) => {
         <h2>{displayName}</h2>
         <h3>@{username}</h3>
 
-        {/* Follow/Unfollow Button */}
-        {!isCurrentUser && (
-          <button
-            className="follow-button"
-            onClick={() => toggleFollow(userId)}
-          >
-            {isFollowing ? "Unfollow" : "Follow"}
-          </button>
-        )}
-
         {/* Followers & Following Info */}
         <div className="follow-info">
           <span className="follow-link" onClick={handleViewFollowers}>
@@ -103,6 +93,13 @@ const Profile = ({ userId = null }) => {
           </span>
         </div>
       </div>
+
+      {/* Follow/Unfollow Button */}
+      {!isCurrentUser && (
+        <button className="follow-button" onClick={() => toggleFollow(userId)}>
+          {isFollowing ? "Unfollow" : "Follow"}
+        </button>
+      )}
 
       <div className="profile-categories-section">
         <CategoryCollection />
