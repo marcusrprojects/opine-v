@@ -10,6 +10,7 @@ import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
 import Button from "./Navigation/Button";
+import { PRIVACY_LEVELS } from "../constants/privacy";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -28,6 +29,9 @@ const EditCategory = () => {
     location.state?.primaryField || ""
   );
   const [tags, setTags] = useState(location.state?.tags || []);
+  const [privacy, setPrivacy] = useState(
+    location.state?.privacy || PRIVACY_LEVELS.PUBLIC
+  );
   const [newField, setNewField] = useState("");
   const [loading, setLoading] = useState(!location.state);
 
@@ -46,6 +50,7 @@ const EditCategory = () => {
             setFields(data.fields || []);
             setPrimaryField(data.primaryField || "");
             setTags(data.tags || []);
+            setPrivacy(data.privacy || PRIVACY_LEVELS.PUBLIC);
           }
         } catch (error) {
           handleError(error, "Error fetching category data");
@@ -76,11 +81,12 @@ const EditCategory = () => {
     try {
       const categoryDocRef = doc(db, "categories", categoryId);
       await updateDoc(categoryDocRef, {
-        name: categoryName,
+        name: categoryName.trim(),
         description,
         fields,
         primaryField,
         tags,
+        privacy,
       });
       navigate(`/categories/${categoryId}`);
     } catch (error) {
@@ -172,8 +178,24 @@ const EditCategory = () => {
         </div>
       </div>
 
-      {/* Tag Selector (now using TagContext!) */}
+      {/* Tag Selector */}
       <TagSelector tags={tags} setTags={setTags} maxTags={5} />
+
+      {/* Privacy Selector */}
+      <div className="privacy-section">
+        <label className="edit-label">Privacy</label>
+        <select
+          className="edit-input"
+          value={privacy}
+          onChange={(e) => setPrivacy(e.target.value)}
+        >
+          {Object.values(PRIVACY_LEVELS).map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 };
