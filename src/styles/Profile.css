@@ -3,3 +3,20 @@
   flex-direction: column;
   gap: var(--padding-medium);
 }
+
+.follow-info {
+  display: flex;
+  gap: var(--padding-large);
+  align-items: center;
+  justify-content: center;
+}
+
+.follow-link:hover {
+  text-decoration: underline;
+  /* padding: var(--padding-small); */
+  cursor: pointer;
+}
+
+.profile-header {
+  margin-bottom: var(--padding-medium);
+}
