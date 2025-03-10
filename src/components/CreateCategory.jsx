@@ -9,6 +9,7 @@ import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
 import RadioInput from "./RadioInput";
+import { PRIVACY_LEVELS } from "../constants/privacy";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -17,6 +18,7 @@ const CreateCategory = () => {
   const [tags, setTags] = useState([]); // Stores tag IDs
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [privacy, setPrivacy] = useState(PRIVACY_LEVELS.PUBLIC);
 
   const addField = () => {
     setFields([...fields, { name: "" }]);
@@ -56,7 +58,8 @@ const CreateCategory = () => {
         name: categoryName.trim(),
         primaryField: fields[primaryFieldIndex].name,
         fields: fields.map((field) => field.name),
-        tags, // ✅ Assume these are valid tag IDs.
+        tags,
+        privacy,
         createdBy: user.uid,
         createdAt: new Date().toISOString(),
       };
@@ -141,6 +144,15 @@ const CreateCategory = () => {
           <h3>Tags</h3>
           <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
         </div>
+
+        <select
+          className="text-input"
+          value={privacy}
+          onChange={(e) => setPrivacy(e.target.value)}
+        >
+          <option value={PRIVACY_LEVELS.PUBLIC}>Public</option>
+          <option value={PRIVACY_LEVELS.FRIENDS_ONLY}>Friends Only</option>
+        </select>
       </form>
     </div>
   );
