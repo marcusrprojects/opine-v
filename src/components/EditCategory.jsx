@@ -10,7 +10,7 @@ import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
 import Button from "./Navigation/Button";
-import { PRIVACY_LEVELS } from "../constants/privacy";
+import { PRIVACY_LEVELS, PRIVACY_LABELS } from "../constants/privacy";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -30,7 +30,7 @@ const EditCategory = () => {
   );
   const [tags, setTags] = useState(location.state?.tags || []);
   const [privacy, setPrivacy] = useState(
-    location.state?.privacy || PRIVACY_LEVELS.PUBLIC
+    location.state?.privacy ?? PRIVACY_LEVELS.PUBLIC
   );
   const [newField, setNewField] = useState("");
   const [loading, setLoading] = useState(!location.state);
@@ -50,7 +50,7 @@ const EditCategory = () => {
             setFields(data.fields || []);
             setPrimaryField(data.primaryField || "");
             setTags(data.tags || []);
-            setPrivacy(data.privacy || PRIVACY_LEVELS.PUBLIC);
+            setPrivacy(data.privacy ?? PRIVACY_LEVELS.PUBLIC);
           }
         } catch (error) {
           handleError(error, "Error fetching category data");
@@ -179,7 +179,7 @@ const EditCategory = () => {
       </div>
 
       {/* Tag Selector */}
-      <TagSelector tags={tags} setTags={setTags} maxTags={5} />
+      <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
 
       {/* Privacy Selector */}
       <div className="privacy-section">
@@ -187,11 +187,11 @@ const EditCategory = () => {
         <select
           className="edit-input"
           value={privacy}
-          onChange={(e) => setPrivacy(e.target.value)}
+          onChange={(e) => setPrivacy(Number(e.target.value))}
         >
-          {Object.values(PRIVACY_LEVELS).map((option) => (
-            <option key={option} value={option}>
-              {option}
+          {Object.values(PRIVACY_LEVELS).map((level) => (
+            <option key={level} value={level}>
+              {PRIVACY_LABELS[level]}
             </option>
           ))}
         </select>
