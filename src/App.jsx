@@ -21,15 +21,14 @@ import ForgotPassword from "./components/ForgotPassword";
 // Context Providers
 import { LikedCategoriesProvider } from "./context/LikedCategoriesContext";
 import { TagProvider } from "./context/TagContext";
+import { FollowProvider } from "./context/FollowContext";
 
 /**
  * App component is the main entry point for the application.
  * It sets up routing for different components using React Router.
- * Users can navigate between Home, Categories, Profile, Login, and Signup.
- * It also includes routes for category management (creating and viewing categories, adding items).
  */
 function App() {
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Manage sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -39,63 +38,69 @@ function App() {
     <div className="App">
       <LikedCategoriesProvider>
         <TagProvider>
-          <Router>
-            <div className="App-layout">
-              {/* Pass the sidebar state and toggle function as props */}
-              <Sidebar
-                sidebarOpen={sidebarOpen}
-                toggleSidebar={toggleSidebar}
-              />
+          <FollowProvider>
+            <Router>
+              <div className="App-layout">
+                {/* Sidebar */}
+                <Sidebar
+                  sidebarOpen={sidebarOpen}
+                  toggleSidebar={toggleSidebar}
+                />
 
-              {/* Main content area */}
-              <div className={`main-content`}>
-                <Routes>
-                  <Route exact path="/" element={<Home />} />
-                  <Route path="/categories" element={<Categories />} />
-                  <Route
-                    path="/create-category"
-                    element={
-                      <ProtectedRoute>
-                        <CreateCategory />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/categories/:categoryId"
-                    element={<CategoryDetail />}
-                  />
-                  <Route
-                    path="/categories/:categoryId/edit"
-                    element={<EditCategory />}
-                  />
-                  <Route
-                    path="/categories/:categoryId/add-item"
-                    element={
-                      <ProtectedRoute>
-                        <AddItem />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/categories/:categoryId/item/:itemId"
-                    element={<ItemView />}
-                  />
-                  <Route
-                    path="/categories/:categoryId/items/:itemId/rerank"
-                    element={
-                      <ProtectedRoute>
-                        <ReRankFlow />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                </Routes>
+                {/* Main content area */}
+                <div className="main-content">
+                  <Routes>
+                    <Route exact path="/" element={<Home />} />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route
+                      path="/create-category"
+                      element={
+                        <ProtectedRoute>
+                          <CreateCategory />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/categories/:categoryId"
+                      element={<CategoryDetail />}
+                    />
+                    <Route
+                      path="/categories/:categoryId/edit"
+                      element={<EditCategory />}
+                    />
+                    <Route
+                      path="/categories/:categoryId/add-item"
+                      element={
+                        <ProtectedRoute>
+                          <AddItem />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/categories/:categoryId/item/:itemId"
+                      element={<ItemView />}
+                    />
+                    <Route
+                      path="/categories/:categoryId/items/:itemId/rerank"
+                      element={
+                        <ProtectedRoute>
+                          <ReRankFlow />
+                        </ProtectedRoute>
+                      }
+                    />
+                    {/* Route for viewing profiles (own or others') */}
+                    <Route path="/profile/:userId?" element={<Profile />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route
+                      path="/forgot-password"
+                      element={<ForgotPassword />}
+                    />
+                  </Routes>
+                </div>
               </div>
-            </div>
-          </Router>
+            </Router>
+          </FollowProvider>
         </TagProvider>
       </LikedCategoriesProvider>
     </div>
