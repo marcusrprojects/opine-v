@@ -4,12 +4,11 @@ import { collection, addDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import "../styles/CreateCategory.css";
-import { FaPlus, FaMinus } from "react-icons/fa";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
-import RadioInput from "./RadioInput";
 import { PRIVACY_LEVELS, PRIVACY_LABELS } from "../constants/privacy";
+import FieldManager from "./FieldManager";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -42,14 +41,16 @@ const CreateCategory = () => {
     }
   };
 
+  const isConfirmDisabled =
+    !categoryName.trim() ||
+    fields.length === 0 ||
+    tags.length === 0 ||
+    fields.some((field) => !field.name.trim());
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user) {
-      alert("You must be logged in to create a category.");
-      return;
-    }
-    if (!categoryName.trim() || fields.length === 0 || tags.length === 0) {
-      alert("Category name, fields, and at least one tag are required.");
+    if (isConfirmDisabled) {
+      alert("Please complete all fields before submitting.");
       return;
     }
 
@@ -76,9 +77,7 @@ const CreateCategory = () => {
       <ActionPanel
         onCancel={() => navigate("/categories")}
         onConfirm={handleSubmit}
-        isConfirmDisabled={
-          !categoryName.trim() || fields.length === 0 || tags.length === 0
-        }
+        isConfirmDisabled={isConfirmDisabled}
       />
 
       <h2>Create a Category</h2>
@@ -96,7 +95,13 @@ const CreateCategory = () => {
         </div>
 
         {/* Attributes Section */}
-        <div className="attributes-group">
+        <FieldManager
+          fields={fields}
+          setFields={setFields}
+          primaryFieldIndex={primaryFieldIndex}
+          setPrimaryFieldIndex={setPrimaryFieldIndex}
+        />
+        {/* <div className="attributes-group">
           <h3>Attributes</h3>
           {fields.map((field, index) => (
             <div key={index} className="field-container">
@@ -137,7 +142,7 @@ const CreateCategory = () => {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Tags Section */}
         <div className="tags-group">
