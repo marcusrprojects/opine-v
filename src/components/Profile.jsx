@@ -30,8 +30,10 @@ const Profile = ({ userId = null }) => {
   useEffect(() => {
     if (!user) {
       navigate("/login");
+    } else if (!userId && user.username) {
+      navigate(`/profile/${user.username}`);
     }
-  }, [user, navigate]);
+  }, [user, navigate, userId]);
 
   // Fetch user profile details including name, username, followers, and following
   useEffect(() => {
