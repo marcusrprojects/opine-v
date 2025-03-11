@@ -19,7 +19,6 @@ import { useAuth } from "../context/useAuth";
 import { handleError } from "../utils/errorUtils";
 import { PRIVACY_LEVELS } from "../constants/privacy";
 import { useFollow } from "../context/useFollow";
-// import "../styles/CategorySettings.css";
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -31,7 +30,6 @@ const CategoryDetail = () => {
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
-  const [primaryField, setPrimaryField] = useState(null);
   const [orderedFields, setOrderedFields] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
   const [creatorUsername, setCreatorUsername] = useState("");
@@ -53,7 +51,6 @@ const CategoryDetail = () => {
         if (categorySnapshot.exists()) {
           const categoryData = categorySnapshot.data();
           setCategory(categoryData);
-          setPrimaryField(categoryData.primaryField);
           setOrderedFields(categoryData.fields || []);
           if (categoryData.createdBy) {
             setCreatorId(categoryData.createdBy);
@@ -184,7 +181,6 @@ const CategoryDetail = () => {
         categoryName: category.name,
         description: category.description,
         fields: orderedFields,
-        primaryField,
         creatorUsername,
       },
     });
@@ -289,7 +285,6 @@ const CategoryDetail = () => {
       </p>
       <p className="creator-username">@{creatorUsername}</p>
 
-      {/* Render the filter UI above the item list if filters are toggled open */}
       {filterOpen && (
         <CategoryFilters
           fields={orderedFields}
@@ -302,7 +297,7 @@ const CategoryDetail = () => {
 
       <ItemList
         items={filteredItems}
-        primaryField={primaryField}
+        primaryField={orderedFields[0]}
         orderedFields={orderedFields}
         onItemClick={handleItemClick}
       />

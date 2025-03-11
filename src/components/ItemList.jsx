@@ -2,18 +2,18 @@ import PropTypes from "prop-types";
 import CardList from "./CardList";
 import ItemCard from "./ItemCard";
 
-const ItemList = ({ items, primaryField, orderedFields, onItemClick }) => {
+const ItemList = ({ items, orderedFields, onItemClick }) => {
+  const [primaryField, ...secondaryFields] = orderedFields;
+
   return (
     <CardList
       items={items}
       renderCard={(item) => (
         <ItemCard
           key={item.id}
-          primaryValue={item[primaryField] || "Unnamed Item"} // ✅ Pre-extracted title
-          secondaryValues={orderedFields
-            .filter((field) => field !== primaryField) // ✅ Exclude primary field
-            .map((field) => item[field] || "N/A")} // ✅ Only pass values, not keys
-          rating={item.rating || 0} // ✅ Keep rating
+          primaryValue={item[primaryField] || "Unnamed Item"}
+          secondaryValues={secondaryFields.map((field) => item[field] || "N/A")}
+          rating={item.rating || 0}
           rankCategory={item.rankCategory || 0}
           onClick={() => onItemClick(item.id)}
         />
@@ -24,7 +24,6 @@ const ItemList = ({ items, primaryField, orderedFields, onItemClick }) => {
 
 ItemList.propTypes = {
   items: PropTypes.array.isRequired,
-  primaryField: PropTypes.string.isRequired,
   orderedFields: PropTypes.array.isRequired,
   onItemClick: PropTypes.func.isRequired,
 };

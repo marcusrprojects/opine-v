@@ -13,33 +13,10 @@ import FieldManager from "./FieldManager";
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
   const [fields, setFields] = useState([{ name: "Name" }]);
-  const [primaryFieldIndex, setPrimaryFieldIndex] = useState(0);
   const [tags, setTags] = useState([]); // Stores tag IDs
   const { user } = useAuth();
   const navigate = useNavigate();
   const [privacy, setPrivacy] = useState(PRIVACY_LEVELS.PUBLIC);
-
-  const addField = () => {
-    setFields([...fields, { name: "" }]);
-  };
-
-  const handleFieldChange = (index, value) => {
-    const updatedFields = [...fields];
-    updatedFields[index].name = value;
-    setFields(updatedFields);
-  };
-
-  const handleRemoveField = (index) => {
-    if (index === primaryFieldIndex) {
-      alert("Please select a new primary field before deleting this one.");
-      return;
-    }
-    const updatedFields = fields.filter((_, i) => i !== index);
-    setFields(updatedFields);
-    if (primaryFieldIndex > index) {
-      setPrimaryFieldIndex(primaryFieldIndex - 1);
-    }
-  };
 
   const isConfirmDisabled =
     !categoryName.trim() ||
@@ -57,7 +34,7 @@ const CreateCategory = () => {
     try {
       const newCategory = {
         name: categoryName.trim(),
-        primaryField: fields[primaryFieldIndex].name,
+        primaryField: fields[0].name, // 0th index is the primary field
         fields: fields.map((field) => field.name),
         tags,
         privacy,
@@ -95,54 +72,7 @@ const CreateCategory = () => {
         </div>
 
         {/* Attributes Section */}
-        <FieldManager
-          fields={fields}
-          setFields={setFields}
-          primaryFieldIndex={primaryFieldIndex}
-          setPrimaryFieldIndex={setPrimaryFieldIndex}
-        />
-        {/* <div className="attributes-group">
-          <h3>Attributes</h3>
-          {fields.map((field, index) => (
-            <div key={index} className="field-container">
-              <label className="primary-field-radio">
-                <RadioInput
-                  name="primaryField"
-                  checked={primaryFieldIndex === index}
-                  onChange={() => setPrimaryFieldIndex(index)}
-                  className="primary-field"
-                />
-                {primaryFieldIndex === index && (
-                  <span className="tooltip">Primary Field</span>
-                )}
-              </label>
-              <TextInput
-                value={field.name}
-                onChange={(e) => handleFieldChange(index, e.target.value)}
-                placeholder={`Field #${index + 1}`}
-                required
-              />
-              <div className="field-actions">
-                <FaMinus
-                  className={`icon delete-icon ${
-                    index === primaryFieldIndex
-                      ? "primary-delete"
-                      : "default-delete"
-                  }`}
-                  onClick={() => handleRemoveField(index)}
-                  title="Remove field"
-                />
-                {index === fields.length - 1 && (
-                  <FaPlus
-                    className="icon add-field-icon"
-                    onClick={addField}
-                    title="Add field"
-                  />
-                )}
-              </div>
-            </div>
-          ))}
-        </div> */}
+        <FieldManager fields={fields} setFields={setFields} />
 
         {/* Tags Section */}
         <div className="tags-group">
@@ -155,7 +85,7 @@ const CreateCategory = () => {
           <select
             className="text-input"
             value={privacy}
-            onChange={(e) => setPrivacy(Number(e.target.value))} // Ensures it's stored as a number
+            onChange={(e) => setPrivacy(Number(e.target.value))}
           >
             {Object.values(PRIVACY_LEVELS).map((level) => (
               <option key={level} value={level}>

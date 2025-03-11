@@ -19,7 +19,6 @@ const AddItemFlow = () => {
   const [itemData, setItemData] = useState({});
   const [rankCategory, setRankCategory] = useState(null);
   const [fields, setFields] = useState([]);
-  const [primaryField, setPrimaryField] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
   const [isStepValid, setIsStepValid] = useState(false); // Track step validation
@@ -32,7 +31,6 @@ const AddItemFlow = () => {
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
         setFields(categoryData.fields || []);
-        setPrimaryField(categoryData.primaryField);
       }
       setIsFieldsLoading(false);
     };
@@ -119,7 +117,6 @@ const AddItemFlow = () => {
             categoryId={categoryId}
             itemData={itemData}
             fields={fields}
-            primaryField={primaryField}
             rankCategory={rankCategory}
             onSave={handleSave}
             setIsRankingComplete={setIsRankingComplete}

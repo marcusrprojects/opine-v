@@ -6,7 +6,7 @@ import { collection, getDocs } from "firebase/firestore";
 const ComparisonStep = ({
   categoryId,
   itemData,
-  primaryField,
+  fields,
   rankCategory,
   onSave,
   setIsRankingComplete,
@@ -16,6 +16,7 @@ const ComparisonStep = ({
   const [lo, setLo] = useState(0);
   const [hi, setHi] = useState(0);
   const hasSavedInitialItem = useRef(false);
+  const primaryField = fields[0];
 
   useEffect(() => {
     const fetchRankedItems = async () => {
@@ -69,7 +70,7 @@ const ComparisonStep = ({
       updatedRankedItems.splice(currentLo, 0, { ...itemData, rankCategory });
       setRankedItems(updatedRankedItems);
       onSave(updatedRankedItems);
-      setIsRankingComplete(true); // Notify AddItemFlow that ranking is done
+      setIsRankingComplete(true);
     } else {
       middleIndex = Math.floor((currentLo + currentHi) / 2);
       setComparisonItem(rankedItems[middleIndex]);
@@ -95,10 +96,10 @@ const ComparisonStep = ({
 ComparisonStep.propTypes = {
   categoryId: PropTypes.string.isRequired,
   itemData: PropTypes.object.isRequired,
-  primaryField: PropTypes.string.isRequired,
+  fields: PropTypes.array.isRequired,
   rankCategory: PropTypes.number.isRequired,
   onSave: PropTypes.func.isRequired,
-  setIsRankingComplete: PropTypes.func.isRequired, // New Prop
+  setIsRankingComplete: PropTypes.func.isRequired,
 };
 
 export default ComparisonStep;

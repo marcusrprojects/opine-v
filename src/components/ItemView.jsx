@@ -14,7 +14,6 @@ const ItemView = () => {
   const [itemData, setItemData] = useState({});
   const [creatorId, setCreatorId] = useState("");
   const [editingField, setEditingField] = useState(null);
-  const [primaryField, setPrimaryField] = useState(null);
   const [orderedFields, setOrderedFields] = useState([]);
 
   useEffect(() => {
@@ -34,7 +33,6 @@ const ItemView = () => {
 
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
-        setPrimaryField(categoryData.primaryField);
         setOrderedFields(categoryData.fields);
         setCreatorId(categoryData.createdBy);
       }
@@ -98,7 +96,9 @@ const ItemView = () => {
         canDelete={canEdit}
       />
 
-      <h2 className="item-title">{itemData[primaryField] || "Unnamed Item"}</h2>
+      <h2 className="item-title">
+        {itemData[orderedFields[0]] || "Unnamed Item"}
+      </h2>
 
       <div className="rating-container">
         <div
