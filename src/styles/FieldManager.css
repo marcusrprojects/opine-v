@@ -1,0 +1,38 @@
+.field-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-medium);
+}
+
+.field-container {
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+  gap: var(--padding-sm);
+  width: 100%;
+  position: relative;
+}
+
+.primary-input {
+  outline: 0.075rem dotted var(--middle-color);
+}
+
+.field-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  right: -4rem;
+  width: 3rem;
+}
+
+.delete-icon, .add-field-icon {
+  color: var(--middle-color);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.disabled {
+  cursor: not-allowed;
+  color: var(--tertiary-color);
+}
