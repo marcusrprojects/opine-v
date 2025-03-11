@@ -297,7 +297,6 @@ const CategoryDetail = () => {
 
       <ItemList
         items={filteredItems}
-        primaryField={orderedFields[0]}
         orderedFields={orderedFields}
         onItemClick={handleItemClick}
       />

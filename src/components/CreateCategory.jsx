@@ -34,7 +34,6 @@ const CreateCategory = () => {
     try {
       const newCategory = {
         name: categoryName.trim(),
-        primaryField: fields[0].name, // 0th index is the primary field
         fields: fields.map((field) => field.name),
         tags,
         privacy,

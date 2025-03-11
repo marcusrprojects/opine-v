@@ -7,14 +7,12 @@ import "../styles/FieldManager.css";
 const FieldManager = ({ fields, setFields }) => {
   const [draggedIndex, setDraggedIndex] = useState(null);
 
-  const handleAddField = (index) => {
-    const updatedFields = [...fields];
-    updatedFields.splice(index + 1, 0, { name: "" });
-    setFields(updatedFields);
+  const handleAddField = () => {
+    setFields([...fields, { name: "" }]);
   };
 
   const handleRemoveField = (index) => {
-    if (index === 0) return;
+    if (fields.length === 1) return;
     setFields(fields.filter((_, i) => i !== index));
   };
 
@@ -49,7 +47,7 @@ const FieldManager = ({ fields, setFields }) => {
           onDragOver={handleDragOver}
           onDrop={() => handleDrop(index)}
         >
-          {/* Text Input with Highlight for Primary Field */}
+          {/* Text Input */}
           <TextInput
             value={field.name}
             className={index === 0 ? "primary-input" : ""}
@@ -60,17 +58,17 @@ const FieldManager = ({ fields, setFields }) => {
             }}
           />
 
-          {/* Action Buttons */}
+          {/* Action Buttons (Keep - on every row, + only on last row) */}
           <div className="field-actions">
             <FaMinus
-              className={`delete-icon ${index === 0 ? "primary-delete" : ""}`}
+              className={`delete-icon ${fields.length === 1 ? "disabled" : ""}`}
               onClick={() => handleRemoveField(index)}
               title="Remove field"
             />
             {index === fields.length - 1 && (
               <FaPlus
                 className="add-field-icon"
-                onClick={() => handleAddField(index)}
+                onClick={handleAddField}
                 title="Add field"
               />
             )}
