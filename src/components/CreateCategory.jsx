@@ -61,7 +61,7 @@ const CreateCategory = () => {
       <form className="category-form">
         {/* Category Name Section */}
         <div className="category-name-group">
-          <h3>Category Name</h3>
+          <label>Category Name</label>
           <TextInput
             value={categoryName}
             onChange={(e) => setCategoryName(e.target.value)}
@@ -75,12 +75,12 @@ const CreateCategory = () => {
 
         {/* Tags Section */}
         <div className="tags-group">
-          <h3>Tags</h3>
+          <label>Tags</label>
           <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
         </div>
 
         <div className="privacy-section">
-          <h3 className="edit-label">Privacy</h3>
+          <label>Privacy</label>
           <select
             className="text-input"
             value={privacy}
