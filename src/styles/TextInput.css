@@ -1,11 +1,11 @@
 .text-input {
-  padding: var(--padding-small);
+  padding: var(--padding-sm);
   border-radius: var(--border-radius-medium);
   border: 0.01rem solid var(--quinary-color);
   font-size: var(--font-small);
   outline: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  width: 12rem;
+  width: 11rem;
   color: var(--secondary-color);
   background-color: transparent;
 }
