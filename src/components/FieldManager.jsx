@@ -2,25 +2,19 @@ import PropTypes from "prop-types";
 import { useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import TextInput from "./TextInput";
-import RadioInput from "./RadioInput";
 import "../styles/FieldManager.css";
 
-const FieldManager = ({
-  fields,
-  setFields,
-  primaryFieldIndex,
-  setPrimaryFieldIndex,
-}) => {
+const FieldManager = ({ fields, setFields }) => {
   const [draggedIndex, setDraggedIndex] = useState(null);
 
   const handleAddField = (index) => {
     const updatedFields = [...fields];
-    updatedFields.splice(index + 1, 0, { name: "" }); // Insert new field below the current one
+    updatedFields.splice(index + 1, 0, { name: "" }); // Insert new field below
     setFields(updatedFields);
   };
 
   const handleRemoveField = (index) => {
-    if (index === primaryFieldIndex) return; // Prevent removal of primary field
+    if (index === 0) return;
     setFields(fields.filter((_, i) => i !== index));
   };
 
@@ -29,7 +23,7 @@ const FieldManager = ({
   };
 
   const handleDragOver = (event) => {
-    event.preventDefault(); // Needed for drop to work
+    event.preventDefault();
   };
 
   const handleDrop = (index) => {
@@ -40,16 +34,7 @@ const FieldManager = ({
     updatedFields.splice(index, 0, movedField);
     setFields(updatedFields);
 
-    // Adjust primary field index if moved
-    if (primaryFieldIndex === draggedIndex) {
-      setPrimaryFieldIndex(index);
-    } else if (primaryFieldIndex > draggedIndex && primaryFieldIndex <= index) {
-      setPrimaryFieldIndex(primaryFieldIndex - 1);
-    } else if (primaryFieldIndex < draggedIndex && primaryFieldIndex >= index) {
-      setPrimaryFieldIndex(primaryFieldIndex + 1);
-    }
-
-    setDraggedIndex(null); // Reset dragged item
+    setDraggedIndex(null);
   };
 
   return (
@@ -58,22 +43,14 @@ const FieldManager = ({
       {fields.map((field, index) => (
         <div
           key={index}
-          className="field-container"
+          className={`field-container ${
+            index === 0 ? "primary-field-highlight" : ""
+          }`}
           draggable
           onDragStart={() => handleDragStart(index)}
           onDragOver={handleDragOver}
           onDrop={() => handleDrop(index)}
         >
-          {/* Primary Field Radio Button */}
-          <label className="primary-field-radio">
-            <RadioInput
-              name="primaryField"
-              checked={primaryFieldIndex === index}
-              onChange={() => setPrimaryFieldIndex(index)}
-              className="primary-field"
-            />
-          </label>
-
           {/* Text Input for Field Name */}
           <TextInput
             value={field.name}
@@ -88,9 +65,7 @@ const FieldManager = ({
           <div className="field-actions">
             {/* Minus Button (Cannot Remove Primary Field) */}
             <FaMinus
-              className={`delete-icon ${
-                primaryFieldIndex === index ? "primary-delete" : ""
-              }`}
+              className={`delete-icon ${index === 0 ? "primary-delete" : ""}`}
               onClick={() => handleRemoveField(index)}
               title="Remove field"
             />
@@ -113,8 +88,6 @@ const FieldManager = ({
 FieldManager.propTypes = {
   fields: PropTypes.arrayOf(PropTypes.object).isRequired,
   setFields: PropTypes.func.isRequired,
-  primaryFieldIndex: PropTypes.number.isRequired,
-  setPrimaryFieldIndex: PropTypes.func.isRequired,
 };
 
 export default FieldManager;
