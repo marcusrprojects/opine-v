@@ -1,0 +1,12 @@
+.privacy-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.select-privacy {
+  padding: var(--padding-medium);
+  border: 0.5px solid var(--quinary-color);
+  border-radius: var(--border-radius-medium);
+  background-color: transparent;
+  outline: none;
+}

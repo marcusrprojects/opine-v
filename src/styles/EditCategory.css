@@ -40,7 +40,7 @@
   border-bottom: 0.1px solid var(--quinary-color);
 }
 
-.edit-description, .select-privacy {
+.edit-description {
   padding: var(--padding-medium);
   border: 0.5px solid var(--quinary-color);
   border-radius: var(--border-radius-medium);
@@ -121,9 +121,4 @@
 
 .delete-icon:hover {
   filter: brightness(85%);
-}
-
-.privacy-section {
-  display: flex;
-  flex-direction: column;
 }
