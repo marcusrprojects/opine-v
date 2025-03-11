@@ -83,10 +83,10 @@ const ComparisonStep = ({
       <p>Which item is better?</p>
       <div className="comparison-buttons">
         <button onClick={() => onComparisonChoice(true)}>
-          {primaryField ? itemData[primaryField] : "Current Item"}
+          {itemData[primaryField] ?? "Current Item"}
         </button>
         <button onClick={() => onComparisonChoice(false)}>
-          {primaryField ? comparisonItem?.[primaryField] : "Comparison Item"}
+          {comparisonItem?.[primaryField] ?? "Comparison Item"}
         </button>
       </div>
     </div>

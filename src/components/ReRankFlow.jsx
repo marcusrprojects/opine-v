@@ -19,7 +19,6 @@ const ReRankFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [rankCategory, setRankCategory] = useState(null);
   const [fields, setFields] = useState([]);
-  const [primaryField, setPrimaryField] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
   const [isRankingComplete, setIsRankingComplete] = useState(false);
@@ -39,7 +38,6 @@ const ReRankFlow = () => {
         if (categoryDoc.exists()) {
           const categoryData = categoryDoc.data();
           setFields(categoryData.fields || []);
-          setPrimaryField(categoryData.primaryField);
         }
       } catch (error) {
         console.error("Error fetching fields:", error);
@@ -120,7 +118,6 @@ const ReRankFlow = () => {
             categoryId={categoryId}
             itemData={existingItem}
             fields={fields}
-            primaryField={primaryField}
             rankCategory={rankCategory}
             onSave={handleSave}
             setIsRankingComplete={setIsRankingComplete}
