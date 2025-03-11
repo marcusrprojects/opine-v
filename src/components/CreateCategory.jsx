@@ -7,8 +7,9 @@ import "../styles/CreateCategory.css";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
-import { PRIVACY_LEVELS, PRIVACY_LABELS } from "../constants/privacy";
+import { PRIVACY_LEVELS } from "../constants/privacy";
 import FieldManager from "./FieldManager";
+import PrivacySelector from "./PrivacySelector";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -79,20 +80,7 @@ const CreateCategory = () => {
           <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
         </div>
 
-        <div className="privacy-section">
-          <label>Privacy</label>
-          <select
-            className="text-input"
-            value={privacy}
-            onChange={(e) => setPrivacy(Number(e.target.value))}
-          >
-            {Object.values(PRIVACY_LEVELS).map((level) => (
-              <option key={level} value={level}>
-                {PRIVACY_LABELS[level]}
-              </option>
-            ))}
-          </select>
-        </div>
+        <PrivacySelector privacy={privacy} setPrivacy={setPrivacy} />
       </form>
     </div>
   );
