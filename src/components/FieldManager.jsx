@@ -9,7 +9,7 @@ const FieldManager = ({ fields, setFields }) => {
 
   const handleAddField = (index) => {
     const updatedFields = [...fields];
-    updatedFields.splice(index + 1, 0, { name: "" }); // Insert new field below
+    updatedFields.splice(index + 1, 0, { name: "" });
     setFields(updatedFields);
   };
 
@@ -43,17 +43,16 @@ const FieldManager = ({ fields, setFields }) => {
       {fields.map((field, index) => (
         <div
           key={index}
-          className={`field-container ${
-            index === 0 ? "primary-field-highlight" : ""
-          }`}
+          className="field-container"
           draggable
           onDragStart={() => handleDragStart(index)}
           onDragOver={handleDragOver}
           onDrop={() => handleDrop(index)}
         >
-          {/* Text Input for Field Name */}
+          {/* Text Input with Highlight for Primary Field */}
           <TextInput
             value={field.name}
+            className={index === 0 ? "primary-input" : ""}
             onChange={(e) => {
               const updatedFields = [...fields];
               updatedFields[index].name = e.target.value;
@@ -63,14 +62,11 @@ const FieldManager = ({ fields, setFields }) => {
 
           {/* Action Buttons */}
           <div className="field-actions">
-            {/* Minus Button (Cannot Remove Primary Field) */}
             <FaMinus
               className={`delete-icon ${index === 0 ? "primary-delete" : ""}`}
               onClick={() => handleRemoveField(index)}
               title="Remove field"
             />
-
-            {/* Plus Button (Only on Last Field) */}
             {index === fields.length - 1 && (
               <FaPlus
                 className="add-field-icon"
