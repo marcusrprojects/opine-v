@@ -56,6 +56,7 @@ const FieldManager = ({ fields, setFields }) => {
               updatedFields[index].name = e.target.value;
               setFields(updatedFields);
             }}
+            placeholder="Field"
           />
 
           {/* Action Buttons (Keep - on every row, + only on last row) */}
