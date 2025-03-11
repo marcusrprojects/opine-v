@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import { FaTrash, FaPlus } from "react-icons/fa";
 import { db } from "../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import "../styles/EditCategory.css";
@@ -9,8 +8,8 @@ import { handleError } from "../utils/errorUtils";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
-import Button from "./Navigation/Button";
 import { PRIVACY_LEVELS, PRIVACY_LABELS } from "../constants/privacy";
+import FieldManager from "./FieldManager";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -24,15 +23,13 @@ const EditCategory = () => {
   const [description, setDescription] = useState(
     location.state?.description || ""
   );
-  const [fields, setFields] = useState(location.state?.fields || []);
-  const [primaryField, setPrimaryField] = useState(
-    location.state?.primaryField || ""
-  );
+  const [fields, setFields] = useState(
+    location.state?.fields?.map((name) => ({ name })) || []
+  ); // Convert array of strings to objects
   const [tags, setTags] = useState(location.state?.tags || []);
   const [privacy, setPrivacy] = useState(
     location.state?.privacy ?? PRIVACY_LEVELS.PUBLIC
   );
-  const [newField, setNewField] = useState("");
   const [loading, setLoading] = useState(!location.state);
 
   // Fetch category data if not provided via location.state
@@ -47,8 +44,7 @@ const EditCategory = () => {
             const data = categorySnapshot.data();
             setCategoryName(data.name || "");
             setDescription(data.description || "");
-            setFields(data.fields || []);
-            setPrimaryField(data.primaryField || "");
+            setFields(data.fields?.map((name) => ({ name })) || []);
             setTags(data.tags || []);
             setPrivacy(data.privacy ?? PRIVACY_LEVELS.PUBLIC);
           }
@@ -73,18 +69,13 @@ const EditCategory = () => {
       alert("At least one field is required.");
       return;
     }
-    if (!primaryField || !fields.includes(primaryField)) {
-      alert("A valid primary field must be selected.");
-      return;
-    }
 
     try {
       const categoryDocRef = doc(db, "categories", categoryId);
       await updateDoc(categoryDocRef, {
         name: categoryName.trim(),
         description,
-        fields,
-        primaryField,
+        fields: fields.map((field) => field.name), // Convert back to string array
         tags,
         privacy,
       });
@@ -94,22 +85,11 @@ const EditCategory = () => {
     }
   };
 
-  // Handle adding a new field
-  const handleAddField = () => {
-    if (newField && !fields.includes(newField)) {
-      setFields([...fields, newField]);
-      setNewField("");
-    }
-  };
-
-  // Handle removing a field
-  const handleRemoveField = (field) => {
-    if (primaryField === field) {
-      alert("Select a new primary field before removing this one.");
-      return;
-    }
-    setFields(fields.filter((f) => f !== field));
-  };
+  const isConfirmDisabled =
+    !categoryName.trim() ||
+    fields.length === 0 ||
+    tags.length === 0 ||
+    fields.some((field) => !field.name.trim());
 
   if (loading) {
     return <p>Loading...</p>;
@@ -120,7 +100,7 @@ const EditCategory = () => {
       <ActionPanel
         onCancel={() => navigate(`/categories/${categoryId}`)}
         onConfirm={handleSave}
-        isConfirmDisabled={false}
+        isConfirmDisabled={isConfirmDisabled}
       />
 
       <h2 className="edit-category-title">{categoryName || "Edit Category"}</h2>
@@ -128,64 +108,35 @@ const EditCategory = () => {
       {/* Edit Title & Description */}
       <div className="edit-section">
         <label className="edit-label">Title</label>
-        <input
-          type="text"
-          className="edit-title"
+        <TextInput
           value={categoryName}
           onChange={(e) => setCategoryName(e.target.value)}
+          placeholder="Category Name"
         />
 
         <label className="edit-label">Description</label>
         <textarea
           className="edit-description"
+          placeholder="Any words of advice for understanding how to read this board?"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
 
-      {/* Fields Management */}
-      <div className="field-section">
-        <label className="edit-label">Fields</label>
-        <ul className="edit-list">
-          {fields.map((field) => (
-            <li key={field} className="edit-list-item">
-              <input
-                type="radio"
-                name="primaryField"
-                checked={primaryField === field}
-                onChange={() => setPrimaryField(field)}
-                className="field-radio"
-                id={`field-radio-${field}`}
-              />
-              <label htmlFor={`field-radio-${field}`} className="property-pair">
-                {field}
-              </label>
-              <FaTrash
-                onClick={() => handleRemoveField(field)}
-                className="icon delete-icon"
-              />
-            </li>
-          ))}
-        </ul>
-
-        <div className="edit-add-field">
-          <TextInput
-            placeholder="Add new field"
-            value={newField}
-            onChange={(e) => setNewField(e.target.value)}
-          />
-          <Button onClick={handleAddField} title="Add Field" icon={FaPlus} />
-        </div>
-      </div>
+      {/* Fields Management Using FieldManager */}
+      <FieldManager fields={fields} setFields={setFields} />
 
       {/* Tag Selector */}
-      <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
+      <div className="tags-group">
+        <label className="edit-label">Tags</label>
+        <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
+      </div>
 
       {/* Privacy Selector */}
       <div className="privacy-section">
         <label className="edit-label">Privacy</label>
         <select
-          className="edit-input"
+          className="select-privacy"
           value={privacy}
           onChange={(e) => setPrivacy(Number(e.target.value))}
         >
@@ -204,7 +155,6 @@ EditCategory.propTypes = {
   categoryName: PropTypes.string,
   description: PropTypes.string,
   fields: PropTypes.arrayOf(PropTypes.string),
-  primaryField: PropTypes.string,
   tags: PropTypes.arrayOf(PropTypes.string),
 };
 
