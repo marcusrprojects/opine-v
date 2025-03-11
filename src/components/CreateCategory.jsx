@@ -9,7 +9,7 @@ import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
 import RadioInput from "./RadioInput";
-import { PRIVACY_LEVELS } from "../constants/privacy";
+import { PRIVACY_LEVELS, PRIVACY_LABELS } from "../constants/privacy";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -145,14 +145,20 @@ const CreateCategory = () => {
           <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
         </div>
 
-        <select
-          className="text-input"
-          value={privacy}
-          onChange={(e) => setPrivacy(e.target.value)}
-        >
-          <option value={PRIVACY_LEVELS.PUBLIC}>Public</option>
-          <option value={PRIVACY_LEVELS.FRIENDS_ONLY}>Friends Only</option>
-        </select>
+        <div className="privacy-section">
+          <h3 className="edit-label">Privacy</h3>
+          <select
+            className="text-input"
+            value={privacy}
+            onChange={(e) => setPrivacy(Number(e.target.value))} // Ensures it's stored as a number
+          >
+            {Object.values(PRIVACY_LEVELS).map((level) => (
+              <option key={level} value={level}>
+                {PRIVACY_LABELS[level]}
+              </option>
+            ))}
+          </select>
+        </div>
       </form>
     </div>
   );
