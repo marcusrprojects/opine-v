@@ -1,67 +1,78 @@
-/**
- * note that this component is intended to be used in flexible manners. therefore, it performs tasks of considering privacy
- * levels and whether a user may like a category or not. however, in its current use, the component only displays the
- * user's categories.
- */
-
 import { useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useTagMap } from "../context/useTagMap";
-import { useLikedCategories } from "../context/useLikedCategories"; // ✅ Import like context
-import CategoryList from "./CategoryList";
-// import "../styles/Profile.css";
+import { useLikedCategories } from "../context/useLikedCategories";
 import { useFollow } from "../context/useFollow";
+import CategoryList from "./CategoryList";
 import { PRIVACY_LEVELS } from "../constants/privacy";
+import PropTypes from "prop-types";
 
-const CategoryCollection = () => {
+const CategoryCollection = ({ mode = "own", userId }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [myCategories, setMyCategories] = useState([]);
   const tagMap = useTagMap();
   const { likedCategories, toggleLikeCategory } = useLikedCategories();
   const { following } = useFollow();
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user && mode !== "all") return; // Non-logged users can only see public categories
 
-    const fetchMyCategories = async () => {
+    const fetchCategories = async () => {
       try {
-        const q = query(
-          collection(db, "categories"),
-          where("createdBy", "==", user.uid)
-        );
+        let q;
+
+        // Fetch based on mode
+        if (mode === "own") {
+          q = query(
+            collection(db, "categories"),
+            where("createdBy", "==", user.uid)
+          );
+        } else if (mode === "user" && userId) {
+          q = query(
+            collection(db, "categories"),
+            where("createdBy", "==", userId)
+          );
+        } else if (mode === "liked") {
+          setCategories(likedCategories);
+          return;
+        } else {
+          q = collection(db, "categories");
+        }
+
         const querySnapshot = await getDocs(q);
+        const categoryList = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            tagNames: (data.tags || []).map(
+              (tagId) => tagMap[tagId] || "Unknown"
+            ),
+          };
+        });
 
-        const categoryList = querySnapshot.docs
-          .map((doc) => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              ...data,
-              tagNames: (data.tags || []).map(
-                (tagId) => tagMap[tagId] || "Unknown"
-              ),
-            };
-          })
-          .filter((category) => {
-            if (category.privacy === PRIVACY_LEVELS.PUBLIC) return true;
-            return (
-              category.createdBy === user.uid ||
-              following.has(category.createdBy)
-            );
-          });
+        // Filter by privacy rules
+        const filteredCategories = categoryList.filter((category) => {
+          if (category.privacy === PRIVACY_LEVELS.PUBLIC) return true;
+          return (
+            user &&
+            (category.createdBy === user.uid ||
+              following.has(category.createdBy))
+          );
+        });
 
-        setMyCategories(categoryList);
+        setCategories(filteredCategories);
       } catch (error) {
-        console.error("Error fetching user categories:", error);
+        console.error("Error fetching categories:", error);
       }
     };
 
-    fetchMyCategories();
-  }, [user, tagMap, following]);
+    fetchCategories();
+  }, [user, userId, mode, tagMap, following, likedCategories]);
 
   const handleLike = (categoryId) => {
     if (!user) {
@@ -76,16 +87,20 @@ const CategoryCollection = () => {
   };
 
   return (
-    <div className="profile-categories-container">
-      {/* <h2>My Categories</h2> */}
+    <div className="category-collection-container">
       <CategoryList
-        categories={myCategories}
+        categories={categories}
         onCategoryClick={handleCategoryClick}
         onLike={handleLike}
         likedCategories={likedCategories}
       />
     </div>
   );
+};
+
+CategoryCollection.propTypes = {
+  mode: PropTypes.oneOf(["own", "user", "liked", "all"]),
+  userId: PropTypes.string,
 };
 
 export default CategoryCollection;
