@@ -182,6 +182,8 @@ const CategoryDetail = () => {
         description: category.description,
         fields: orderedFields,
         creatorUsername,
+        tags: category.tags,
+        privacy: category.privacy,
       },
     });
 
