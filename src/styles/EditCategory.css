@@ -13,10 +13,11 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
+  align-items: center;
 }
 
 .edit-section {
-  width: 100%;
+  /* width: 100%; */
   gap: var(--padding-medium);
 }
 
@@ -39,18 +40,20 @@
   border-bottom: 0.1px solid var(--quinary-color);
 }
 
-.edit-title, .edit-description, .edit-input {
-  /* width: 100%; */
+.edit-description, .select-privacy {
   padding: var(--padding-sm);
   border: 0.5px solid var(--quinary-color);
   border-radius: var(--border-radius-medium);
   background-color: transparent;
   outline: none;
+  font-family: inherit;
+  color: inherit;
 }
 
 .edit-description {
-  height: var(--padding-xlarge);
+  height: var(--padding-xxlarge);
   resize: vertical;
+  width: 50vw;
 }
 
 .edit-label {
@@ -64,7 +67,6 @@
   position: relative;
   justify-content: center;
   gap: var(--padding-small);
-  /* margin: var(--padding-small) 0; */
 }
 
 .property-pair {
@@ -124,5 +126,4 @@
 .privacy-section {
   display: flex;
   flex-direction: column;
-  gap: var(--padding-medium);
 }

@@ -22,114 +22,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--padding-small);
-  /* width: 100%; */
 }
 
-.field-container {
-  display: flex;
-  align-items: center;
-  gap: var(--padding-small);
-}
-
-.primary-field-radio {
-  position: relative;
-  /* margin-left: 10px; */
-}
-
-.primary-field-radio .tooltip {
-  visibility: hidden;
-  background-color: var(--tertiary-color);
-  color: var(--secondary-color);
-  border: 0.05rem solid var(--quinary-color);
-  text-align: center;
-  padding: 5px;
-  border-radius: var(--border-radius-medium);
-  position: absolute;
-  bottom: 125%; /* Position above the radio button */
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  z-index: 1;
-  font-size: var(--font-small);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.primary-field {
-  accent-color: var(--secondary-color);
-}
-
-.primary-field-radio:hover .tooltip {
-  visibility: visible;
-  opacity: 1;
-}
-
-h3 {
-  font-weight: var(--fw-sm);
-}
-
-.field-input:focus {
-  outline:none;
-}
-
-/* .primary-field-radio {
-  margin-right: .5rem;
-} */
-
-/* .add-field-button {
-  background: none;
-  border: none;
-  color: var(--highlight-color);
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.3s ease;
-  margin-top: var(--padding-medium);
-} */
-
-/* .add-field-button:focus {
-  outline: none;
-} */
-
-/* .add-field-button:hover {
-  color: var(--quinary-color);
-  background: none;
-} */
-
-.button-group {
-  display: flex; /* Enables gap to work */
-  flex-direction: row;
-  gap: 1rem;
-  justify-content: center; /* Center align buttons if needed */
-}
-
-.button-group button {
-  background-color: var(--tertiary-color);
-  border-radius: var(--border-radius-medium);
-  color: var(--secondary-color);
-  border: none;
-  margin: 0;
-}
-
-.button-group button:hover {
-  background-color: var(--quaternary-color);
-}
-
-.field-container .default-delete, .field-container .primary-delete {
-  transition: color 0.3s ease;
-}
-
-.field-container .default-delete, .add-field-icon {
-  color: var(--middle-color);
-}
-
-.field-container .default-delete:hover, .add-field-icon:hover {
-  color: var(--secondary-color);
-}
-
-.field-container .primary-delete {
-  cursor: not-allowed;
-  color: var(--tertiary-color);
+.category-name-group, .tags-group, .privacy-section{
+  gap: var(--padding-medium);
 }
 
 /* Dropdown styling */
@@ -160,4 +56,9 @@ h3 {
 
 .dropdown-item:hover {
   background-color: var(--primary-color);
+}
+
+.privacy-section {
+  display: flex;
+  flex-direction: column;
 }
