@@ -41,6 +41,8 @@ const CategoryDetail = () => {
   const [filters, setFilters] = useState({});
   const [filterFields, setFilterFields] = useState([]);
   const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [lastEdited, setLastEdited] = useState(null);
 
   // Fetch category and items data
   useEffect(() => {
@@ -52,8 +54,11 @@ const CategoryDetail = () => {
           const categoryData = categorySnapshot.data();
           setCategory(categoryData);
           setOrderedFields(categoryData.fields || []);
+          setCreatorId(categoryData.createdBy || "");
+          setLikeCount(categoryData.likeCount || 0);
+          setLastEdited(categoryData.updatedAt?.toDate() || null);
+
           if (categoryData.createdBy) {
-            setCreatorId(categoryData.createdBy);
             const creatorDocRef = doc(db, "users", categoryData.createdBy);
             const creatorSnapshot = await getDoc(creatorDocRef);
             if (creatorSnapshot.exists()) {
@@ -286,6 +291,11 @@ const CategoryDetail = () => {
         {category.description || "No description available."}
       </p>
       <p className="creator-username">@{creatorUsername}</p>
+
+      <p className="category-likes">👍 {likeCount} Likes</p>
+      <p className="category-last-edited">
+        🕒 Last Edited: {lastEdited ? lastEdited.toLocaleString() : "N/A"}
+      </p>
 
       {filterOpen && (
         <CategoryFilters
