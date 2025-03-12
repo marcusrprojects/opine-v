@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { db } from "../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useAuth } from "./useAuth";
+import { increment } from "firebase/firestore";
 
 export const LikedCategoriesContext = createContext();
 
@@ -40,12 +41,17 @@ export const LikedCategoriesProvider = ({ children }) => {
 
     try {
       const userDocRef = doc(db, "users", user.uid);
+      const categoryDocRef = doc(db, "categories", categoryId);
       const isLiked = likedCategories.includes(categoryId);
       const updatedLikes = isLiked
         ? likedCategories.filter((id) => id !== categoryId)
         : [...likedCategories, categoryId];
 
       await updateDoc(userDocRef, { likedCategories: updatedLikes });
+      await updateDoc(categoryDocRef, {
+        likeCount: isLiked ? increment(-1) : increment(1),
+      });
+
       setLikedCategories(updatedLikes);
     } catch (error) {
       console.error("Error updating likes:", error);
@@ -54,7 +60,7 @@ export const LikedCategoriesProvider = ({ children }) => {
 
   return (
     <LikedCategoriesContext.Provider
-      value={{ likedCategories, setLikedCategories, toggleLikeCategory }} // ✅ Restored toggle function
+      value={{ likedCategories, setLikedCategories, toggleLikeCategory }}
     >
       {children}
     </LikedCategoriesContext.Provider>
