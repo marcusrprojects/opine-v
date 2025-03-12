@@ -7,15 +7,14 @@ import {
   deleteDoc,
   collection,
   getDocs,
-  updateDoc,
-  arrayRemove,
-  arrayUnion,
+  onSnapshot,
   writeBatch,
 } from "firebase/firestore";
 import ItemList from "./ItemList";
 import CategoryPanel from "./Navigation/CategoryPanel";
 import CategoryFilters from "./CategoryFilters";
 import { useAuth } from "../context/useAuth";
+import { useLikedCategories } from "../context/useLikedCategories"; // ✅ Use Liked Categories Context
 import { handleError } from "../utils/errorUtils";
 import { PRIVACY_LEVELS } from "../constants/privacy";
 import { useFollow } from "../context/useFollow";
@@ -25,6 +24,7 @@ const CategoryDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { following } = useFollow();
+  const { likedCategories, toggleLikeCategory } = useLikedCategories(); // ✅ Get likedCategories & toggle function
 
   // Data states
   const [category, setCategory] = useState(null);
@@ -33,6 +33,8 @@ const CategoryDetail = () => {
   const [orderedFields, setOrderedFields] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
   const [creatorUsername, setCreatorUsername] = useState("");
+  const [likeCount, setLikeCount] = useState(0);
+  const [lastEdited, setLastEdited] = useState(null);
 
   // UI states
   const [loading, setLoading] = useState(true);
@@ -40,9 +42,6 @@ const CategoryDetail = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState({});
   const [filterFields, setFilterFields] = useState([]);
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const [lastEdited, setLastEdited] = useState(null);
 
   // Fetch category and items data
   useEffect(() => {
@@ -56,7 +55,9 @@ const CategoryDetail = () => {
           setOrderedFields(categoryData.fields || []);
           setCreatorId(categoryData.createdBy || "");
           setLikeCount(categoryData.likeCount || 0);
-          setLastEdited(categoryData.updatedAt?.toDate() || null);
+          setLastEdited(
+            categoryData.updatedAt ? categoryData.updatedAt.toDate() : null
+          );
 
           if (categoryData.createdBy) {
             const creatorDocRef = doc(db, "users", categoryData.createdBy);
@@ -115,24 +116,6 @@ const CategoryDetail = () => {
     }
   }, [category, user, following, navigate]);
 
-  // Fetch liked state for logged-in user
-  useEffect(() => {
-    const fetchLikedState = async () => {
-      if (!user) return;
-      try {
-        const userDocRef = doc(db, "users", user.uid);
-        const userSnapshot = await getDoc(userDocRef);
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          setLiked(userData.likedCategories?.includes(categoryId));
-        }
-      } catch (error) {
-        handleError(error, "Error fetching liked state.");
-      }
-    };
-    fetchLikedState();
-  }, [user, categoryId]);
-
   // Compute if user can edit the category (if user is creator)
   const canEdit = useMemo(() => {
     return !!(user && creatorId && user.uid === creatorId);
@@ -166,6 +149,18 @@ const CategoryDetail = () => {
     }, 300);
     return () => clearTimeout(debounceApplyFilters);
   }, [filters, filterFields, items]);
+
+  useEffect(() => {
+    const categoryDocRef = doc(db, "categories", categoryId);
+    const unsubscribe = onSnapshot(categoryDocRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        setLikeCount(data.likeCount || 0);
+        setLastEdited(data.updatedAt ? data.updatedAt.toDate() : null);
+      }
+    });
+    return () => unsubscribe();
+  }, [categoryId]);
 
   if (loading) {
     return <p>Loading category details...</p>;
@@ -218,28 +213,6 @@ const CategoryDetail = () => {
     }
   };
 
-  const toggleLikeCategory = async () => {
-    if (!user) {
-      alert("You must be logged in to like a category.");
-      return;
-    }
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      if (liked) {
-        await updateDoc(userDocRef, {
-          likedCategories: arrayRemove(categoryId),
-        });
-      } else {
-        await updateDoc(userDocRef, {
-          likedCategories: arrayUnion(categoryId),
-        });
-      }
-      setLiked(!liked);
-    } catch (error) {
-      handleError(error, "Error updating like state.");
-    }
-  };
-
   // Settings toggle: when closing settings, also close the filter panel
   const handleSettingsToggle = () => {
     setShowSettings((prev) => {
@@ -270,6 +243,21 @@ const CategoryDetail = () => {
     );
   };
 
+  const handleToggleLike = async () => {
+    try {
+      await toggleLikeCategory(categoryId);
+
+      // Re-fetch updated like count
+      const categoryDocRef = doc(db, "categories", categoryId);
+      const categorySnapshot = await getDoc(categoryDocRef);
+      if (categorySnapshot.exists()) {
+        setLikeCount(categorySnapshot.data().likeCount || 0);
+      }
+    } catch (error) {
+      console.error("Error updating like count:", error);
+    }
+  };
+
   return (
     <div className="category-detail-container">
       <CategoryPanel
@@ -277,8 +265,8 @@ const CategoryDetail = () => {
         onAdd={handleAddItem}
         isAddDisabled={false}
         onToggleFilter={toggleFilter}
-        onLike={toggleLikeCategory}
-        isLiked={liked}
+        onLike={handleToggleLike}
+        isLiked={likedCategories.includes(categoryId)}
         onEdit={handleEditCategory}
         onDelete={handleDeleteCategory}
         showSettings={showSettings}
