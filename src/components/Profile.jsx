@@ -103,8 +103,13 @@ const Profile = ({ userId = null }) => {
         </button>
       )}
 
+      {/* Display Categories */}
       <div className="profile-categories-section">
-        <CategoryCollection />
+        <h3>{`Categories`}</h3>
+        <CategoryCollection mode="user" userId={userId || user?.uid} />
+
+        <h3>{`Liked Categories`}</h3>
+        <CategoryCollection mode="likedByUser" userId={userId || user?.uid} />
       </div>
     </div>
   );
