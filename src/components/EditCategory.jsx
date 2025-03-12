@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { db } from "../firebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, Timestamp } from "firebase/firestore";
 import "../styles/EditCategory.css";
 import { handleError } from "../utils/errorUtils";
 import TagSelector from "./TagSelector";
@@ -26,7 +26,7 @@ const EditCategory = () => {
   );
   const [fields, setFields] = useState(
     location.state?.fields?.map((name) => ({ name })) || []
-  ); // Convert array of strings to objects
+  );
   const [tags, setTags] = useState(location.state?.tags || []);
   const [privacy, setPrivacy] = useState(
     location.state?.privacy ?? PRIVACY_LEVELS.PUBLIC
@@ -79,7 +79,9 @@ const EditCategory = () => {
         fields: fields.map((field) => field.name), // Convert back to string array
         tags,
         privacy,
+        updatedAt: Timestamp.now(),
       });
+
       navigate(`/categories/${categoryId}`);
     } catch (error) {
       handleError(error, "Error saving category.");
