@@ -3,18 +3,19 @@ import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
 import {
   doc,
-  getDoc,
   deleteDoc,
   collection,
   getDocs,
   onSnapshot,
+  query,
+  orderBy,
   writeBatch,
 } from "firebase/firestore";
 import ItemList from "./ItemList";
 import CategoryPanel from "./Navigation/CategoryPanel";
 import CategoryFilters from "./CategoryFilters";
 import { useAuth } from "../context/useAuth";
-import { useLikedCategories } from "../context/useLikedCategories"; // ✅ Use Liked Categories Context
+import { useLikedCategories } from "../context/useLikedCategories";
 import { handleError } from "../utils/errorUtils";
 import { PRIVACY_LEVELS } from "../constants/privacy";
 import { useFollow } from "../context/useFollow";
@@ -24,12 +25,11 @@ const CategoryDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { following } = useFollow();
-  const { likedCategories, toggleLikeCategory } = useLikedCategories(); // ✅ Get likedCategories & toggle function
+  const { likedCategories, toggleLikeCategory } = useLikedCategories();
 
   // Data states
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
-  const [filteredItems, setFilteredItems] = useState([]);
   const [orderedFields, setOrderedFields] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
   const [creatorUsername, setCreatorUsername] = useState("");
@@ -37,82 +37,56 @@ const CategoryDetail = () => {
   const [lastEdited, setLastEdited] = useState(null);
 
   // UI states
-  const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState({});
   const [filterFields, setFilterFields] = useState([]);
 
-  // Fetch category and items data
+  const categoryRef = useMemo(
+    () => doc(db, "categories", categoryId),
+    [categoryId]
+  );
+
   useEffect(() => {
-    const fetchCategory = async () => {
-      try {
-        const categoryDocRef = doc(db, "categories", categoryId);
-        const categorySnapshot = await getDoc(categoryDocRef);
-        if (categorySnapshot.exists()) {
-          const categoryData = categorySnapshot.data();
-          setCategory(categoryData);
-          setOrderedFields(categoryData.fields || []);
-          setCreatorId(categoryData.createdBy || "");
-          setLikeCount(categoryData.likeCount || 0);
-          setLastEdited(
-            categoryData.updatedAt ? categoryData.updatedAt.toDate() : null
-          );
-
-          if (categoryData.createdBy) {
-            const creatorDocRef = doc(db, "users", categoryData.createdBy);
-            const creatorSnapshot = await getDoc(creatorDocRef);
-            if (creatorSnapshot.exists()) {
-              const creatorData = creatorSnapshot.data();
-              setCreatorUsername(creatorData.username || "Unknown User");
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching category details:", error);
-      }
-    };
-
-    const fetchItems = async () => {
-      try {
-        const itemsCollectionRef = collection(
-          db,
-          `categories/${categoryId}/items`
-        );
-        const itemsSnapshot = await getDocs(itemsCollectionRef);
-        const itemList = itemsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        // Sort items: highest rating first, then tie-breaker by rankCategory
-        const sortedItems = [...itemList].sort((a, b) => {
-          if (b.rating !== a.rating) {
-            return b.rating - a.rating;
-          }
-          return b.rankCategory - a.rankCategory;
-        });
-        setItems(sortedItems);
-        setFilteredItems(sortedItems);
-      } catch (error) {
-        console.error("Error fetching items:", error);
-      }
-    };
-
-    Promise.all([fetchCategory(), fetchItems()]).then(() => {
-      setLoading(false);
+    const unsubscribe = onSnapshot(categoryRef, (snapshot) => {
+      if (!snapshot.exists()) return navigate("/categories");
+      const data = snapshot.data();
+      setCategory(data);
+      setOrderedFields(data.fields || []);
+      setCreatorId(data.createdBy || "");
+      setLikeCount(data.likeCount || 0);
+      setLastEdited(data.updatedAt ? data.updatedAt.toDate() : null);
+      setCreatorUsername(data.username || "Unknown User");
     });
+
+    return () => unsubscribe();
+  }, [categoryRef, navigate]); // ✅ Now avoids unnecessary re-subscribing
+
+  // Subscribe to real-time item updates
+  useEffect(() => {
+    const itemsCollectionRef = collection(db, `categories/${categoryId}/items`);
+    const q = query(itemsCollectionRef, orderBy("rating", "desc"));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const itemList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setItems(itemList);
+    });
+
+    return () => unsubscribe();
   }, [categoryId]);
 
+  // Redirect users if privacy settings block access
   useEffect(() => {
-    if (!category) return;
-
-    if (category.privacy === PRIVACY_LEVELS.FRIENDS_ONLY) {
-      if (
-        !user ||
-        (!following.has(category.createdBy) && user.uid !== category.createdBy)
-      ) {
-        navigate("/categories");
-      }
+    if (!category || !user) return;
+    if (
+      category.privacy === PRIVACY_LEVELS.FRIENDS_ONLY &&
+      !following.has(category.createdBy) &&
+      user.uid !== category.createdBy
+    ) {
+      navigate("/categories");
     }
   }, [category, user, following, navigate]);
 
@@ -130,49 +104,25 @@ const CategoryDetail = () => {
     return () => clearTimeout(timeoutId);
   }, [showSettings, filterOpen]);
 
-  // Apply filters (debounced) when filters, filterFields, or items change
-  useEffect(() => {
-    const debounceApplyFilters = setTimeout(() => {
-      if (filterFields.length === 0) {
-        setFilteredItems(items);
-        return;
-      }
-      const filtered = items.filter((item) =>
-        filterFields.every((field) =>
-          (item[field] || "")
-            .toString()
-            .toLowerCase()
-            .includes((filters[field] || "").toLowerCase())
-        )
-      );
-      setFilteredItems(filtered);
-    }, 300);
-    return () => clearTimeout(debounceApplyFilters);
-  }, [filters, filterFields, items]);
+  // Efficient filtering with useMemo
+  const filteredItems = useMemo(() => {
+    if (filterFields.length === 0) return items;
+    return items.filter((item) =>
+      filterFields.every((field) =>
+        (item[field] || "")
+          .toString()
+          .toLowerCase()
+          .includes((filters[field] || "").toLowerCase())
+      )
+    );
+  }, [items, filters, filterFields]);
 
-  useEffect(() => {
-    const categoryDocRef = doc(db, "categories", categoryId);
-    const unsubscribe = onSnapshot(categoryDocRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        setLikeCount(data.likeCount || 0);
-        setLastEdited(data.updatedAt ? data.updatedAt.toDate() : null);
-      }
-    });
-    return () => unsubscribe();
-  }, [categoryId]);
-
-  if (loading) {
-    return <p>Loading category details...</p>;
-  }
   if (!category) {
     return <p>Category not found.</p>;
   }
 
   // Navigation and action handlers
-  const handleItemClick = (itemId) => {
-    navigate(`./item/${itemId}`);
-  };
+  const handleItemClick = (itemId) => navigate(`./item/${itemId}`);
   const handleBack = () => navigate("/categories");
   const handleAddItem = () => navigate(`/categories/${categoryId}/add-item`);
   const handleEditCategory = () =>
@@ -188,71 +138,49 @@ const CategoryDetail = () => {
     });
 
   const handleDeleteCategory = async () => {
-    if (window.confirm("Are you sure you want to delete this category?")) {
-      try {
-        // 1) Delete all items in the subcollection
-        const itemsCollectionRef = collection(
-          db,
-          `categories/${categoryId}/items`
-        );
-        const itemsSnapshot = await getDocs(itemsCollectionRef);
+    if (!window.confirm("Are you sure you want to delete this category?"))
+      return;
 
-        // Use a batch to delete subcollection docs
+    try {
+      const itemsCollectionRef = collection(
+        db,
+        `categories/${categoryId}/items`
+      );
+      const itemsSnapshot = await getDocs(itemsCollectionRef);
+
+      if (!itemsSnapshot.empty) {
         const batch = writeBatch(db);
-        itemsSnapshot.forEach((itemDoc) => {
-          batch.delete(itemDoc.ref);
-        });
+        itemsSnapshot.forEach((itemDoc) => batch.delete(itemDoc.ref));
         await batch.commit();
-
-        // 2) Delete the parent category document
-        await deleteDoc(doc(db, "categories", categoryId));
-        navigate("/categories");
-      } catch (error) {
-        handleError(error, "Error deleting category and its items.");
       }
+
+      await deleteDoc(doc(db, "categories", categoryId));
+      navigate("/categories");
+    } catch (error) {
+      handleError(error, "Error deleting category and its items.");
     }
   };
 
   // Settings toggle: when closing settings, also close the filter panel
   const handleSettingsToggle = () => {
-    setShowSettings((prev) => {
-      if (prev) {
-        setFilterOpen(false);
-      }
-      return !prev;
-    });
+    setShowSettings((prev) => !prev);
+    if (showSettings) setFilterOpen(false);
   };
 
   // Toggle the filter sub-panel
-  const toggleFilter = () => {
-    setFilterOpen((prev) => !prev);
-  };
+  const toggleFilter = () => setFilterOpen((prev) => !prev);
 
-  // Update a specific filter value
-  const handleFilterChange = (field, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  // Toggle whether a field is active for filtering
-  const handleFilterFieldChange = (field) => {
+  // Update filter state
+  const handleFilterChange = (field, value) =>
+    setFilters((prev) => ({ ...prev, [field]: value }));
+  const handleFilterFieldChange = (field) =>
     setFilterFields((prev) =>
       prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]
     );
-  };
 
   const handleToggleLike = async () => {
     try {
       await toggleLikeCategory(categoryId);
-
-      // Re-fetch updated like count
-      const categoryDocRef = doc(db, "categories", categoryId);
-      const categorySnapshot = await getDoc(categoryDocRef);
-      if (categorySnapshot.exists()) {
-        setLikeCount(categorySnapshot.data().likeCount || 0);
-      }
     } catch (error) {
       console.error("Error updating like count:", error);
     }
