@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./components/Home";
+import Feed from "./components/Feed.jsx";
 import Categories from "./components/Categories";
 import CreateCategory from "./components/CreateCategory";
 import CategoryDetail from "./components/CategoryDetail.jsx";
@@ -50,7 +50,7 @@ function App() {
                 {/* Main content area */}
                 <div className="main-content">
                   <Routes>
-                    <Route exact path="/" element={<Home />} />
+                    <Route exact path="/" element={<Feed />} />
                     <Route path="/categories" element={<Categories />} />
                     <Route
                       path="/create-category"
