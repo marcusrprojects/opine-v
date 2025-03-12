@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { useTagMap } from "../context/useTagMap";
@@ -24,38 +31,60 @@ const CategoryCollection = ({ mode = "own", userId }) => {
     const fetchCategories = async () => {
       try {
         let q;
+        let categoryList = [];
 
-        // Fetch based on mode
         if (mode === "own") {
+          // Fetch categories created by the logged-in user
           q = query(
             collection(db, "categories"),
             where("createdBy", "==", user.uid)
           );
         } else if (mode === "user" && userId) {
+          // Fetch categories created by a specific user
           q = query(
             collection(db, "categories"),
             where("createdBy", "==", userId)
           );
         } else if (mode === "liked") {
+          // Fetch only the logged-in user's liked categories
           setCategories(likedCategories);
           return;
+        } else if (mode === "likedByUser" && userId) {
+          // Fetch another user's liked categories
+          const userDocRef = doc(db, "users", userId);
+          const userSnapshot = await getDoc(userDocRef);
+          if (userSnapshot.exists()) {
+            const likedCategoryIds = userSnapshot.data().likedCategories || [];
+            const likedQuery = query(
+              collection(db, "categories"),
+              where("__name__", "in", likedCategoryIds)
+            );
+            const likedSnapshot = await getDocs(likedQuery);
+            categoryList = likedSnapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+              tagNames: (doc.data().tags || []).map(
+                (tagId) => tagMap[tagId] || "Unknown"
+              ),
+            }));
+          }
         } else {
+          // Fetch all public categories + those visible to the user
           q = collection(db, "categories");
         }
 
-        const querySnapshot = await getDocs(q);
-        const categoryList = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
+        if (q) {
+          const querySnapshot = await getDocs(q);
+          categoryList = querySnapshot.docs.map((doc) => ({
             id: doc.id,
-            ...data,
-            tagNames: (data.tags || []).map(
+            ...doc.data(),
+            tagNames: (doc.data().tags || []).map(
               (tagId) => tagMap[tagId] || "Unknown"
             ),
-          };
-        });
+          }));
+        }
 
-        // Filter by privacy rules
+        // Filter by privacy
         const filteredCategories = categoryList.filter((category) => {
           if (category.privacy === PRIVACY_LEVELS.PUBLIC) return true;
           return (
@@ -99,7 +128,7 @@ const CategoryCollection = ({ mode = "own", userId }) => {
 };
 
 CategoryCollection.propTypes = {
-  mode: PropTypes.oneOf(["own", "user", "liked", "all"]),
+  mode: PropTypes.oneOf(["own", "user", "liked", "likedByUser", "all"]),
   userId: PropTypes.string,
 };
 
