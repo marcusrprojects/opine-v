@@ -2,15 +2,15 @@ import { db } from "../firebaseConfig";
 import { collection, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
 
 /**
- * Fetch all available tags from Firestore.
+ * Fetches all available tags from Firestore.
  * - Since tags are now stored as document IDs, no need to query a "name" field.
- * - This function returns a **list of tag IDs** (which are the actual tag names).
+ * - Returns a **list of tag names** directly.
  *
- * @returns {Promise<Array<string>>} List of available tag names (lowercased).
+ * @returns {Promise<Array<string>>} List of available tag names.
  */
 export const fetchTags = async () => {
   const tagsSnapshot = await getDocs(collection(db, "tags"));
-  return tagsSnapshot.docs.map((doc) => doc.id.toLowerCase().trim());
+  return tagsSnapshot.docs.map((doc) => doc.id);
 };
 
 /**
@@ -18,7 +18,7 @@ export const fetchTags = async () => {
  * - Converts to lowercase
  * - Trims whitespace
  * - Replaces spaces with hyphens
- * - Removes any unsupported characters
+ * - Removes unsupported characters
  *
  * @param {string} tag - The input tag name.
  * @returns {string} Normalized tag name.
@@ -33,7 +33,7 @@ const normalizeTag = (tag) =>
 /**
  * Adds a new tag to Firestore.
  * - If the tag already exists, returns its existing ID.
- * - Otherwise, it creates a new document with the **tag name as the document ID**.
+ * - Otherwise, creates a new document with **tag name as the document ID**.
  *
  * @param {string} tagName - The tag name input from the user.
  * @returns {Promise<string>} The tag ID (which is also the tag name).
@@ -44,7 +44,7 @@ export const addTag = async (tagName) => {
 
   const existingTag = await getDoc(tagRef);
   if (!existingTag.exists()) {
-    await setDoc(tagRef, {}); // Empty document since the tag name is its ID.
+    await setDoc(tagRef, {}); // Empty doc since the tag name is its ID.
   }
 
   return newTagId;
@@ -53,7 +53,7 @@ export const addTag = async (tagName) => {
 /**
  * Handles adding a custom tag.
  * - Ensures no duplicates exist in `availableTags`.
- * - If the tag already exists, adds its ID to `selectedTags`.
+ * - If the tag exists, adds its ID to `selectedTags`.
  * - Otherwise, it creates a new tag in Firestore and adds it.
  *
  * @param {Object} params - Function parameters.
@@ -74,14 +74,14 @@ export const handleCustomTag = async ({
 
   const normalizedTag = normalizeTag(tagInput);
 
-  // Check if tag is already in the available list
+  // Check if tag is already in available tags
   if (availableTags.includes(normalizedTag)) {
     if (!selectedTags.includes(normalizedTag)) {
       setSelectedTags((prev) => [...prev, normalizedTag]);
     }
   } else {
     try {
-      // Add new tag if it doesn't exist in Firestore
+      // Add new tag if it doesn’t exist in Firestore
       const newTagId = await addTag(normalizedTag);
       setSelectedTags((prev) => [...prev, newTagId]);
     } catch (error) {
