@@ -1,83 +1,104 @@
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../firebaseConfig";
+import { collection, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
+
+/**
+ * Fetch all available tags from Firestore.
+ * - Since tags are now stored as document IDs, no need to query a "name" field.
+ * - This function returns a **list of tag IDs** (which are the actual tag names).
+ *
+ * @returns {Promise<Array<string>>} List of available tag names (lowercased).
+ */
+export const fetchTags = async () => {
+  const tagsSnapshot = await getDocs(collection(db, "tags"));
+  return tagsSnapshot.docs.map((doc) => doc.id.toLowerCase().trim());
+};
+
+/**
+ * Normalizes tag input for consistency.
+ * - Converts to lowercase
+ * - Trims whitespace
+ * - Replaces spaces with hyphens
+ * - Removes any unsupported characters
+ *
+ * @param {string} tag - The input tag name.
+ * @returns {string} Normalized tag name.
+ */
+const normalizeTag = (tag) =>
+  tag
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9_-]/g, "");
+
+/**
+ * Adds a new tag to Firestore.
+ * - If the tag already exists, returns its existing ID.
+ * - Otherwise, it creates a new document with the **tag name as the document ID**.
+ *
+ * @param {string} tagName - The tag name input from the user.
+ * @returns {Promise<string>} The tag ID (which is also the tag name).
+ */
+export const addTag = async (tagName) => {
+  const newTagId = normalizeTag(tagName);
+  const tagRef = doc(db, "tags", newTagId);
+
+  const existingTag = await getDoc(tagRef);
+  if (!existingTag.exists()) {
+    await setDoc(tagRef, {}); // Empty document since the tag name is its ID.
+  }
+
+  return newTagId;
+};
 
 /**
  * Handles adding a custom tag.
- * - Normalizes input (trimming and lowercasing).
- * - Checks the local availableTags array for duplicates.
- * - If duplicate exists in availableTags or in Firestore, adds its id to selected tags.
- * - Otherwise, creates a new tag document.
+ * - Ensures no duplicates exist in `availableTags`.
+ * - If the tag already exists, adds its ID to `selectedTags`.
+ * - Otherwise, it creates a new tag in Firestore and adds it.
  *
- * @param {Object} params - The parameters.
- * @param {string} params.tagInput - The current input value.
- * @param {Array} params.availableTags - Array of available tags (each: { id, name }).
- * @param {Array} params.tags - Current selected tag IDs.
- * @param {Function} params.setTags - Function to update selected tags.
- * @param {Function} params.setAvailableTags - Function to update available tags.
- * @param {Function} params.setTagInput - Function to clear tag input.
- * @param {object} params.db - Firestore instance.
+ * @param {Object} params - Function parameters.
+ * @param {string} params.tagInput - The user input.
+ * @param {Array<string>} params.availableTags - List of available tag names.
+ * @param {Array<string>} params.selectedTags - Current selected tag IDs.
+ * @param {Function} params.setSelectedTags - Updates selected tag state.
+ * @param {Function} params.setTagInput - Clears input field.
  */
 export const handleCustomTag = async ({
   tagInput,
   availableTags,
-  tags,
-  setTags,
-  setAvailableTags,
+  selectedTags,
+  setSelectedTags,
   setTagInput,
-  db,
 }) => {
-  if (tagInput.trim() && tags.length < 5) {
-    const normalizedTag = tagInput.trim().toLowerCase();
+  if (!tagInput.trim() || selectedTags.length >= 5) return;
 
-    // Check if the tag already exists in the local availableTags cache.
-    const existingTag = availableTags.find(
-      (tag) => tag.name.toLowerCase() === normalizedTag
-    );
+  const normalizedTag = normalizeTag(tagInput);
 
-    if (existingTag) {
-      if (!tags.includes(existingTag.id)) {
-        setTags((prev) => [...prev, existingTag.id]);
-      }
-    } else {
-      try {
-        // Check Firestore for duplicate tag.
-        const tagsRef = collection(db, "tags");
-        const duplicateQuery = query(
-          tagsRef,
-          where("name", "==", normalizedTag)
-        );
-        const duplicateSnapshot = await getDocs(duplicateQuery);
-
-        if (!duplicateSnapshot.empty) {
-          const tagDoc = duplicateSnapshot.docs[0];
-          const tagData = { id: tagDoc.id, name: tagDoc.data().name };
-          // Update local cache if necessary.
-          if (!availableTags.some((tag) => tag.id === tagData.id)) {
-            setAvailableTags((prev) => [...prev, tagData]);
-          }
-          if (!tags.includes(tagData.id)) {
-            setTags((prev) => [...prev, tagData.id]);
-          }
-        } else {
-          // Add new tag to Firestore.
-          const newTagRef = await addDoc(tagsRef, { name: normalizedTag });
-          const newTag = { id: newTagRef.id, name: normalizedTag };
-          setAvailableTags((prev) => [...prev, newTag]);
-          setTags((prev) => [...prev, newTag.id]);
-        }
-      } catch (error) {
-        console.error("Error adding new tag:", error);
-      }
+  // Check if tag is already in the available list
+  if (availableTags.includes(normalizedTag)) {
+    if (!selectedTags.includes(normalizedTag)) {
+      setSelectedTags((prev) => [...prev, normalizedTag]);
     }
-    setTagInput("");
+  } else {
+    try {
+      // Add new tag if it doesn't exist in Firestore
+      const newTagId = await addTag(normalizedTag);
+      setSelectedTags((prev) => [...prev, newTagId]);
+    } catch (error) {
+      console.error("Error adding new tag:", error);
+    }
   }
+
+  setTagInput(""); // Reset input field
 };
 
 /**
- * Handles tag input changes.
+ * Handles input changes for the tag field.
+ * - Updates state and opens the dropdown.
  *
- * @param {string} value - The current input value.
- * @param {Function} setTagInput - Function to update input state.
- * @param {Function} setShowDropdown - Function to open the dropdown.
+ * @param {string} value - The input value.
+ * @param {Function} setTagInput - Updates the input state.
+ * @param {Function} setShowDropdown - Opens the dropdown.
  */
 export const handleTagInput = (value, setTagInput, setShowDropdown) => {
   setTagInput(value);
@@ -85,11 +106,12 @@ export const handleTagInput = (value, setTagInput, setShowDropdown) => {
 };
 
 /**
- * Handles key presses in the tag input.
- * If the "Enter" key is pressed, prevent default and add custom tag.
+ * Handles Enter key press in tag input.
+ * - Prevents default form submission.
+ * - Calls `handleCustomTag` when Enter is pressed.
  *
- * @param {Event} e - The key event.
- * @param {Function} handleCustomTag - Function to add the custom tag.
+ * @param {Event} e - The key press event.
+ * @param {Function} handleCustomTag - Function to add a tag.
  */
 export const handleKeyPress = (e, handleCustomTag) => {
   if (e.key === "Enter") {
@@ -99,17 +121,24 @@ export const handleKeyPress = (e, handleCustomTag) => {
 };
 
 /**
- * Adds a tag by ID.
+ * Adds a tag by its ID.
+ * - Ensures no duplicate selections.
  *
  * @param {string} tagId - The tag ID to add.
- * @param {Array} tags - Current selected tag IDs.
- * @param {Function} setTags - Function to update selected tags.
- * @param {Function} setTagInput - Function to clear tag input.
- * @param {Function} setShowDropdown - Function to close the dropdown.
+ * @param {Array<string>} selectedTags - Current selected tags.
+ * @param {Function} setSelectedTags - Updates selected tags state.
+ * @param {Function} setTagInput - Clears input.
+ * @param {Function} setShowDropdown - Closes dropdown.
  */
-export const addTag = (tagId, tags, setTags, setTagInput, setShowDropdown) => {
-  if (!tags.includes(tagId) && tags.length < 5) {
-    setTags((prev) => [...prev, tagId]);
+export const addTagToSelection = (
+  tagId,
+  selectedTags,
+  setSelectedTags,
+  setTagInput,
+  setShowDropdown
+) => {
+  if (!selectedTags.includes(tagId) && selectedTags.length < 5) {
+    setSelectedTags((prev) => [...prev, tagId]);
     setTagInput("");
     setShowDropdown(false);
   }
