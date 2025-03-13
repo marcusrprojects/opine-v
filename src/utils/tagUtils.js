@@ -105,19 +105,15 @@ export const handleCustomTag = async ({
     return normalizedTag;
   } else {
     try {
-      const tagsRef = collection(db, "tags");
-      const duplicateQuery = query(
-        tagsRef,
-        where("__name__", "==", normalizedTag)
-      );
-      const duplicateSnapshot = await getDocs(duplicateQuery);
+      const tagRef = doc(db, "tags", normalizedTag);
+      const existingTag = await getDoc(tagRef);
 
-      if (!duplicateSnapshot.empty) {
-        setTags((prev) => [...prev, normalizedTag]); // ✅ Tag exists, just add it
-      } else {
-        await setDoc(doc(db, "tags", normalizedTag), {}); // ✅ Store an empty doc (tag name = ID)
-        setTags((prev) => [...prev, normalizedTag]);
+      if (!existingTag.exists()) {
+        await setDoc(tagRef, {}); // ✅ Store an empty doc (tag name = ID)
       }
+
+      setTags((prev) => [...prev, normalizedTag]);
+      return normalizedTag;
     } catch (error) {
       console.error("Error adding new tag:", error);
     }
