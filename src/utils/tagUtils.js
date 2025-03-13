@@ -1,5 +1,13 @@
 import { db } from "../firebaseConfig";
-import { collection, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  getDoc,
+  query,
+  where,
+} from "firebase/firestore";
 
 /**
  * Fetches all available tags from Firestore.
@@ -59,37 +67,62 @@ export const addTag = async (tagName) => {
  * @param {Object} params - Function parameters.
  * @param {string} params.tagInput - The user input.
  * @param {Array<string>} params.availableTags - List of available tag names.
- * @param {Array<string>} params.selectedTags - Current selected tag IDs.
- * @param {Function} params.setSelectedTags - Updates selected tag state.
+ * @param {Array<string>} params.tags - Current selected tag IDs.
+ * @param {Function} params.setTags - Updates selected tag state.
  * @param {Function} params.setTagInput - Clears input field.
+ * @param {object} params.db - Firestore instance.
+ * @returns {Promise<string|null>} The added tag name, or `null` if invalid.
  */
 export const handleCustomTag = async ({
   tagInput,
   availableTags,
-  selectedTags,
-  setSelectedTags,
+  tags,
+  setTags,
   setTagInput,
+  setErrorMessage,
+  db,
 }) => {
-  if (!tagInput.trim() || selectedTags.length >= 5) return;
-
   const normalizedTag = normalizeTag(tagInput);
 
-  // Check if tag is already in available tags
+  // 🚨 Reject completely invalid inputs
+  if (!tagInput.trim() || normalizedTag === "") {
+    setErrorMessage(
+      "Invalid tag. Please enter letters, numbers, hyphens, or underscores."
+    );
+    return null;
+  }
+
+  // 🚨 Warn users when input is auto-corrected
+  if (normalizedTag !== tagInput) {
+    setErrorMessage(`Tag was corrected to "${normalizedTag}".`);
+  }
+
+  // ✅ Prevent duplicate selections
+  if (tags.includes(normalizedTag)) return normalizedTag;
+
   if (availableTags.includes(normalizedTag)) {
-    if (!selectedTags.includes(normalizedTag)) {
-      setSelectedTags((prev) => [...prev, normalizedTag]);
-    }
+    setTags((prev) => [...prev, normalizedTag]);
+    return normalizedTag;
   } else {
     try {
-      // Add new tag if it doesn’t exist in Firestore
-      const newTagId = await addTag(normalizedTag);
-      setSelectedTags((prev) => [...prev, newTagId]);
+      const tagsRef = collection(db, "tags");
+      const duplicateQuery = query(
+        tagsRef,
+        where("__name__", "==", normalizedTag)
+      );
+      const duplicateSnapshot = await getDocs(duplicateQuery);
+
+      if (!duplicateSnapshot.empty) {
+        setTags((prev) => [...prev, normalizedTag]); // ✅ Tag exists, just add it
+      } else {
+        await setDoc(doc(db, "tags", normalizedTag), {}); // ✅ Store an empty doc (tag name = ID)
+        setTags((prev) => [...prev, normalizedTag]);
+      }
     } catch (error) {
       console.error("Error adding new tag:", error);
     }
+    return normalizedTag;
   }
-
-  setTagInput(""); // Reset input field
 };
 
 /**

@@ -1,39 +1,58 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaMinus } from "react-icons/fa";
 import TextInput from "./TextInput";
 import "../styles/TagSelector.css";
-import { useTagMap } from "../context/useTagMap";
 import {
   handleCustomTag,
   handleTagInput,
   handleKeyPress,
-} from "../utils/tagUtil";
+  fetchTags,
+} from "../utils/tagUtils";
 
 const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
   const [tagInput, setTagInput] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [availableTags, setAvailableTags] = useState([]);
 
-  // Get global tag mapping
-  const tagMap = useTagMap();
-  const availableTags = Object.entries(tagMap).map(([id, name]) => ({
-    id,
-    name,
-  }));
+  // **Fetch available tags from Firestore on mount**
+  useEffect(() => {
+    const loadTags = async () => {
+      try {
+        const tagList = await fetchTags();
+        setAvailableTags(tagList);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
+    loadTags();
+  }, []);
 
+  // **Handles adding a tag**
   const handleCustomTagWrapper = async () => {
-    await handleCustomTag({
+    const result = await handleCustomTag({
       tagInput,
       availableTags,
-      tags,
-      setTags,
-      setAvailableTags: () => {}, // No-op since tagMap is global
+      selectedTags: tags,
+      setSelectedTags: setTags,
       setTagInput,
-      db,
     });
+
+    if (!result) {
+      setErrorMessage(
+        "Invalid tag. Tags can only contain letters, numbers, hyphens, and underscores."
+      );
+    }
   };
 
+  // **Clear error when user starts typing again**
+  const handleTagInputChange = (e) => {
+    setErrorMessage("");
+    handleTagInput(e.target.value, setTagInput, setShowDropdown);
+  };
+
+  // **Handles selecting a tag from the dropdown**
   const handleTagSuggestionClick = (tagId) => {
     if (tags.includes(tagId)) {
       setErrorMessage("This tag is already selected.");
@@ -47,6 +66,7 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
     }
   };
 
+  // **Handles removing a selected tag**
   const handleRemoveTag = (tagIdToRemove) => {
     setTags(tags.filter((tagId) => tagId !== tagIdToRemove));
   };
@@ -55,47 +75,36 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
     <div className="tag-selector">
       <TextInput
         value={tagInput}
-        onChange={(e) => {
-          setErrorMessage("");
-          handleTagInput(e.target.value, setTagInput, setShowDropdown);
-        }}
+        onChange={handleTagInputChange}
         placeholder={`Add a tag (up to ${maxTags})`}
         onKeyDown={(e) => handleKeyPress(e, handleCustomTagWrapper)}
         onFocus={() => setShowDropdown(true)}
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
       />
-
+      {errorMessage && <p className="error-message">{errorMessage}</p>}{" "}
+      {/* 🔥 User Feedback */}
       <div className={`dropdown ${showDropdown ? "expanded" : ""}`}>
         {availableTags
           .filter(
-            ({ id, name }) =>
-              name.toLowerCase().includes(tagInput.toLowerCase()) &&
-              !tags.includes(id)
+            (tag) => tag.includes(tagInput.toLowerCase()) && !tags.includes(tag)
           )
           .slice(0, 5)
-          .map(({ id, name }) => (
+          .map((tag) => (
             <div
-              key={id}
+              key={tag}
               className="dropdown-item"
-              onClick={() => handleTagSuggestionClick(id)}
+              onClick={() => handleTagSuggestionClick(tag)}
             >
-              {name}
+              {tag}
             </div>
           ))}
       </div>
-
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
-
       <div className="selected-tags">
-        {tags.map((tagId) => {
-          const tagName = tagMap[tagId];
-          return (
-            <span key={tagId} className="selected-tag">
-              {tagName || "Unknown Tag"}{" "}
-              <FaMinus onClick={() => handleRemoveTag(tagId)} />
-            </span>
-          );
-        })}
+        {tags.map((tagId) => (
+          <span key={tagId} className="selected-tag">
+            {tagId} <FaMinus onClick={() => handleRemoveTag(tagId)} />
+          </span>
+        ))}
       </div>
     </div>
   );
