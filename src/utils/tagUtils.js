@@ -98,10 +98,14 @@ export const handleCustomTag = async ({
   }
 
   // ✅ Prevent duplicate selections
-  if (tags.includes(normalizedTag)) return normalizedTag;
+  if (tags.includes(normalizedTag)) {
+    setTagInput("");
+    return normalizedTag;
+  }
 
   if (availableTags.includes(normalizedTag)) {
     setTags((prev) => [...prev, normalizedTag]);
+    setTagInput("");
     return normalizedTag;
   } else {
     try {
@@ -113,6 +117,7 @@ export const handleCustomTag = async ({
       }
 
       setTags((prev) => [...prev, normalizedTag]);
+      setTagInput("");
       return normalizedTag;
     } catch (error) {
       console.error("Error adding new tag:", error);
