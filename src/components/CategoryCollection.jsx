@@ -12,20 +12,33 @@ import {
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-import { useTagMap } from "../context/useTagMap";
 import { useLikedCategories } from "../context/useLikedCategories";
 import { useFollow } from "../context/useFollow";
 import CategoryList from "./CategoryList";
 import { PRIVACY_LEVELS } from "../constants/privacy";
 import PropTypes from "prop-types";
+import { fetchTags } from "../utils/tagUtils"; // ✅ Uses fetchTags() instead of useTagMap
 
 const CategoryCollection = ({ mode = "own", userId }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const tagMap = useTagMap();
   const { likedCategories, toggleLikeCategory } = useLikedCategories();
   const { following } = useFollow();
   const [categories, setCategories] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
+
+  // **Fetch tags from Firestore once on mount**
+  useEffect(() => {
+    const loadTags = async () => {
+      try {
+        const tagList = await fetchTags();
+        setAvailableTags(tagList);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
+    loadTags();
+  }, []);
 
   useEffect(() => {
     if (!user && mode !== "all") return; // Non-logged users can only see public categories
@@ -36,23 +49,19 @@ const CategoryCollection = ({ mode = "own", userId }) => {
         let categoryList = [];
 
         if (mode === "own") {
-          // Fetch categories created by the logged-in user
           q = query(
             collection(db, "categories"),
             where("createdBy", "==", user.uid)
           );
         } else if (mode === "user" && userId) {
-          // Fetch categories created by a specific user
           q = query(
             collection(db, "categories"),
             where("createdBy", "==", userId)
           );
         } else if (mode === "liked") {
-          // Fetch only the logged-in user's liked categories
           setCategories(likedCategories);
           return;
         } else if (mode === "likedByUser" && userId) {
-          // Fetch another user's liked categories
           const userDocRef = doc(db, "users", userId);
           const userSnapshot = await getDoc(userDocRef);
           if (userSnapshot.exists()) {
@@ -65,8 +74,8 @@ const CategoryCollection = ({ mode = "own", userId }) => {
             categoryList = likedSnapshot.docs.map((doc) => ({
               id: doc.id,
               ...doc.data(),
-              tagNames: (doc.data().tags || []).map(
-                (tagId) => tagMap[tagId] || "Unknown"
+              tagNames: (doc.data().tags || []).filter((tag) =>
+                availableTags.includes(tag)
               ),
             }));
           }
@@ -93,8 +102,10 @@ const CategoryCollection = ({ mode = "own", userId }) => {
           likedSnapshot.docs.forEach((doc) => {
             const categoryData = doc.data();
             if (categoryData.tags) {
-              categoryData.tags.forEach((tagId) => {
-                tagFrequency[tagId] = (tagFrequency[tagId] || 0) + 1;
+              categoryData.tags.forEach((tag) => {
+                if (availableTags.includes(tag)) {
+                  tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
+                }
               });
             }
           });
@@ -103,7 +114,7 @@ const CategoryCollection = ({ mode = "own", userId }) => {
           const sortedTags = Object.entries(tagFrequency)
             .sort((a, b) => b[1] - a[1]) // Sort by highest frequency
             .slice(0, 3) // Keep only top 3 tags
-            .map(([tagId]) => tagId);
+            .map(([tag]) => tag);
 
           if (sortedTags.length === 0) {
             console.warn("No strong tag matches for recommendations.");
@@ -121,8 +132,8 @@ const CategoryCollection = ({ mode = "own", userId }) => {
           let recommendedCategories = recommendedSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
-            tagNames: (doc.data().tags || []).map(
-              (tagId) => tagMap[tagId] || "Unknown"
+            tagNames: (doc.data().tags || []).filter((tag) =>
+              availableTags.includes(tag)
             ),
           }));
 
@@ -131,7 +142,7 @@ const CategoryCollection = ({ mode = "own", userId }) => {
             .sort(() => 0.5 - Math.random())
             .slice(0, 5);
 
-          // Step 6: If we have no results, fall back to recently updated boards
+          // Step 6: If no results, fallback to recently updated categories
           if (recommendedCategories.length === 0) {
             console.warn(
               "No recommended categories found. Falling back to recently updated."
@@ -145,22 +156,20 @@ const CategoryCollection = ({ mode = "own", userId }) => {
             recommendedCategories = recentSnapshot.docs.map((doc) => ({
               id: doc.id,
               ...doc.data(),
-              tagNames: (doc.data().tags || []).map(
-                (tagId) => tagMap[tagId] || "Unknown"
+              tagNames: (doc.data().tags || []).filter((tag) =>
+                availableTags.includes(tag)
               ),
             }));
           }
 
           setCategories(recommendedCategories);
         } else if (mode === "trending") {
-          // Get the most liked or active categories (future improvement)
           q = query(
             collection(db, "categories"),
             orderBy("likeCount", "desc"),
             limit(5)
           );
         } else {
-          // Fetch all public categories + those visible to the user
           q = collection(db, "categories");
         }
 
@@ -169,8 +178,8 @@ const CategoryCollection = ({ mode = "own", userId }) => {
           categoryList = querySnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
-            tagNames: (doc.data().tags || []).map(
-              (tagId) => tagMap[tagId] || "Unknown"
+            tagNames: (doc.data().tags || []).filter((tag) =>
+              availableTags.includes(tag)
             ),
           }));
         }
@@ -192,7 +201,7 @@ const CategoryCollection = ({ mode = "own", userId }) => {
     };
 
     fetchCategories();
-  }, [user, userId, mode, tagMap, following, likedCategories]);
+  }, [user, userId, mode, following, likedCategories, availableTags]);
 
   const handleLike = (categoryId) => {
     if (!user) {
