@@ -34,9 +34,11 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
     const result = await handleCustomTag({
       tagInput,
       availableTags,
-      selectedTags: tags,
-      setSelectedTags: setTags,
+      tags,
+      setTags,
       setTagInput,
+      setErrorMessage,
+      db,
     });
 
     if (!result) {
@@ -81,7 +83,6 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
         onFocus={() => setShowDropdown(true)}
         onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
       />
-      {errorMessage && <p className="error-message">{errorMessage}</p>}{" "}
       {/* 🔥 User Feedback */}
       <div className={`dropdown ${showDropdown ? "expanded" : ""}`}>
         {availableTags
@@ -99,6 +100,7 @@ const TagSelector = ({ tags, setTags, db, maxTags = 5 }) => {
             </div>
           ))}
       </div>
+      {errorMessage && <p className="error-message">{errorMessage}</p>}{" "}
       <div className="selected-tags">
         {tags.map((tagId) => (
           <span key={tagId} className="selected-tag">
