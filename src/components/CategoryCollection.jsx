@@ -17,7 +17,7 @@ import { useFollow } from "../context/useFollow";
 import CategoryList from "./CategoryList";
 import { PRIVACY_LEVELS } from "../constants/privacy";
 import PropTypes from "prop-types";
-import { fetchTags } from "../utils/tagUtils"; // ✅ Uses fetchTags() instead of useTagMap
+import { fetchTagsSet } from "../utils/tagUtils"; // ✅ Uses fetchTags() instead of useTagMap
 
 const CategoryCollection = ({ mode = "own", userId }) => {
   const { user } = useAuth();
@@ -25,14 +25,14 @@ const CategoryCollection = ({ mode = "own", userId }) => {
   const { likedCategories, toggleLikeCategory } = useLikedCategories();
   const { following } = useFollow();
   const [categories, setCategories] = useState([]);
-  const [availableTags, setAvailableTags] = useState([]);
+  const [availableTags, setAvailableTags] = useState(new Set());
 
   // **Fetch tags from Firestore once on mount**
   useEffect(() => {
     const loadTags = async () => {
       try {
-        const tagList = await fetchTags();
-        setAvailableTags(tagList);
+        const tagSet = await fetchTagsSet();
+        setAvailableTags(tagSet);
       } catch (error) {
         console.error("Error fetching tags:", error);
       }
@@ -75,7 +75,7 @@ const CategoryCollection = ({ mode = "own", userId }) => {
               id: doc.id,
               ...doc.data(),
               tagNames: (doc.data().tags || []).filter((tag) =>
-                availableTags.includes(tag)
+                availableTags.has(tag)
               ),
             }));
           }
@@ -103,7 +103,7 @@ const CategoryCollection = ({ mode = "own", userId }) => {
             const categoryData = doc.data();
             if (categoryData.tags) {
               categoryData.tags.forEach((tag) => {
-                if (availableTags.includes(tag)) {
+                if (availableTags.has(tag)) {
                   tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
                 }
               });
@@ -133,7 +133,7 @@ const CategoryCollection = ({ mode = "own", userId }) => {
             id: doc.id,
             ...doc.data(),
             tagNames: (doc.data().tags || []).filter((tag) =>
-              availableTags.includes(tag)
+              availableTags.has(tag)
             ),
           }));
 
@@ -157,7 +157,7 @@ const CategoryCollection = ({ mode = "own", userId }) => {
               id: doc.id,
               ...doc.data(),
               tagNames: (doc.data().tags || []).filter((tag) =>
-                availableTags.includes(tag)
+                availableTags.has(tag)
               ),
             }));
           }
@@ -179,7 +179,7 @@ const CategoryCollection = ({ mode = "own", userId }) => {
             id: doc.id,
             ...doc.data(),
             tagNames: (doc.data().tags || []).filter((tag) =>
-              availableTags.includes(tag)
+              availableTags.has(tag)
             ),
           }));
         }
