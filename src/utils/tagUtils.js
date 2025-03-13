@@ -13,6 +13,11 @@ export const fetchTags = async () => {
   return tagsSnapshot.docs.map((doc) => doc.id);
 };
 
+export const fetchTagsSet = async () => {
+  const tagList = await fetchTags();
+  return new Set(tagList); // Converts List → Set
+};
+
 /**
  * Normalizes tag input for consistency.
  * - Converts to lowercase
