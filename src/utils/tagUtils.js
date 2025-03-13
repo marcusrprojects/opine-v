@@ -1,13 +1,5 @@
 import { db } from "../firebaseConfig";
-import {
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  getDoc,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
 
 /**
  * Fetches all available tags from Firestore.
