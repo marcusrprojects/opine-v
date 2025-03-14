@@ -22,9 +22,7 @@ const CategoryCard = ({ category, onClick, onLike, liked }) => {
         {category.fields.length > 0 ? category.fields.join(", ") : "No fields"}
       </p>
       <span className="card-tags">
-        {category.tagNames.length > 0
-          ? category.tagNames.join(", ")
-          : "No tags"}
+        {category.tags.length > 0 ? category.tags.join(", ") : "No tags"}
       </span>
     </Card>
   );
