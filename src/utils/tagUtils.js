@@ -15,7 +15,7 @@ export const fetchTags = async () => {
 
 export const fetchTagsSet = async () => {
   const tagList = await fetchTags();
-  return new Set(tagList); // Converts List → Set
+  return new Set(tagList);
 };
 
 /**
