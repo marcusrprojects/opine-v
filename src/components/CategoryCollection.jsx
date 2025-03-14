@@ -22,7 +22,7 @@ import { PRIVACY_LEVELS } from "../constants/privacy";
 const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
   const { user } = useAuth();
   const { following } = useFollow();
-  const { likedCategories, toggleLikeCategory } = useLikedCategories();
+  const { likedCategories = [], toggleLikeCategory } = useLikedCategories(); // ✅ Ensure default empty array
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [availableTags, setAvailableTags] = useState(new Set());
@@ -40,12 +40,22 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
     loadTags();
   }, []);
 
-  // ✅ Memoized function for fetching categories
+  // ✅ Refactored function for fetching categories
   const fetchCategories = useCallback(async () => {
     if (!user && mode !== "all") return;
 
     try {
       let categoryQuery = collection(db, "categories");
+
+      // ✅ Handle early exits for empty `likedCategories`
+      if (
+        (mode === "liked" || mode === "recommended") &&
+        !likedCategories.length
+      ) {
+        // console.warn("No liked categories available.");
+        setCategories([]);
+        return;
+      }
 
       if (mode === "own") {
         categoryQuery = query(
@@ -55,25 +65,27 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
       } else if (mode === "user" && userId) {
         categoryQuery = query(categoryQuery, where("createdBy", "==", userId));
       } else if (mode === "liked") {
-        setCategories(likedCategories);
-        return;
+        categoryQuery = query(
+          categoryQuery,
+          where("__name__", "in", likedCategories)
+        );
       } else if (mode === "likedByUser" && userId) {
         const userDocRef = doc(db, "users", userId);
         const userSnapshot = await getDoc(userDocRef);
-        if (userSnapshot.exists()) {
-          const likedCategoryIds = userSnapshot.data().likedCategories || [];
-          categoryQuery = query(
-            categoryQuery,
-            where("__name__", "in", likedCategoryIds)
-          );
-        }
-      } else if (mode === "recommended") {
-        if (!likedCategories || likedCategories.length === 0) {
-          console.warn("No liked categories available for recommendations.");
+        const likedCategoryIds = userSnapshot.exists()
+          ? userSnapshot.data().likedCategories ?? []
+          : [];
+
+        if (!likedCategoryIds.length) {
           setCategories([]);
           return;
         }
 
+        categoryQuery = query(
+          categoryQuery,
+          where("__name__", "in", likedCategoryIds)
+        );
+      } else if (mode === "recommended") {
         const randomLikedCategories = likedCategories
           .sort(() => 0.5 - Math.random())
           .slice(0, 10);
@@ -85,15 +97,13 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
 
         const likedSnapshot = await getDocs(categoryQuery);
         const tagFrequency = {};
+
         likedSnapshot.docs.forEach((doc) => {
-          const categoryData = doc.data();
-          if (categoryData.tags) {
-            categoryData.tags.forEach((tag) => {
-              if (availableTags.has(tag)) {
-                tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
-              }
-            });
-          }
+          (doc.data().tags ?? []).forEach((tag) => {
+            if (availableTags.has(tag)) {
+              tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
+            }
+          });
         });
 
         const sortedTags = Object.entries(tagFrequency)
@@ -101,7 +111,9 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
           .slice(0, 3)
           .map(([tag]) => tag);
 
-        if (sortedTags.length === 0) {
+        console.log("Sorted Tags:", sortedTags);
+
+        if (!sortedTags.length) {
           console.warn("No strong tag matches for recommendations.");
           setCategories([]);
           return;
@@ -109,7 +121,8 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
 
         categoryQuery = query(
           categoryQuery,
-          where("tags", "array-contains-any", sortedTags)
+          where("tags", "array-contains-any", sortedTags),
+          limit(5) // Limits total returned categories
         );
       } else if (mode === "trending") {
         categoryQuery = query(
@@ -123,13 +136,15 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
       let categoryList = categorySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-        tagNames: (doc.data().tags || []).filter((tag) =>
+        tagNames: (doc.data().tags ?? []).filter((tag) =>
           availableTags.has(tag)
         ),
       }));
 
-      // 🛠️ Fallback for recommended categories
-      if (mode === "recommended" && categoryList.length === 0) {
+      console.log(`Fetched Categories for "${mode}":`, categoryList);
+
+      // ✅ Fallback for empty `recommended` categories
+      if (mode === "recommended" && !categoryList.length) {
         console.warn(
           "No recommended categories found. Falling back to recently updated."
         );
@@ -142,7 +157,7 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
         categoryList = recentSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-          tagNames: (doc.data().tags || []).filter((tag) =>
+          tagNames: (doc.data().tags ?? []).filter((tag) =>
             availableTags.has(tag)
           ),
         }));
@@ -151,6 +166,11 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
       // ✅ Apply Privacy Filters
       const filteredCategories = categoryList.filter((category) => {
         if (category.privacy === PRIVACY_LEVELS.PUBLIC) return true;
+
+        // ✅ Ensure users see categories they created
+        if (user && category.createdBy === user.uid) return true;
+
+        // ✅ Otherwise, check if the user follows the creator
         return user && following.has(category.createdBy);
       });
 
@@ -171,26 +191,28 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
     const searchLower = searchTerm.toLowerCase();
     return categories.filter((category) => {
       const nameMatches = category.name.toLowerCase().includes(searchLower);
-      const tagMatches =
-        category.tagNames &&
-        category.tagNames.some((tag) =>
-          tag.toLowerCase().includes(searchLower)
-        );
+      const tagMatches = (category.tagNames ?? []).some((tag) =>
+        tag.toLowerCase().includes(searchLower)
+      );
       return nameMatches || tagMatches;
     });
   }, [searchTerm, categories]);
 
-  const handleCategoryClick = (categoryId) => {
-    navigate(`/categories/${categoryId}`);
-  };
+  const handleCategoryClick = useCallback(
+    (categoryId) => navigate(`/categories/${categoryId}`),
+    [navigate]
+  );
 
-  const handleLike = (categoryId) => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    toggleLikeCategory(categoryId);
-  };
+  const handleLike = useCallback(
+    (categoryId) => {
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+      toggleLikeCategory(categoryId);
+    },
+    [user, navigate, toggleLikeCategory]
+  );
 
   return (
     <CategoryList
