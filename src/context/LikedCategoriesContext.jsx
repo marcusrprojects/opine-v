@@ -1,9 +1,15 @@
 import { createContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { db } from "../firebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  increment,
+} from "firebase/firestore";
 import { useAuth } from "./useAuth";
-import { increment } from "firebase/firestore";
 
 export const LikedCategoriesContext = createContext();
 
@@ -32,7 +38,7 @@ export const LikedCategoriesProvider = ({ children }) => {
     fetchLikedCategories();
   }, [user]);
 
-  // 🔹 Toggle Like Category
+  // 🔹 Toggle Like Category (Now updates Firestore `likeCount`)
   const toggleLikeCategory = async (categoryId) => {
     if (!user) {
       alert("Log in to like categories.");
@@ -43,16 +49,23 @@ export const LikedCategoriesProvider = ({ children }) => {
       const userDocRef = doc(db, "users", user.uid);
       const categoryDocRef = doc(db, "categories", categoryId);
       const isLiked = likedCategories.includes(categoryId);
-      const updatedLikes = isLiked
-        ? likedCategories.filter((id) => id !== categoryId)
-        : [...likedCategories, categoryId];
 
-      await updateDoc(userDocRef, { likedCategories: updatedLikes });
+      // Update Firestore: Add/Remove like from user's liked categories
+      await updateDoc(userDocRef, {
+        likedCategories: isLiked
+          ? arrayRemove(categoryId)
+          : arrayUnion(categoryId),
+      });
+
+      // Update Firestore: Increment/Decrement `likeCount` on category
       await updateDoc(categoryDocRef, {
         likeCount: isLiked ? increment(-1) : increment(1),
       });
 
-      setLikedCategories(updatedLikes);
+      // Update local state for UI
+      setLikedCategories((prev) =>
+        isLiked ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
+      );
     } catch (error) {
       console.error("Error updating likes:", error);
     }
@@ -60,7 +73,7 @@ export const LikedCategoriesProvider = ({ children }) => {
 
   return (
     <LikedCategoriesContext.Provider
-      value={{ likedCategories, setLikedCategories, toggleLikeCategory }}
+      value={{ likedCategories, toggleLikeCategory }}
     >
       {children}
     </LikedCategoriesContext.Provider>
