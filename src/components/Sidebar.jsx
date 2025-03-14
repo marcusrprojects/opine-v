@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "../styles/Sidebar.css";
 import PropTypes from "prop-types";
-import { FaBars, FaUser, FaHome } from "react-icons/fa";
+import { FaBars, FaUser, FaHome, FaThList } from "react-icons/fa";
 import ThemeToggle from "./ThemeToggle";
 
 const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
@@ -18,17 +18,17 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
       }
     };
 
-    // Reset the timeout whenever there's interaction
+    // Reset timeout on interaction
     const sidebarElement = document.querySelector(".sidebar");
     if (sidebarElement) {
       sidebarElement.addEventListener("mousemove", resetTimeout);
       sidebarElement.addEventListener("click", resetTimeout);
     }
 
-    // Set an initial timeout
+    // Initial timeout
     resetTimeout();
 
-    // Cleanup: Remove listeners and clear timeout
+    // Cleanup
     return () => {
       clearTimeout(timeoutRef.current);
       if (sidebarElement) {
@@ -40,24 +40,24 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
 
   return (
     <>
-      {/* Sidebar toggle button */}
+      {/* Sidebar Toggle Button */}
       <button className="sidebar-toggle" onClick={toggleSidebar}>
         <FaBars />
       </button>
 
-      {/* Sidebar navigation */}
+      {/* Sidebar Navigation */}
       <nav className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <Link to="/categories" title="Home" className="link-icon">
+        <Link to="/" title="Home" className="link-icon">
           <FaHome />
+        </Link>
+
+        <Link to="/categories" title="Categories" className="link-icon">
+          <FaThList />
         </Link>
 
         <Link to="/profile" title="Profile" className="link-icon">
           <FaUser />
         </Link>
-
-        {/* <Link to="/login" title="Login" className="link-icon">
-          <FaSignInAlt />
-        </Link> */}
 
         <div className="link-icon" title="Theme">
           <ThemeToggle />
