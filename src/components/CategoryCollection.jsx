@@ -17,7 +17,7 @@ import { useFollow } from "../context/useFollow";
 import CategoryList from "./CategoryList";
 import { PRIVACY_LEVELS } from "../constants/privacy";
 import PropTypes from "prop-types";
-import { fetchTagsSet } from "../utils/tagUtils"; // ✅ Uses fetchTags() instead of useTagMap
+import { fetchTagsSet } from "../utils/tagUtils";
 
 const CategoryCollection = ({ mode = "own", userId }) => {
   const { user } = useAuth();
