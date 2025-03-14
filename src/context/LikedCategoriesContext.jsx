@@ -19,11 +19,12 @@ export const LikedCategoriesProvider = ({ children }) => {
 
   // 🔹 Fetch Liked Categories on User Change
   useEffect(() => {
+    if (!user) {
+      setLikedCategories([]);
+      return;
+    }
+
     const fetchLikedCategories = async () => {
-      if (!user) {
-        setLikedCategories([]);
-        return;
-      }
       try {
         const userDocRef = doc(db, "users", user.uid);
         const userSnapshot = await getDoc(userDocRef);
@@ -38,7 +39,6 @@ export const LikedCategoriesProvider = ({ children }) => {
     fetchLikedCategories();
   }, [user]);
 
-  // 🔹 Toggle Like Category (Now updates Firestore `likeCount`)
   const toggleLikeCategory = async (categoryId) => {
     if (!user) {
       alert("Log in to like categories.");
@@ -50,24 +50,25 @@ export const LikedCategoriesProvider = ({ children }) => {
       const categoryDocRef = doc(db, "categories", categoryId);
       const isLiked = likedCategories.includes(categoryId);
 
-      // Update Firestore: Add/Remove like from user's liked categories
-      await updateDoc(userDocRef, {
-        likedCategories: isLiked
-          ? arrayRemove(categoryId)
-          : arrayUnion(categoryId),
-      });
+      // Firestore batch update
+      await Promise.all([
+        updateDoc(userDocRef, {
+          likedCategories: isLiked
+            ? arrayRemove(categoryId)
+            : arrayUnion(categoryId),
+        }),
+        updateDoc(categoryDocRef, {
+          likeCount: isLiked ? increment(-1) : increment(1),
+        }),
+      ]);
 
-      // Update Firestore: Increment/Decrement `likeCount` on category
-      await updateDoc(categoryDocRef, {
-        likeCount: isLiked ? increment(-1) : increment(1),
-      });
-
-      // Update local state for UI
+      // ✅ Only update local state if Firestore update succeeds
       setLikedCategories((prev) =>
         isLiked ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
       );
     } catch (error) {
       console.error("Error updating likes:", error);
+      alert("Failed to update like. Please try again.");
     }
   };
 
