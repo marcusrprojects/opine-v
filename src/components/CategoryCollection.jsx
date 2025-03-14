@@ -52,7 +52,6 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
         (mode === "liked" || mode === "recommended") &&
         !likedCategories.length
       ) {
-        // console.warn("No liked categories available.");
         setCategories([]);
         return;
       }
@@ -113,8 +112,6 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
           .slice(0, 3)
           .map(([tag]) => tag);
 
-        console.log("Sorted Tags:", sortedTags);
-
         if (!sortedTags.length) {
           console.warn("No strong tag matches for recommendations.");
           setCategories([]);
@@ -139,12 +136,7 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
       let categoryList = categorySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-        tagNames: (doc.data().tags ?? []).filter((tag) =>
-          availableTags.has(tag)
-        ),
       }));
-
-      console.log(`Fetched Categories for "${mode}":`, categoryList);
 
       // ✅ Fallback for empty `recommended` categories
       if (mode === "recommended" && !categoryList.length) {
@@ -160,9 +152,6 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
         categoryList = recentSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-          tagNames: (doc.data().tags ?? []).filter((tag) =>
-            availableTags.has(tag)
-          ),
         }));
       }
 
@@ -194,7 +183,7 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
     const searchLower = searchTerm.toLowerCase();
     return categories.filter((category) => {
       const nameMatches = category.name.toLowerCase().includes(searchLower);
-      const tagMatches = (category.tagNames ?? []).some((tag) =>
+      const tagMatches = (category.tags ?? []).some((tag) =>
         tag.toLowerCase().includes(searchLower)
       );
       return nameMatches || tagMatches;
