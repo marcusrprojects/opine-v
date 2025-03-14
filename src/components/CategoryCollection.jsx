@@ -86,18 +86,19 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
           where("__name__", "in", likedCategoryIds)
         );
       } else if (mode === "recommended") {
+        // ✅ Step 1: Pick Random Liked Categories
         const randomLikedCategories = likedCategories
           .sort(() => 0.5 - Math.random())
           .slice(0, 10);
 
-        categoryQuery = query(
-          categoryQuery,
-          where("__name__", "in", randomLikedCategories)
+        // ✅ Step 2: Fetch Full Category Data
+        const likedSnapshot = await getDocs(
+          query(categoryQuery, where("__name__", "in", randomLikedCategories))
         );
 
-        const likedSnapshot = await getDocs(categoryQuery);
         const tagFrequency = {};
 
+        // ✅ Step 3: Extract Tag Frequencies
         likedSnapshot.docs.forEach((doc) => {
           (doc.data().tags ?? []).forEach((tag) => {
             if (availableTags.has(tag)) {
@@ -106,6 +107,7 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
           });
         });
 
+        // ✅ Step 4: Select Top 3 Most Frequent Tags
         const sortedTags = Object.entries(tagFrequency)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3)
@@ -119,10 +121,11 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
           return;
         }
 
+        // ✅ Step 5: New Query to Find Any Categories Matching the Tags
         categoryQuery = query(
           categoryQuery,
           where("tags", "array-contains-any", sortedTags),
-          limit(5) // Limits total returned categories
+          limit(5)
         );
       } else if (mode === "trending") {
         categoryQuery = query(
