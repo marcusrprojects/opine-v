@@ -19,7 +19,7 @@ import { useLikedCategories } from "../context/useLikedCategories";
 import { useNavigate } from "react-router-dom";
 import { PRIVACY_LEVELS } from "../constants/privacy";
 
-const CategoryCollection = ({ mode, userId, searchTerm }) => {
+const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
   const { user } = useAuth();
   const { following } = useFollow();
   const { likedCategories, toggleLikeCategory } = useLikedCategories();
