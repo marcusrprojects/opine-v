@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
 import {
   doc,
+  getDoc,
   deleteDoc,
   collection,
   getDocs,
@@ -48,19 +49,33 @@ const CategoryDetail = () => {
   );
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(categoryRef, (snapshot) => {
+    const unsubscribe = onSnapshot(categoryRef, async (snapshot) => {
       if (!snapshot.exists()) return navigate("/categories");
+
       const data = snapshot.data();
       setCategory(data);
       setOrderedFields(data.fields || []);
       setCreatorId(data.createdBy || "");
       setLikeCount(data.likeCount || 0);
       setLastEdited(data.updatedAt ? data.updatedAt.toDate() : null);
-      setCreatorUsername(data.username || "Unknown User");
+
+      // Fetch the creator's username
+      if (data.createdBy) {
+        const userDocRef = doc(db, "users", data.createdBy);
+        const userSnapshot = await getDoc(userDocRef);
+
+        setCreatorUsername(
+          userSnapshot.exists()
+            ? userSnapshot.data()?.username ?? "Unknown User"
+            : "Unknown User"
+        );
+      } else {
+        setCreatorUsername("Unknown User");
+      }
     });
 
     return () => unsubscribe();
-  }, [categoryRef, navigate]); // ✅ Now avoids unnecessary re-subscribing
+  }, [categoryRef, navigate]);
 
   // Subscribe to real-time item updates
   useEffect(() => {
@@ -207,10 +222,8 @@ const CategoryDetail = () => {
         {category.description || "No description available."}
       </p>
       <p className="creator-username">@{creatorUsername}</p>
-
-      <p className="category-likes">👍 {likeCount} Likes</p>
-      <p className="category-last-edited">
-        🕒 Last Edited: {lastEdited ? lastEdited.toLocaleString() : "N/A"}
+      <p className="category-likes">
+        {likeCount} {likeCount === 1 ? "Like" : "Likes"}
       </p>
 
       {filterOpen && (
@@ -228,6 +241,10 @@ const CategoryDetail = () => {
         orderedFields={orderedFields}
         onItemClick={handleItemClick}
       />
+
+      <p className="category-last-edited">
+        Last Edited: {lastEdited ? lastEdited.toLocaleString() : "N/A"}
+      </p>
     </div>
   );
 };
