@@ -3,24 +3,39 @@ import { db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import AddSearchPanel from "../components/Navigation/AddSearchPanel";
-import { useTagMap } from "../context/useTagMap";
 import { useLikedCategories } from "../context/useLikedCategories";
 import { useAuth } from "../context/useAuth";
+import { useFollow } from "../context/useFollow";
 import CategoryList from "./CategoryList";
 import CategorySearch from "../components/CategorySearch";
-import { useFollow } from "../context/useFollow";
 import { PRIVACY_LEVELS } from "../constants/privacy";
+import { fetchTagsSet } from "../utils/tagUtils";
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
+  const [availableTags, setAvailableTags] = useState(new Set());
+
   const navigate = useNavigate();
-  const tagMap = useTagMap();
   const { likedCategories, toggleLikeCategory } = useLikedCategories();
   const { user } = useAuth();
   const { following } = useFollow();
 
+  // ✅ Fetch available tags once on mount
+  useEffect(() => {
+    const loadTags = async () => {
+      try {
+        const tagSet = await fetchTagsSet();
+        setAvailableTags(tagSet);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
+    loadTags();
+  }, []);
+
+  // ✅ Fetch categories while considering tag lookups
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -31,8 +46,8 @@ const Categories = () => {
             return {
               id: doc.id,
               ...data,
-              tagNames: (data.tags || []).map(
-                (tagId) => tagMap[tagId] || "Unknown"
+              tagNames: (data.tags || []).filter((tag) =>
+                availableTags.has(tag)
               ),
             };
           })
@@ -48,7 +63,7 @@ const Categories = () => {
     };
 
     fetchCategories();
-  }, [tagMap, user, following]);
+  }, [availableTags, user, following]); // ✅ Re-fetch categories when tags load
 
   const handleCategoryClick = (categoryId) => {
     navigate(`/categories/${categoryId}`);
@@ -62,6 +77,7 @@ const Categories = () => {
     toggleLikeCategory(categoryId);
   };
 
+  // ✅ Search optimization using `useMemo`
   const filteredCategories = useMemo(() => {
     if (!searchTerm.trim()) return categories;
     const searchLower = searchTerm.toLowerCase();
@@ -69,8 +85,8 @@ const Categories = () => {
       const nameMatches = category.name.toLowerCase().includes(searchLower);
       const tagMatches =
         category.tagNames &&
-        category.tagNames.some((tagName) =>
-          tagName.toLowerCase().includes(searchLower)
+        category.tagNames.some((tag) =>
+          tag.toLowerCase().includes(searchLower)
         );
       return nameMatches || tagMatches;
     });
