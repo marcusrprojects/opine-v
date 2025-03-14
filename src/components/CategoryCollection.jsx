@@ -124,7 +124,7 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
           where("tags", "array-contains-any", sortedTags),
           limit(5)
         );
-      } else if (mode === "trending") {
+      } else if (mode === "popular") {
         categoryQuery = query(
           categoryQuery,
           orderBy("likeCount", "desc"),
@@ -224,7 +224,7 @@ CategoryCollection.propTypes = {
     "likedByUser",
     "all",
     "recommended",
-    "trending",
+    "popular",
   ]),
   userId: PropTypes.string,
   searchTerm: PropTypes.string,

@@ -6,8 +6,8 @@ const Feed = () => {
       <h2>Recommended for You</h2>
       <CategoryCollection mode="recommended" />
 
-      <h2>Trending Categories</h2>
-      <CategoryCollection mode="trending" />
+      <h2>Popular Categories</h2>
+      <CategoryCollection mode="popular" />
 
       <h2>All Categories</h2>
       <CategoryCollection mode="all" />
