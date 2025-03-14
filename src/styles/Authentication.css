@@ -41,7 +41,6 @@
 }
 
 .switch-link {
-  /* margin-top: var(--padding-small); */
   text-align: center;
   font-size: var(--font-small);
   color: var(--secondary-color);
@@ -65,7 +64,6 @@
 
 .error-message {
   color: var(--error-color);
-  /* margin-top: var(--padding-ml); */
   text-align: center;
   font-size: var(--font-small);
 }
