@@ -1,7 +1,6 @@
 // CategoryPanel.jsx
 import PropTypes from "prop-types";
 import {
-  FaArrowLeft,
   FaPlus,
   FaCog,
   FaFilter,
@@ -15,7 +14,6 @@ import Button from "./Button";
 // import "../../styles/CategorySettings.css";
 
 const CategoryPanel = ({
-  onBack,
   onAdd,
   isAddDisabled,
   onToggleFilter,
@@ -30,7 +28,6 @@ const CategoryPanel = ({
   return (
     <Panel>
       {/* Navigation Buttons */}
-      <Button onClick={onBack} title="Go Back" icon={FaArrowLeft} />
       <Button
         onClick={onAdd}
         title="Add Item"

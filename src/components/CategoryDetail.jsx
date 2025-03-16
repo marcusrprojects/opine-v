@@ -159,7 +159,6 @@ const CategoryDetail = () => {
 
   // Navigation and action handlers
   const handleItemClick = (itemId) => navigate(`./item/${itemId}`);
-  const handleBack = () => navigate("/categories");
   const handleAddItem = () => navigate(`/categories/${categoryId}/add-item`);
   const handleEditCategory = () =>
     navigate(`/categories/${categoryId}/edit`, {
@@ -242,7 +241,6 @@ const CategoryDetail = () => {
   return (
     <div className="category-detail-container">
       <CategoryPanel
-        onBack={handleBack}
         onAdd={handleAddItem}
         isAddDisabled={false}
         onToggleFilter={toggleFilter}
