@@ -78,9 +78,8 @@ const ComparisonStep = ({
   };
 
   return rankedItems.length > 0 ? (
-    <div className="add-item-container">
-      <h2>Compare your item</h2>
-      <p>Which item is better?</p>
+    <div className="comparison-container">
+      <h2>Which item do you prefer?</h2>
       <div className="comparison-buttons">
         <button onClick={() => onComparisonChoice(true)}>
           {itemData[primaryField] ?? "Current Item"}
