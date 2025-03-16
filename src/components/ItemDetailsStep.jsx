@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { useState, useEffect, useCallback } from "react";
 import "../styles/ItemDetailsStep.css";
+import TextInput from "./TextInput";
 
 const ItemDetailsStep = ({
   fields,
@@ -57,32 +58,28 @@ const ItemDetailsStep = ({
   };
 
   return (
-    <div className="item-details-step-container">
+    <div className="item-details-container">
       <h2>Item Details</h2>
       {fields.map((field, index) => (
-        <div key={index} className="input-container">
-          <input
-            type="text"
-            placeholder={field}
+        <div key={index}>
+          <TextInput
             value={itemData[field] || ""}
             onChange={(e) => handleInputChange(field, e.target.value)}
-            className={`field-data ${error[field] ? "error" : ""}`}
-            onBlur={() => handleBlur(field)}
+            placeholder={field}
             required
+            onBlur={() => handleBlur(field)}
           />
           {error[field] && <p className="error-message">{error[field]}</p>}
         </div>
       ))}
 
-      <div>
-        <textarea
-          placeholder="Notes"
-          value={itemData.notes || ""}
-          onChange={(e) => handleInputChange("notes", e.target.value)}
-          rows={4}
-          className="notes-field"
-        />
-      </div>
+      <textarea
+        placeholder="Notes"
+        value={itemData.notes || ""}
+        onChange={(e) => handleInputChange("notes", e.target.value)}
+        rows={4}
+        className="text-input notes-field"
+      />
     </div>
   );
 };
