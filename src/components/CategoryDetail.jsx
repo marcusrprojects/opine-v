@@ -20,6 +20,7 @@ import { useLikedCategories } from "../context/useLikedCategories";
 import { handleError } from "../utils/errorUtils";
 import { PRIVACY_LEVELS } from "../constants/privacy";
 import { useFollow } from "../context/useFollow";
+import "../styles/CategoryDetail.css";
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -221,6 +222,23 @@ const CategoryDetail = () => {
     }
   };
 
+  const getRelativeTime = (timestamp) => {
+    if (!timestamp) return "N/A";
+
+    const now = new Date();
+    const diff = Math.floor((now - timestamp) / 1000); // Convert ms to seconds
+
+    if (diff === 0) return `just now`;
+    if (diff < 60) return `${diff} seconds ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
+    if (diff < 2592000) return `${Math.floor(diff / 604800)} weeks ago`;
+    if (diff < 31536000) return `${Math.floor(diff / 2592000)} months ago`;
+
+    return `${Math.floor(diff / 31536000)} years ago`;
+  };
+
   return (
     <div className="category-detail-container">
       <CategoryPanel
@@ -237,14 +255,14 @@ const CategoryDetail = () => {
         canEdit={user && creatorId && user.uid === creatorId}
       />
 
-      <h2>{category.name}</h2>
-      <p className="category-description">
-        {category.description || "No description available."}
-      </p>
-      <p className="creator-username">@{creatorUsername}</p>
-      <p className="category-likes">
-        {likeCount} {likeCount === 1 ? "Like" : "Likes"}
-      </p>
+      <div className="category-header">
+        <h2>{category.name}</h2>
+        <p>{category.description || "No description available."}</p>
+        <p>@{creatorUsername}</p>
+        <p>
+          {likeCount} {likeCount === 1 ? "Like" : "Likes"}
+        </p>
+      </div>
 
       {filterOpen && (
         <CategoryFilters
@@ -262,9 +280,7 @@ const CategoryDetail = () => {
         onItemClick={handleItemClick}
       />
 
-      <p className="category-last-edited">
-        Last Edited: {lastEdited ? lastEdited.toLocaleString() : "N/A"}
-      </p>
+      <p>Last Edited: {getRelativeTime(lastEdited)}</p>
     </div>
   );
 };
