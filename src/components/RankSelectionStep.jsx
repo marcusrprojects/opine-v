@@ -14,29 +14,28 @@ const RankSelectionStep = ({ setRankCategory, rankCategory, onNext }) => {
   }, [rankCategory, onNext]);
 
   return (
-    <div className="add-item-container">
+    <div className="rank-container">
       <h2>How would you rate this item?</h2>
       <div className="rating-buttons">
         <button
           onClick={() => handleRankingChoice(RankCategory.GOOD)}
-          style={{ color: `hsl(120, 40%, 60%)` }}
+          style={{ borderColor: `hsl(120, 40%, 60%)` }}
         >
           Good
         </button>
         <button
           onClick={() => handleRankingChoice(RankCategory.OKAY)}
-          style={{ color: `hsl(60, 40%, 60%)` }}
+          style={{ borderColor: `hsl(60, 40%, 60%)` }}
         >
           Okay
         </button>
         <button
           onClick={() => handleRankingChoice(RankCategory.BAD)}
-          style={{ color: `hsl(0, 40%, 60%)` }}
+          style={{ borderColor: `hsl(0, 40%, 60%)` }}
         >
           Bad
         </button>
       </div>
-      {/* <button className="button-nav" onClick={onBack}>Back</button> */}
     </div>
   );
 };
