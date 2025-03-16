@@ -1,19 +1,42 @@
 /**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ * Import necessary Firebase modules
  */
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
 
-const { onRequest } = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+/**
+ * Initialize Firebase Admin SDK
+ * - Required to interact with Firestore from Cloud Functions
+ */
+admin.initializeApp();
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+/**
+ * Cloud Function: Automatically updates `updatedAt` when a category is modified.
+ * - Listens for **any updates** to documents in the `categories` collection.
+ * - If `updatedAt` was **already manually updated**, it does nothing (prevents infinite loops).
+ * - Otherwise, it updates `updatedAt` with Firestore's server timestamp.
+ */
+exports.updateCategoryTimestamp = functions.firestore
+  .document("categories/{categoryId}")
+  .onUpdate(async (change) => {
+    const categoryRef = change.after.ref; // Reference to the updated document
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
+    // Prevent unnecessary updates (infinite loop protection)
+    if (change.before.data().updatedAt !== change.after.data().updatedAt) {
+      return null;
+    }
+
+    return categoryRef.update({
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  });
+
+/**
+ * Example HTTP Function (Can Be Used Later)
+ * - This is the default function Firebase provides.
+ * - Uncomment and modify if you need an HTTP endpoint.
+ */
+// exports.helloWorld = functions.https.onRequest((req, res) => {
+//   functions.logger.info("Hello logs!", { structuredData: true });
+//   res.send("Hello from Firebase!");
 // });
