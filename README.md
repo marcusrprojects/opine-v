@@ -1,12 +1,38 @@
-# opine-v
+# **Opine**
 
-Uses vite, react, and firebase database &amp; hosting.
+Opine is a **React + Vite** web application that leverages **Firebase** for **database** and **hosting**. The project is designed for efficient development with fast refresh capabilities and structured modular components.
 
-# React + Vite
+## **Tech Stack**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- **Frontend**: React (with Vite)
+- **Backend**: Firebase Firestore (Database)
+- **Hosting**: Firebase Hosting
+- **Styling**: CSS modules (or other styling frameworks used)
+- **Linting**: ESLint (configured for both frontend and Firebase functions)
 
-Currently, two official plugins are available:
+## **Features**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🔥 **Vite + React** for fast development
+- 📁 **Modular structure** for better maintainability
+- 🔥 **Firebase Firestore** for real-time database management
+- 🚀 **Firebase Hosting** for easy deployment
+- 🎨 **Custom styling** with CSS modules or global styles
+- 🛠️ **Linting & Code Formatting** with ESLint and Prettier
+- ⚡ **Optimized performance** with lazy loading & efficient state management
+
+## **Setup & Installation**
+
+1. **Clone the repository**
+
+   ```sh
+   git clone https://github.com/your-username/opine-vite.git
+   cd opine-vite
+   `npm install`
+   `npm run dev`
+   `npm run build`
+   `firebase deploy`
+
+## Firebase Functions (Future Implementation)
+
+- The functions/ directory contains Firebase Cloud Functions.
+- These functions are not deployed yet because Firebase requires a Blaze plan for Cloud Functions.
