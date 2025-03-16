@@ -27,10 +27,10 @@ Opine is a **React + Vite** web application that leverages **Firebase** for **da
    ```sh
    git clone https://github.com/your-username/opine-vite.git
    cd opine-vite
-   `npm install`
-   `npm run dev`
-   `npm run build`
-   `firebase deploy`
+   npm install
+   npm run dev
+   npm run build
+   firebase deploy
 
 ## Firebase Functions (Future Implementation)
 
