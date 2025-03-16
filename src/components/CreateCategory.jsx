@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { db } from "../firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import "../styles/CreateCategory.css";
@@ -39,7 +39,8 @@ const CreateCategory = () => {
         tags,
         privacy,
         createdBy: user.uid,
-        createdAt: new Date().toISOString(),
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
       };
 
       await addDoc(collection(db, "categories"), newCategory);
