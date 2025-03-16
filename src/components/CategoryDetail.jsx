@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
 import {
@@ -33,7 +33,8 @@ const CategoryDetail = () => {
   const [items, setItems] = useState([]);
   const [orderedFields, setOrderedFields] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
-  const [creatorUsername, setCreatorUsername] = useState("");
+  const UNKNOWN_USER = "Unknown User";
+  const [creatorUsername, setCreatorUsername] = useState(UNKNOWN_USER);
   const [likeCount, setLikeCount] = useState(0);
   const [lastEdited, setLastEdited] = useState(null);
 
@@ -43,13 +44,43 @@ const CategoryDetail = () => {
   const [filters, setFilters] = useState({});
   const [filterFields, setFilterFields] = useState([]);
 
-  const categoryRef = useMemo(
-    () => doc(db, "categories", categoryId),
-    [categoryId]
-  );
+  // Firestore listener references to prevent memory leaks
+  const categoryUnsubscribeRef = useRef(null);
+  const itemsUnsubscribeRef = useRef(null);
+
+  // Fetches the creator's username **only when createdBy changes**
+  useEffect(() => {
+    if (!creatorId) {
+      setCreatorUsername(UNKNOWN_USER);
+      return;
+    }
+
+    const fetchCreatorUsername = async () => {
+      try {
+        const userDocRef = doc(db, "users", creatorId);
+        const userSnapshot = await getDoc(userDocRef);
+
+        setCreatorUsername(
+          userSnapshot.exists()
+            ? userSnapshot.data()?.username ?? UNKNOWN_USER
+            : UNKNOWN_USER
+        );
+      } catch (error) {
+        console.error("Error fetching creator username:", error);
+      }
+    };
+
+    fetchCreatorUsername();
+  }, [creatorId]);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(categoryRef, async (snapshot) => {
+    if (!categoryId) return;
+
+    // Cleanup previous subscription
+    if (categoryUnsubscribeRef.current) categoryUnsubscribeRef.current();
+
+    const categoryRef = doc(db, "categories", categoryId);
+    categoryUnsubscribeRef.current = onSnapshot(categoryRef, (snapshot) => {
       if (!snapshot.exists()) return navigate("/categories");
 
       const data = snapshot.data();
@@ -58,31 +89,23 @@ const CategoryDetail = () => {
       setCreatorId(data.createdBy || "");
       setLikeCount(data.likeCount || 0);
       setLastEdited(data.updatedAt ? data.updatedAt.toDate() : null);
-
-      // Fetch the creator's username
-      if (data.createdBy) {
-        const userDocRef = doc(db, "users", data.createdBy);
-        const userSnapshot = await getDoc(userDocRef);
-
-        setCreatorUsername(
-          userSnapshot.exists()
-            ? userSnapshot.data()?.username ?? "Unknown User"
-            : "Unknown User"
-        );
-      } else {
-        setCreatorUsername("Unknown User");
-      }
     });
 
-    return () => unsubscribe();
-  }, [categoryRef, navigate]);
+    return () => {
+      if (categoryUnsubscribeRef.current) categoryUnsubscribeRef.current();
+    };
+  }, [categoryId, navigate]);
 
   // Subscribe to real-time item updates
   useEffect(() => {
+    if (!categoryId) return;
+
+    if (itemsUnsubscribeRef.current) itemsUnsubscribeRef.current();
+
     const itemsCollectionRef = collection(db, `categories/${categoryId}/items`);
     const q = query(itemsCollectionRef, orderBy("rating", "desc"));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    itemsUnsubscribeRef.current = onSnapshot(q, (snapshot) => {
       const itemList = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -90,7 +113,9 @@ const CategoryDetail = () => {
       setItems(itemList);
     });
 
-    return () => unsubscribe();
+    return () => {
+      if (itemsUnsubscribeRef.current) itemsUnsubscribeRef.current();
+    };
   }, [categoryId]);
 
   // Redirect users if privacy settings block access
@@ -104,11 +129,6 @@ const CategoryDetail = () => {
       navigate("/categories");
     }
   }, [category, user, following, navigate]);
-
-  // Compute if user can edit the category (if user is creator)
-  const canEdit = useMemo(() => {
-    return !!(user && creatorId && user.uid === creatorId);
-  }, [user, creatorId]);
 
   // Auto-hide settings after 4 seconds if filter panel is not open
   useEffect(() => {
@@ -214,7 +234,7 @@ const CategoryDetail = () => {
         onDelete={handleDeleteCategory}
         showSettings={showSettings}
         onSettingsToggle={handleSettingsToggle}
-        canEdit={canEdit}
+        canEdit={user && creatorId && user.uid === creatorId}
       />
 
       <h2>{category.name}</h2>
