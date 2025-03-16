@@ -1,7 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  Timestamp,
+} from "firebase/firestore";
 import "../styles/ItemView.css";
 import { refreshRankedItems, calculateCardColor } from "../utils/ranking";
 import { useAuth } from "../context/useAuth";
@@ -60,7 +66,13 @@ const ItemView = () => {
   const handleSaveField = async (field) => {
     await canEditAction(async () => {
       const itemRef = doc(db, `categories/${categoryId}/items`, itemId);
+      const categoryRef = doc(db, "categories", categoryId);
+
       await updateDoc(itemRef, { [field]: itemData[field] });
+      await updateDoc(categoryRef, {
+        updatedAt: Timestamp.now(),
+      });
+
       setEditingField(null);
     });
   };
