@@ -68,7 +68,8 @@ const ItemView = () => {
       const itemRef = doc(db, `categories/${categoryId}/items`, itemId);
       const categoryRef = doc(db, "categories", categoryId);
 
-      await updateDoc(itemRef, { [field]: itemData[field] });
+      const updatedValue = itemData[field]?.trim() || "";
+      await updateDoc(itemRef, { [field]: updatedValue });
       await updateDoc(categoryRef, {
         updatedAt: Timestamp.now(),
       });
