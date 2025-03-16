@@ -1,109 +1,53 @@
-/* Container styling */
-.add-item-container {
-    padding: var(--padding-large);
-}
- 
-/* Header styling */
-.add-item-container h2 {
-    color: var(--secondary-color);
-    text-align: center;
-    margin: var(--padding-large) 0;
-    font-size: var(--font-large);
-}
-
-/* Form styling */
-.add-item-container form{
+.add-item-container{
     display: flex;
     flex-direction: column;
-    gap: var(--padding-large);
+    gap: var(--padding-medium);
+    justify-content: center;
+    align-items: center;
 }
 
-.button-nav-container {
+.rank-container, .comparison-container {
     display: flex;
-    justify-content: center; /* Centers the buttons in the container */
-    gap: var(--padding-large); /* Space between the buttons */
-}
-
-/* Error message styling */
-.add-item-container .error-message {
-    color: var(--error-color);
-    font-size: var(--font-small);
-    margin-bottom: var(--padding-small);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--padding-xxlarge);
 }
 
 /* Button styling */
 .add-item-container button {
     padding: var(--padding-medium);
-    font-size: var(--font-medium);
-    font-weight: var(--fw-medium);
-    border: none;
-    border-radius: var(--border-radius-medium);
+    border: 0.07rem solid var(--quinary-color);
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
-    width: 20rem;
-    /* box-shadow: var(--shadow-small); */
+    width: 10rem;
+    background-color: transparent;
+    outline: none;
+    color: var(--secondary-color);
 }
 
-.comparison-buttons button {
-    color: var(--secondary-color);
-    background-color: var(--primary-color);
-    border: 0.05rem solid var(--quinary-color);
+.add-item-container button:hover {
+    transform: scale(1.1);
+    border-color: var(--quinary-color);
+}
+
+.add-item-container button:focus {
+    outline: none;
 }
 
 .rating-buttons button {
-    /* color: var(--secondary-color) !important; */
-    background-color: var(--primary-color);
-    border: 0.05rem solid var(--quinary-color);
     border-radius: var(--border-radius-medium);
-}
-  
-.add-item-container .button-nav:disabled {
-    background-color: var(--quaternary-color);
-    color: var(--primary-color);
-    cursor: not-allowed;
-}
-
-.add-item-container .button-nav:hover:not(:disabled) {
-    background-color: var(--quinary-color);
-}
-
-.add-item-container .rating-buttons button {
-    max-width: 10rem;
-    color: var(--primary-color);
-}
-
-.add-item-container .button-nav {
-    margin-top: var(--padding-large);
-    background-color: var(--tertiary-color);
-    color: var(--secondary-color);
-    max-width: 10rem;
-}
-
-/* Comparison text styling */
-.add-item-container p {
-    font-size: var(--font-medium);
-    color: var(--secondary-color);
-    text-align: center;
+    max-width: 8rem;
 }
 
 /* Flex layout for both rating and comparison buttons */
 .rating-buttons, .comparison-buttons {
     display: flex;
-    justify-content: center;
-    gap: var(--padding-large);
 }
 
-.rating-buttons button, .comparison-buttons button {
-    margin: var(--padding-xlarge) var(--padding-medium);
+.rating-buttons {
+    gap: var(--padding-xlarge);
 }
 
-.comparison-buttons button:focus, .rating-buttons button:focus {
-    border:none;
-    outline:none;
-}
-
-.rating-buttons button:hover, .comparison-buttons button:hover {
-    transform: scale(1.1);
-    background-color: var(--tertiary-color);
-    border:none;
+.comparison-buttons {
+    gap: var(--padding-xlarge);
 }

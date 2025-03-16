@@ -1,34 +1,18 @@
-.field-data, .notes-field {
-    background-color: transparent;
-    padding: var(--padding-medium);
-    font-size: var(--font-medium);
-    border-radius: var(--border-radius-medium);
-    border: 1px solid var(--quaternary-color);
-    transition: border-color 0.2s;
-    color: var(--secondary-color);
-}
-
-.input-container {
+.item-details-container {
     display: flex;
     flex-direction: column;
-    justify-self: center;
-    margin: var(--padding-medium) var(--padding-xsmall);
-    gap: var(--padding-small);
-    width: 20rem;
+    gap: var(--padding-medium);
+    justify-content: center;
+    align-items: center;
 }
 
 .notes-field {
-  margin-top: 1rem;
-  width: 65%;
+  margin-top: var(--padding-ml);
+  width: 300%;
 }
 
-.field-data:focus, .notes-field:focus {
-    border-color: var(--secondary-color);
-    outline: none;
-}
-
-.field-data:hover, .notes-field:hover {
-    border-color: var(--secondary-color);
-    outline: none;
-    filter: brightness(90%);
+.item-details-container .error-message {
+  color: var(--error-color);
+  font-size: var(--font-small);
+  margin: 0;
 }
