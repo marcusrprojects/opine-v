@@ -9,4 +9,5 @@
   border-radius: var(--border-radius-medium);
   background-color: transparent;
   outline: none;
+  color: var(--secondary-color);
 }
