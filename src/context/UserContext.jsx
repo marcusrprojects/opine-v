@@ -13,56 +13,86 @@ import PropTypes from "prop-types";
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [userCache, setUserCache] = useState(new Map());
-  const [subscriptions, setSubscriptions] = useState(new Map()); // ✅ Store Firestore listeners
+  const [userCache, setUserCache] = useState(new Map()); // Stores user data
+  const [subscriptions, setSubscriptions] = useState(new Map()); // Stores Firestore listeners
 
+  /**
+   * Fetches a user by username.
+   * - Uses cache for efficiency.
+   * - Sets up real-time Firestore listener if not already active.
+   */
   const getUserByUsername = async (username) => {
+    if (!username) return null;
+
+    // ✅ Step 1: Check cache first (O(1) lookup)
     if (userCache.has(username)) {
       return userCache.get(username);
     }
 
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("username", "==", username));
-    const querySnapshot = await getDocs(q);
+    try {
+      // 🔹 Step 2: Query Firestore for the user by username
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("username", "==", username));
+      const querySnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-      const userDoc = querySnapshot.docs[0];
-      const userId = userDoc.id;
-      const userData = userDoc.data();
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        const userId = userDoc.id;
+        const userData = userDoc.data();
 
-      const userObj = {
-        id: userId,
-        name: userData.name,
-        username: userData.username,
-      };
+        const userObj = {
+          id: userId,
+          name: userData.name,
+          username: userData.username,
+        };
 
-      setUserCache((prev) => new Map(prev).set(username, userObj));
+        // ✅ Step 3: Store in cache
+        setUserCache((prevCache) => new Map(prevCache).set(userId, userObj));
 
-      // ✅ If already subscribed, clean up old subscription before creating a new one
-      if (subscriptions.has(userId)) {
-        subscriptions.get(userId)(); // Unsubscribe previous listener
-      }
-
-      // ✅ Subscribe to real-time updates
-      const unsubscribe = onSnapshot(doc(db, "users", userId), (docSnap) => {
-        if (docSnap.exists()) {
-          const updatedUser = { id: userId, ...docSnap.data() };
-          setUserCache((prev) => new Map(prev).set(username, updatedUser));
+        // ✅ Step 4: Prevent duplicate listeners
+        if (subscriptions.has(userId)) {
+          return userObj;
         }
-      });
 
-      setSubscriptions((prev) => new Map(prev).set(userId, unsubscribe));
+        // 🔹 Step 5: Set up real-time listener (only once per userId)
+        const unsubscribe = onSnapshot(doc(db, "users", userId), (docSnap) => {
+          if (docSnap.exists()) {
+            const updatedUser = { id: userId, ...docSnap.data() };
 
-      return userObj;
+            // ✅ Update cache
+            setUserCache((prevCache) => {
+              const newCache = new Map(prevCache);
+              newCache.set(userId, updatedUser);
+              return newCache;
+            });
+          }
+        });
+
+        // ✅ Store the unsubscribe function (prevent memory leaks)
+        setSubscriptions((prevSubs) => {
+          const newSubs = new Map(prevSubs);
+          newSubs.set(userId, unsubscribe);
+          return newSubs;
+        });
+
+        return userObj;
+      }
+    } catch (error) {
+      console.error("Error fetching user by username:", error);
     }
 
     return null;
   };
 
-  // ✅ Clean up all Firestore listeners when UserProvider unmounts
+  /**
+   * Cleanup all Firestore listeners on unmount.
+   */
   useEffect(() => {
     return () => {
-      subscriptions.forEach((unsubscribe) => unsubscribe());
+      subscriptions.forEach((unsubscribe, userId) => {
+        unsubscribe();
+        subscriptions.delete(userId);
+      });
     };
   }, [subscriptions]);
 
