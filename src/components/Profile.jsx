@@ -5,6 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { useAuth } from "../context/useAuth";
 import EditLogoutPanel from "./Navigation/EditLogoutPanel";
+import FollowPanel from "./Navigation/FollowPanel";
 import "../styles/Profile.css";
 import CategoryCollection from "./CategoryCollection";
 import { useFollow } from "../context/useFollow";
@@ -80,7 +81,16 @@ const Profile = ({ userId = null }) => {
 
   return (
     <div className="profile-container">
-      <EditLogoutPanel onEdit={handleEditProfile} onLogout={logout} />
+      {/* ✅ Conditionally render correct panel */}
+      {isCurrentUser ? (
+        <EditLogoutPanel onEdit={handleEditProfile} onLogout={logout} />
+      ) : (
+        <FollowPanel
+          isFollowing={isFollowing}
+          onToggleFollow={() => toggleFollow(userId)}
+        />
+      )}
+
       <div className="profile-header">
         <h2>{displayName}</h2>
         <h3>@{username}</h3>
@@ -95,13 +105,6 @@ const Profile = ({ userId = null }) => {
           </span>
         </div>
       </div>
-
-      {/* Follow/Unfollow Button */}
-      {!isCurrentUser && (
-        <button className="follow-button" onClick={() => toggleFollow(userId)}>
-          {isFollowing ? "Unfollow" : "Follow"}
-        </button>
-      )}
 
       {/* Display Categories */}
       <div className="profile-categories-section">
