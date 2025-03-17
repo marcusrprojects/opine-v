@@ -69,11 +69,11 @@ const Profile = ({ userId = null }) => {
   };
 
   const handleViewFollowers = () => {
-    navigate(`/profile/${userId || user?.uid}/followers`);
+    navigate(`/profile/${username || userId || user?.uid}/followers`);
   };
 
   const handleViewFollowing = () => {
-    navigate(`/profile/${userId || user?.uid}/following`);
+    navigate(`/profile/${username || userId || user?.uid}/following`);
   };
 
   if (!user) return null;
