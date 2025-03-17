@@ -18,6 +18,7 @@ import { useFollow } from "../context/useFollow";
 import { useLikedCategories } from "../context/useLikedCategories";
 import { useNavigate } from "react-router-dom";
 import { PRIVACY_LEVELS } from "../constants/privacy";
+import "../styles/CategoryCollection.css";
 
 const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
   const { user } = useAuth();
@@ -207,12 +208,23 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
   );
 
   return (
-    <CategoryList
-      categories={filteredCategories}
-      onCategoryClick={handleCategoryClick}
-      onLike={handleLike}
-      likedCategories={likedCategories}
-    />
+    <>
+      {mode === "recommended" && filteredCategories.length === 0 ? (
+        <div className="empty-recommendation">
+          <p>
+            No recommendations yet. Try liking some categories to get
+            personalized suggestions!
+          </p>
+        </div>
+      ) : (
+        <CategoryList
+          categories={filteredCategories}
+          onCategoryClick={handleCategoryClick}
+          onLike={handleLike}
+          likedCategories={likedCategories}
+        />
+      )}
+    </>
   );
 };
 
