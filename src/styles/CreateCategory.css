@@ -27,38 +27,3 @@
 .category-name-group, .tags-group, .privacy-section{
   gap: var(--padding-medium);
 }
-
-/* Dropdown styling */
-.dropdown {
-  display: none; /* Initially hidden */
-  border: 1px solid var(--tertiary-color);
-  border-radius: var(--border-radius-medium);
-  margin-top: 0.5rem;
-  width: 20vw; /* Fixed width for consistency */
-  /* max-height: 150px; */
-  overflow-y: auto;
-  transition: max-height 0.3s ease; /* Smooth expand animation */
-  z-index: 10;
-}
-
-/* Show dropdown when expanded */
-.dropdown.expanded {
-  display:flex;
-  flex-direction: column;
-}
-
-/* Center the items */
-.dropdown-item {
-  padding: 0.5rem;
-  text-align: center;
-  cursor: pointer;
-}
-
-.dropdown-item:hover {
-  background-color: var(--primary-color);
-}
-
-.privacy-section {
-  display: flex;
-  flex-direction: column;
-}

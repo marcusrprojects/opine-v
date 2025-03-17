@@ -11,24 +11,20 @@
 
 /* Dropdown Styling */
 .dropdown {
-  display: block;
-  /* background-color: var(--primary-color); */
-  /* border: 0.1rem solid transparent; */
-  /* border-radius: var(--border-radius-medium); */
-  /* padding: var(--padding-small); */
-  /* overflow: hidden; */
-  /* z-index: 10; */
+  /* display: block; */
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
   opacity: 0;
   max-height: 0;
   width: 12rem;
+  border: 1px solid var(--tertiary-color);
+  border-radius: var(--border-radius-medium);
+  margin-top: 0.5rem;
+  overflow-y: auto;
+  transition: max-height 0.3s ease;
 }
 
 /* Show Dropdown */
 .dropdown.expanded {
-  /* display: flex; */
-  /* flex-direction: column; */
-  /* position: fixed; */
   max-height: 10rem;
   opacity: 1;
   border: 0.05rem solid var(--quinary-color);
@@ -36,6 +32,9 @@
 
 /* Dropdown Item */
 .dropdown-item {
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
