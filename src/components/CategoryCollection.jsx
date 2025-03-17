@@ -216,6 +216,10 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
             personalized suggestions!
           </p>
         </div>
+      ) : mode === "likedByUser" && filteredCategories.length === 0 ? (
+        <div className="no-liked-categories-message">
+          <p>No liked categories yet.</p>
+        </div>
       ) : (
         <CategoryList
           categories={filteredCategories}
