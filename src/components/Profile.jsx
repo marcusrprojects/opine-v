@@ -87,7 +87,13 @@ const Profile = ({ userId = null }) => {
       ) : (
         <FollowPanel
           isFollowing={isFollowing}
-          onToggleFollow={() => toggleFollow(userId)}
+          onToggleFollow={() => {
+            if (!user) {
+              navigate("/login");
+            } else {
+              toggleFollow(userId);
+            }
+          }}
         />
       )}
 
