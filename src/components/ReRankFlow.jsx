@@ -100,7 +100,7 @@ const ReRankFlow = () => {
         onBack={handleBack}
         onNext={handleNext}
         isBackDisabled={false}
-        isNextDisabled={currentStep === 1 && rankCategory === null}
+        isNextDisabled={true}
         currentStep={currentStep}
         totalSteps={2}
       />

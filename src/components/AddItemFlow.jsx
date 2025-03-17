@@ -89,7 +89,7 @@ const AddItemFlow = () => {
         onBack={handleBack}
         onNext={handleNext}
         isBackDisabled={false}
-        isNextDisabled={currentStep === 1 && !isStepValid}
+        isNextDisabled={!(currentStep === 1 && isStepValid)}
         currentStep={currentStep}
         totalSteps={3}
       />
