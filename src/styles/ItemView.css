@@ -91,7 +91,7 @@
 }
 
 .item-input {
-  background-color: var(--primary-color); 
+  background-color: transparent; 
   color: var(--secondary-color);
 }
 

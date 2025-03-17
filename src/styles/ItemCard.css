@@ -4,7 +4,7 @@
   padding: var(--padding-xsmall);
   border-radius: var(--padding-sm);
   filter: brightness(92%);
-  color: var(--primary-color);
+  color: transparent;
 }
 
 .field-pair {
