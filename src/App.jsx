@@ -22,6 +22,7 @@ import FollowList from "./components/FollowList";
 // Context Providers
 import { LikedCategoriesProvider } from "./context/LikedCategoriesContext";
 import { FollowProvider } from "./context/FollowContext";
+import { UserProvider } from "./context/UserContext";
 
 /**
  * App component is the main entry point for the application.
@@ -38,72 +39,77 @@ function App() {
     <div className="App">
       <LikedCategoriesProvider>
         <FollowProvider>
-          <Router>
-            <div className="App-layout">
-              {/* Sidebar */}
-              <Sidebar
-                sidebarOpen={sidebarOpen}
-                toggleSidebar={toggleSidebar}
-              />
+          <UserProvider>
+            <Router>
+              <div className="App-layout">
+                {/* Sidebar */}
+                <Sidebar
+                  sidebarOpen={sidebarOpen}
+                  toggleSidebar={toggleSidebar}
+                />
 
-              {/* Main content area */}
-              <div className="main-content">
-                <Routes>
-                  <Route exact path="/" element={<Feed />} />
-                  <Route path="/categories" element={<Categories />} />
-                  <Route
-                    path="/create-category"
-                    element={
-                      <ProtectedRoute>
-                        <CreateCategory />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/categories/:categoryId"
-                    element={<CategoryDetail />}
-                  />
-                  <Route
-                    path="/categories/:categoryId/edit"
-                    element={<EditCategory />}
-                  />
-                  <Route
-                    path="/categories/:categoryId/add-item"
-                    element={
-                      <ProtectedRoute>
-                        <AddItem />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/categories/:categoryId/item/:itemId"
-                    element={<ItemView />}
-                  />
-                  <Route
-                    path="/categories/:categoryId/items/:itemId/rerank"
-                    element={
-                      <ProtectedRoute>
-                        <ReRankFlow />
-                      </ProtectedRoute>
-                    }
-                  />
-                  {/* Route for viewing profiles (own or others') */}
-                  <Route path="/profile/:userId?" element={<Profile />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route
-                    path="/profile/:userId/followers"
-                    element={<FollowList mode="followers" />}
-                  />
-                  <Route
-                    path="/profile/:userId/following"
-                    element={<FollowList mode="following" />}
-                  />
-                </Routes>
+                {/* Main content area */}
+                <div className="main-content">
+                  <Routes>
+                    <Route exact path="/" element={<Feed />} />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route
+                      path="/create-category"
+                      element={
+                        <ProtectedRoute>
+                          <CreateCategory />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/categories/:categoryId"
+                      element={<CategoryDetail />}
+                    />
+                    <Route
+                      path="/categories/:categoryId/edit"
+                      element={<EditCategory />}
+                    />
+                    <Route
+                      path="/categories/:categoryId/add-item"
+                      element={
+                        <ProtectedRoute>
+                          <AddItem />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/categories/:categoryId/item/:itemId"
+                      element={<ItemView />}
+                    />
+                    <Route
+                      path="/categories/:categoryId/items/:itemId/rerank"
+                      element={
+                        <ProtectedRoute>
+                          <ReRankFlow />
+                        </ProtectedRoute>
+                      }
+                    />
+                    {/* Route for viewing profiles (own or others') */}
+                    <Route path="/profile/:username?" element={<Profile />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route
+                      path="/forgot-password"
+                      element={<ForgotPassword />}
+                    />
+                    <Route
+                      path="/profile/:username/followers"
+                      element={<FollowList mode="followers" />}
+                    />
+                    <Route
+                      path="/profile/:username/following"
+                      element={<FollowList mode="following" />}
+                    />
+                  </Routes>
+                </div>
               </div>
-            </div>
-          </Router>
+            </Router>
+          </UserProvider>
         </FollowProvider>
       </LikedCategoriesProvider>
     </div>
