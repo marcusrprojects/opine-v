@@ -17,6 +17,7 @@ import ReRankFlow from "./components/ReRankFlow";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import EditCategory from "./components/EditCategory";
 import ForgotPassword from "./components/ForgotPassword";
+import FollowList from "./components/FollowList";
 
 // Context Providers
 import { LikedCategoriesProvider } from "./context/LikedCategoriesContext";
@@ -91,6 +92,14 @@ function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route
+                    path="/profile/:userId/followers"
+                    element={<FollowList mode="followers" />}
+                  />
+                  <Route
+                    path="/profile/:userId/following"
+                    element={<FollowList mode="following" />}
+                  />
                 </Routes>
               </div>
             </div>
