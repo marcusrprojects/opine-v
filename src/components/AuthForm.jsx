@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, googleProvider, db } from "../firebaseConfig";
-
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import TextInput from "./TextInput";
 import "../styles/AuthForm.css";
@@ -20,8 +20,11 @@ const AuthForm = ({ mode }) => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
 
-  // Function to create a user profile in Firestore
+  /**
+   * Creates a user profile in Firestore if it doesn't exist
+   */
   const createUserProfile = async (user, newDisplayName, newUsername) => {
     const userRef = doc(db, "users", user.uid);
     const userSnapshot = await getDoc(userRef);
@@ -39,12 +42,19 @@ const AuthForm = ({ mode }) => {
     }
   };
 
-  // Handle Email Signup/Login
+  /**
+   * Handles Email Signup/Login
+   */
   const handleAuth = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       if (isSignup) {
+        if (password.length < 6) {
+          setError("Password must be at least 6 characters.");
+          return;
+        }
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
@@ -55,12 +65,19 @@ const AuthForm = ({ mode }) => {
         await signInWithEmailAndPassword(auth, email, password);
       }
       navigate("/profile");
-    } catch (error) {
-      console.error(`Error ${isSignup ? "signing up" : "logging in"}:`, error);
+    } catch (err) {
+      console.error(`Error ${isSignup ? "signing up" : "logging in"}:`, err);
+      setError(
+        err.code === "auth/invalid-credential"
+          ? "Invalid email or password."
+          : err.message
+      );
     }
   };
 
-  // Handle Google Signup/Login
+  /**
+   * Handles Google Signup/Login
+   */
   const handleGoogleAuth = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -69,25 +86,39 @@ const AuthForm = ({ mode }) => {
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
 
-      if (!userSnapshot.exists()) {
-        if (isSignup) {
-          const newDisplayName = prompt("Enter your display name:");
-          const newUsername = prompt("Choose a username:");
+      if (!userSnapshot.exists() && isSignup) {
+        // Prompt for display name & username if signing up
+        const newDisplayName = prompt("Enter your display name:");
+        const newUsername = prompt("Choose a username:");
 
-          if (!newDisplayName || !newUsername) {
-            alert("Both display name and username are required.");
-            return;
-          }
-
-          await createUserProfile(user, newDisplayName, newUsername);
+        if (!newDisplayName || !newUsername) {
+          alert("Both display name and username are required.");
+          return;
         }
+
+        await createUserProfile(user, newDisplayName, newUsername);
       }
       navigate("/profile");
-    } catch (error) {
-      console.error(
-        `Error with Google ${isSignup ? "signup" : "login"}:`,
-        error
-      );
+    } catch (err) {
+      console.error(`Error with Google ${isSignup ? "signup" : "login"}:`, err);
+      setError("Google sign-in failed. Please try again.");
+    }
+  };
+
+  /**
+   * Sends password reset email
+   */
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError("Enter your email to reset password.");
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("Password reset email sent! Check your inbox.");
+    } catch (err) {
+      console.error("Error sending password reset email:", err);
+      setError("Failed to send password reset email. Try again.");
     }
   };
 
@@ -135,16 +166,23 @@ const AuthForm = ({ mode }) => {
         <button onClick={handleGoogleAuth} className="submit-button">
           {isSignup ? "Sign up" : "Login"} with Google
         </button>
+
+        {error && <p className="error-message">{error}</p>}
       </form>
 
       <p className="switch-link">
         {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
-        <span
+        <button
           className="navigate-button"
           onClick={() => navigate(isSignup ? "/login" : "/signup")}
         >
           {isSignup ? "Login here" : "Sign up here"}
-        </span>
+        </button>
+        {!isSignup && (
+          <button className="navigate-button" onClick={handleForgotPassword}>
+            Forgot Password?
+          </button>
+        )}
       </p>
     </div>
   );
