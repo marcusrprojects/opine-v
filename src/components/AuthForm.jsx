@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, googleProvider, db } from "../firebaseConfig";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -23,7 +23,14 @@ const AuthForm = ({ mode }) => {
   const [error, setError] = useState("");
 
   /**
-   * Creates a user profile in Firestore if it doesn't exist
+   * Clears errors when user starts typing again.
+   */
+  useEffect(() => {
+    setError("");
+  }, [email, password, displayName, username]);
+
+  /**
+   * Creates a user profile in Firestore if it doesn't exist.
    */
   const createUserProfile = async (user, newDisplayName, newUsername) => {
     const userRef = doc(db, "users", user.uid);
@@ -43,11 +50,10 @@ const AuthForm = ({ mode }) => {
   };
 
   /**
-   * Handles Email Signup/Login
+   * Handles Email Signup/Login.
    */
   const handleAuth = async (e) => {
     e.preventDefault();
-    setError("");
 
     try {
       if (isSignup) {
@@ -76,9 +82,10 @@ const AuthForm = ({ mode }) => {
   };
 
   /**
-   * Handles Google Signup/Login
+   * Handles Google Signup/Login.
    */
   const handleGoogleAuth = async () => {
+    setError(""); // Reset previous errors
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
@@ -87,7 +94,6 @@ const AuthForm = ({ mode }) => {
       const userSnapshot = await getDoc(userRef);
 
       if (!userSnapshot.exists() && isSignup) {
-        // Prompt for display name & username if signing up
         const newDisplayName = prompt("Enter your display name:");
         const newUsername = prompt("Choose a username:");
 
@@ -106,9 +112,10 @@ const AuthForm = ({ mode }) => {
   };
 
   /**
-   * Sends password reset email
+   * Sends password reset email.
    */
   const handleForgotPassword = async () => {
+    setError(""); // Reset previous errors
     if (!email) {
       setError("Enter your email to reset password.");
       return;
