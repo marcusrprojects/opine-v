@@ -73,6 +73,10 @@
     color: var(--middle-color);
 }
 
+.navigate-button:focus {
+    outline: none;
+}
+
 .error-message {
   color: var(--error-color);
   text-align: center;
