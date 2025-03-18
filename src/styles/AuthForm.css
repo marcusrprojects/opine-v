@@ -1,10 +1,11 @@
 .auth-container {
-  justify-self: center;
-  width: 25vw;
+    display: flex;
+    flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .auth-title {
-  /* text-align: center; */
   font-size: var(--font-large);
   font-weight: var(--fw-small);
   color: var(--secondary-color);
@@ -15,6 +16,8 @@
   gap: var(--padding-medium);
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .input-field {
@@ -51,6 +54,7 @@
   text-align: center;
   font-size: var(--font-small);
   color: var(--secondary-color);
+  width: 25vw;
 }
 
 .navigate-button {
@@ -67,4 +71,12 @@
 .navigate-button:hover {
     background: none;
     color: var(--middle-color);
+}
+
+.error-message {
+  color: var(--error-color);
+  text-align: center;
+  font-size: var(--font-small);
+  padding: 0;
+  margin: 0;
 }
