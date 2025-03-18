@@ -1,27 +1,25 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { getDoc, doc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import "../styles/FollowList.css";
 import PropTypes from "prop-types";
 import BackPanel from "./Navigation/BackPanel";
 
 const FollowList = ({ mode }) => {
-  const { userId } = useParams(); // Get the user ID from the URL
+  const { uid } = useParams();
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Determine title based on mode
   const title = mode === "followers" ? "Followers" : "Following";
 
   useEffect(() => {
     const fetchFollowData = async () => {
-      if (!userId) return;
+      if (!uid) return;
       setLoading(true);
-
       try {
-        const userDocRef = doc(db, "users", userId);
+        const userDocRef = doc(db, "users", uid);
         const userSnapshot = await getDoc(userDocRef);
 
         if (userSnapshot.exists()) {
@@ -41,20 +39,20 @@ const FollowList = ({ mode }) => {
     };
 
     fetchFollowData();
-  }, [userId, mode, title]);
+  }, [uid, mode, title]);
 
   return (
     <div className="follow-list-container">
-      <BackPanel onBack={() => navigate(`/profile/${userId}`)} />
+      <BackPanel onBack={() => navigate(`/profile/${uid}`)} />
       <h2>{title}</h2>
 
       {loading ? (
         <p>Loading...</p>
       ) : users.length > 0 ? (
         <ul className="follow-list">
-          {users.map((user) => (
-            <li key={user} className="follow-item">
-              <span className="username">@{user}</span>
+          {users.map((followerId) => (
+            <li key={followerId} className="follow-item">
+              <span className="username">@{followerId}</span>{" "}
             </li>
           ))}
         </ul>
