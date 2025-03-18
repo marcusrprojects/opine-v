@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
+import { useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { useAuth } from "../context/useAuth";
@@ -10,122 +9,96 @@ import "../styles/Profile.css";
 import CategoryCollection from "./CategoryCollection";
 import { useFollow } from "../context/useFollow";
 
-const Profile = ({ userId = null }) => {
+const Profile = () => {
   const { user, logout } = useAuth();
+  const { uid } = useParams();
   const navigate = useNavigate();
   const { following, toggleFollow } = useFollow();
-  const isCurrentUser = userId === null || userId === user?.uid;
-  const isFollowing = user && userId && following.has(userId);
 
-  // State for dynamically loaded user details
-  const [displayName, setDisplayName] = useState(
-    isCurrentUser ? user?.name : "Anonymous"
-  );
-  const [username, setUsername] = useState(
-    isCurrentUser ? user?.username : "unknown"
-  );
-  const [followersCount, setFollowersCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
+  // State for user profile
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Redirect guests to login page
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    } else if (!userId && user.username) {
-      navigate(`/profile/${user.username}`);
-    }
-  }, [user, navigate, userId]);
+  const isCurrentUser = user && uid === user.uid;
+  const isFollowing = !!(user && uid && following?.has(uid));
 
-  // Fetch user profile details including name, username, followers, and following
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const targetUserId = isCurrentUser ? user?.uid : userId;
-      if (!targetUserId) return;
+      if (!uid) {
+        if (user?.uid) {
+          navigate(`/profile/${user.uid}`);
+        } else {
+          navigate("/login");
+        }
+        return;
+      }
 
       try {
-        const userDocRef = doc(db, "users", targetUserId);
+        const userDocRef = doc(db, "users", uid);
         const userSnapshot = await getDoc(userDocRef);
 
         if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          setDisplayName(userData.name || "Anonymous");
-          setUsername(userData.username || "unknown");
-          setFollowersCount(userData.followers?.length || 0);
-          setFollowingCount(userData.following?.length || 0);
+          setProfileData(userSnapshot.data());
+        } else {
+          console.warn("User not found");
+          navigate("/");
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);
-        setDisplayName("Unknown User");
-        setUsername("unknown");
-        setFollowersCount(0);
-        setFollowingCount(0);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, [userId, isCurrentUser, user?.uid]);
+  }, [uid, user, navigate]);
 
-  const handleEditProfile = () => {
-    navigate("/profile/edit");
-  };
+  if (loading) return <p>Loading...</p>;
+  if (!profileData) return <p>User not found.</p>;
 
   const handleViewFollowers = () => {
-    navigate(`/profile/${username || userId || user?.uid}/followers`);
+    navigate(`/profile/${uid}/followers`);
   };
 
   const handleViewFollowing = () => {
-    navigate(`/profile/${username || userId || user?.uid}/following`);
+    navigate(`/profile/${uid}/following`);
   };
-
-  if (!user) return null;
 
   return (
     <div className="profile-container">
-      {/* ✅ Conditionally render correct panel */}
       {isCurrentUser ? (
-        <EditLogoutPanel onEdit={handleEditProfile} onLogout={logout} />
+        <EditLogoutPanel
+          onEdit={() => navigate("/profile/edit")}
+          onLogout={logout}
+        />
       ) : (
         <FollowPanel
           isFollowing={isFollowing}
-          onToggleFollow={() => {
-            if (!user) {
-              navigate("/login");
-            } else {
-              toggleFollow(userId);
-            }
-          }}
+          onToggleFollow={() => (user ? toggleFollow(uid) : navigate("/login"))}
         />
       )}
 
       <div className="profile-header">
-        <h2>{displayName}</h2>
-        <h3>@{username}</h3>
-
-        {/* Followers & Following Info */}
+        <h2>{profileData.name || "Anonymous"}</h2>
+        <h3>@{profileData.username || "unknown"}</h3>
         <div className="follow-info">
           <span className="follow-link" onClick={handleViewFollowers}>
-            {followersCount} Followers
+            {profileData.followers?.length || 0} Followers
           </span>
           <span className="follow-link" onClick={handleViewFollowing}>
-            {followingCount} Following
+            {profileData.following?.length || 0} Following
           </span>
         </div>
       </div>
 
-      {/* Display Categories */}
       <div className="profile-categories-section">
-        <h3>{`Categories`}</h3>
-        <CategoryCollection mode="user" userId={userId || user?.uid} />
-
-        <h3>{`Liked Categories`}</h3>
-        <CategoryCollection mode="likedByUser" userId={userId || user?.uid} />
+        <h3>Categories</h3>
+        <CategoryCollection mode="user" userId={uid} />
+        <h3>Liked Categories</h3>
+        <CategoryCollection mode="likedByUser" userId={uid} />
       </div>
     </div>
   );
-};
-
-Profile.propTypes = {
-  userId: PropTypes.string,
 };
 
 export default Profile;
