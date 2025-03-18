@@ -1,13 +1,21 @@
 import PropTypes from "prop-types";
-// import "../styles/FollowPanel.css";
+import Panel from "./Panel";
+import Button from "./Button";
+import { FaUserPlus, FaUserMinus } from "react-icons/fa";
 
+/**
+ * FollowPanel allows users to follow/unfollow another user.
+ * - Uses consistent styling with other panels.
+ */
 const FollowPanel = ({ isFollowing, onToggleFollow }) => {
   return (
-    <div className="follow-panel">
-      <button className="follow-button" onClick={onToggleFollow}>
-        {isFollowing ? "Unfollow" : "Follow"}
-      </button>
-    </div>
+    <Panel>
+      <Button
+        onClick={onToggleFollow}
+        title={isFollowing ? "Unfollow" : "Follow"}
+        icon={isFollowing ? FaUserMinus : FaUserPlus}
+      />
+    </Panel>
   );
 };
 
