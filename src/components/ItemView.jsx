@@ -89,6 +89,7 @@ const ItemView = () => {
   };
 
   const handleReRank = () => {
+    if (!canEdit) return; // Prevents non-creators from clicking
     navigate(`/categories/${categoryId}/items/${itemId}/rerank`, {
       state: { existingItem: itemData },
     });
@@ -116,7 +117,7 @@ const ItemView = () => {
       <div className="rating-container">
         <div
           id="rating-display"
-          className="item-rating"
+          className={`item-rating ${canEdit ? "editable" : "disabled"}`}
           style={{ outlineColor: cardColor }}
           onClick={handleReRank}
         >

@@ -31,9 +31,13 @@
   /* font-size: var(--font-sm); */
 }
 
-#rating-display:hover {
-  /* filter:brightness(90%); */
+#rating-display.editable:hover {
   transform: scale(1.2);
+}
+
+#rating-display.disabled {
+  cursor: default;
+  transform: none;
 }
 
 .item-field {
