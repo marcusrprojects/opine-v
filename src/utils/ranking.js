@@ -11,7 +11,6 @@ export const writeItemsToFirestore = async (
 
   // Dynamic offset: The first item should not start at the exact lower boundary
   const dynamicOffset = totalRange / items.length;
-  console.log("Dynamic offset: ", dynamicOffset);
 
   const minRating =
     rankCategory === RankCategory.GOOD
