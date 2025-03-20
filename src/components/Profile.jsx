@@ -24,6 +24,22 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      try {
+        const userDocRef = doc(db, "users", uid);
+        const userSnapshot = await getDoc(userDocRef);
+        if (userSnapshot.exists()) {
+          setProfileData(userSnapshot.data());
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [following, uid]);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
       if (!uid) {
         if (user?.uid) {
           navigate(`/profile/${user.uid}`);
