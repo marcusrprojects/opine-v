@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, googleProvider, db } from "../firebaseConfig";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  query,
+  collection,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -90,6 +98,32 @@ const AuthForm = ({ mode }) => {
     }
   };
 
+  const generateUniqueUsername = async (emailPrefix) => {
+    let baseUsername = emailPrefix.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    let username = baseUsername;
+    let count = 1; // Start count for duplicates
+    let exists = true;
+
+    while (exists) {
+      // Check Firestore for existing username
+      const usernameQuery = query(
+        collection(db, "users"),
+        where("username", "==", username)
+      );
+      const querySnapshot = await getDocs(usernameQuery);
+
+      if (querySnapshot.empty) {
+        exists = false; // Username is unique
+      } else {
+        // Increment count if the username is taken
+        username = `${baseUsername}${count}`;
+        count++;
+      }
+    }
+
+    return username;
+  };
+
   /**
    * Handles Google Signup/Login.
    */
@@ -107,13 +141,12 @@ const AuthForm = ({ mode }) => {
         const emailPrefix = user.email
           .split("@")[0]
           .replace(/[^a-zA-Z0-9]/g, "");
-        const randomDigits = Math.floor(100 + Math.random() * 900);
-        const generatedUsername = `${emailPrefix}${randomDigits}`;
+        const uniqueUsername = await generateUniqueUsername(emailPrefix);
 
         await createUserProfile(
           user,
           user.displayName,
-          generatedUsername,
+          uniqueUsername,
           "google"
         );
 
