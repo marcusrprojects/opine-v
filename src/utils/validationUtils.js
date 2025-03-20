@@ -21,8 +21,8 @@ export const validateUserProfile = async (
   }
 
   // Display name validation: Ensure it's at least 3 characters
-  if (displayName.length < 3) {
-    return "Display name must be at least 3 characters long.";
+  if (displayName.length < 2) {
+    return "Display name must be at least 2 characters long.";
   }
 
   // Email validation: Must be in standard email format
