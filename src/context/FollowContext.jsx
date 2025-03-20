@@ -46,20 +46,29 @@ export const FollowProvider = ({ children }) => {
 
     try {
       const userDocRef = doc(db, "users", user.uid);
+      const targetUserDocRef = doc(db, "users", targetUserId);
       const isFollowing = following.has(targetUserId);
       const updatedFollowing = new Set(following);
 
       if (isFollowing) {
+        // Unfollow: Remove target user from logged-in user's "following"
         updatedFollowing.delete(targetUserId);
         await updateDoc(userDocRef, { following: arrayRemove(targetUserId) });
+
+        // Unfollow: Remove logged-in user from target user's "followers"
+        await updateDoc(targetUserDocRef, { followers: arrayRemove(user.uid) });
       } else {
+        // Follow: Add target user to logged-in user's "following"
         updatedFollowing.add(targetUserId);
         await updateDoc(userDocRef, { following: arrayUnion(targetUserId) });
+
+        // Follow: Add logged-in user to target user's "followers"
+        await updateDoc(targetUserDocRef, { followers: arrayUnion(user.uid) });
       }
 
       setFollowing(updatedFollowing);
     } catch (error) {
-      console.error("Error updating following list:", error);
+      console.error("Error updating follow status:", error);
     }
   };
 
