@@ -5,6 +5,7 @@ import { db } from "../firebaseConfig";
 import "../styles/FollowList.css";
 import PropTypes from "prop-types";
 import BackPanel from "./Navigation/BackPanel";
+import Card from "./Card";
 
 const FollowList = ({ mode }) => {
   const { uid } = useParams();
@@ -24,9 +25,33 @@ const FollowList = ({ mode }) => {
 
         if (userSnapshot.exists()) {
           const userData = userSnapshot.data();
-          const followList =
+          const followIds =
             mode === "followers" ? userData.followers : userData.following;
-          setUsers(followList || []);
+
+          if (!followIds || followIds.length === 0) {
+            setUsers([]);
+            return;
+          }
+
+          // 🔹 Fetch user details for each UID
+          const userDetailsPromises = followIds.map(async (followId) => {
+            const followDocRef = doc(db, "users", followId);
+            const followSnapshot = await getDoc(followDocRef);
+            if (followSnapshot.exists()) {
+              const followData = followSnapshot.data();
+              return {
+                id: followId,
+                name: followData.name || "Anonymous",
+                username: followData.username || "unknown",
+              };
+            }
+            return null;
+          });
+
+          const resolvedUsers = (await Promise.all(userDetailsPromises)).filter(
+            Boolean
+          );
+          setUsers(resolvedUsers);
         } else {
           setUsers([]);
         }
@@ -50,9 +75,12 @@ const FollowList = ({ mode }) => {
         <p>Loading...</p>
       ) : users.length > 0 ? (
         <ul className="follow-list">
-          {users.map((followerId) => (
-            <li key={followerId} className="follow-item">
-              <span className="username">@{followerId}</span>{" "}
+          {users.map((user) => (
+            <li key={user.id} className="follow-item">
+              <Card onClick={() => navigate(`/profile/${user.id}`)}>
+                <h4>{user.name}</h4>
+                <p>@{user.username}</p>
+              </Card>
             </li>
           ))}
         </ul>
