@@ -68,7 +68,7 @@ const ReRankFlow = () => {
       setCurrentStep((prev) => prev - 1);
       setRankCategory(null);
     } else {
-      navigate(`/categories/${categoryId}/item/${existingItem.id}`);
+      navigate(`/categories/${categoryId}/items/${existingItem.id}`);
     }
   };
 

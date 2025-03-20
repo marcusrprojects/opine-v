@@ -76,7 +76,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/categories/:categoryId/item/:itemId"
+                    path="/categories/:categoryId/items/:itemId"
                     element={<ItemView />}
                   />
                   <Route

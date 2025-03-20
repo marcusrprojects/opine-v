@@ -159,7 +159,7 @@ const CategoryDetail = () => {
   }
 
   // Navigation and action handlers
-  const handleItemClick = (itemId) => navigate(`./item/${itemId}`);
+  const handleItemClick = (itemId) => navigate(`./items/${itemId}`);
   const handleAddItem = () => navigate(`/categories/${categoryId}/add-item`);
   const handleEditCategory = () =>
     navigate(`/categories/${categoryId}/edit`, {
