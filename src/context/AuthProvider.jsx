@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }) => {
             email: authUser.email,
             name: userData.name,
             username: userData.username,
+            authMethod: userData.authMethod,
           });
         } else {
           setUser(authUser);
