@@ -1,4 +1,3 @@
-// CategoryPanel.jsx
 import PropTypes from "prop-types";
 import {
   FaPlus,
@@ -62,7 +61,6 @@ const CategoryPanel = ({
 };
 
 CategoryPanel.propTypes = {
-  onBack: PropTypes.func.isRequired,
   onAdd: PropTypes.func.isRequired,
   isAddDisabled: PropTypes.bool,
   onToggleFilter: PropTypes.func.isRequired,
