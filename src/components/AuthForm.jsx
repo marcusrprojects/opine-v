@@ -41,19 +41,20 @@ const AuthForm = ({ mode }) => {
   /**
    * Creates a user profile in Firestore if it doesn't exist.
    */
-  const createUserProfile = async (user, newName, newUsername) => {
+  const createUserProfile = async (user, newName, newUsername, authMethod) => {
     const userRef = doc(db, "users", user.uid);
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {
       await setDoc(userRef, {
         uid: user.uid,
-        name: newName,
-        username: newUsername,
         email: user.email,
+        name: newName || "New User",
+        username: newUsername,
         createdAt: new Date().toISOString(),
         followers: [],
         following: [],
+        authMethod,
       });
     }
   };
@@ -79,7 +80,7 @@ const AuthForm = ({ mode }) => {
           email,
           password
         );
-        await createUserProfile(userCredential.user, name, username);
+        await createUserProfile(userCredential.user, name, username, "email");
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -106,20 +107,15 @@ const AuthForm = ({ mode }) => {
         const emailPrefix = user.email
           .split("@")[0]
           .replace(/[^a-zA-Z0-9]/g, "");
-        const randomDigits = Math.floor(100 + Math.random() * 900); // Random 3-digit number
+        const randomDigits = Math.floor(100 + Math.random() * 900);
         const generatedUsername = `${emailPrefix}${randomDigits}`;
 
-        // Automatically create a new user profile
-        await setDoc(userRef, {
-          uid: user.uid,
-          email: user.email,
-          name: user.displayName || "New User",
-          username: generatedUsername,
-          createdAt: new Date().toISOString(),
-          followers: [],
-          following: [],
-          authMethod: "google", // Track how they signed up
-        });
+        await createUserProfile(
+          user,
+          user.displayName,
+          generatedUsername,
+          "google"
+        );
 
         // Redirect to edit profile
         navigate("/profile/edit");
