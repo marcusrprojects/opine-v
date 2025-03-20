@@ -18,7 +18,7 @@ const AuthForm = ({ mode }) => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
 
@@ -27,19 +27,19 @@ const AuthForm = ({ mode }) => {
    */
   useEffect(() => {
     setError("");
-  }, [email, password, displayName, username]);
+  }, [email, password, name, username]);
 
   /**
    * Creates a user profile in Firestore if it doesn't exist.
    */
-  const createUserProfile = async (user, newDisplayName, newUsername) => {
+  const createUserProfile = async (user, newName, newUsername) => {
     const userRef = doc(db, "users", user.uid);
     const userSnapshot = await getDoc(userRef);
 
     if (!userSnapshot.exists()) {
       await setDoc(userRef, {
         uid: user.uid,
-        displayName: newDisplayName,
+        name: newName,
         username: newUsername,
         email: user.email,
         createdAt: new Date().toISOString(),
@@ -66,7 +66,7 @@ const AuthForm = ({ mode }) => {
           email,
           password
         );
-        await createUserProfile(userCredential.user, displayName, username);
+        await createUserProfile(userCredential.user, name, username);
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
@@ -94,15 +94,15 @@ const AuthForm = ({ mode }) => {
       const userSnapshot = await getDoc(userRef);
 
       if (!userSnapshot.exists() && isSignup) {
-        const newDisplayName = prompt("Enter your display name:");
+        const newName = prompt("Enter your display name:");
         const newUsername = prompt("Choose a username:");
 
-        if (!newDisplayName || !newUsername) {
+        if (!newName || !newUsername) {
           alert("Both display name and username are required.");
           return;
         }
 
-        await createUserProfile(user, newDisplayName, newUsername);
+        await createUserProfile(user, newName, newUsername);
       }
       navigate("/profile");
     } catch (err) {
@@ -136,8 +136,8 @@ const AuthForm = ({ mode }) => {
         {isSignup && (
           <>
             <TextInput
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Display Name"
               className="input-field"
               required
