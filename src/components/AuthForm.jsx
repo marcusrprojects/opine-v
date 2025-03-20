@@ -11,6 +11,7 @@ import {
 import TextInput from "./TextInput";
 import "../styles/AuthForm.css";
 import PropTypes from "prop-types";
+import { validateUserProfile } from "../utils/validationUtils";
 
 const AuthForm = ({ mode }) => {
   const navigate = useNavigate();
@@ -55,12 +56,16 @@ const AuthForm = ({ mode }) => {
   const handleAuth = async (e) => {
     e.preventDefault();
 
+    if (isSignup) {
+      const validationError = await validateUserProfile(username, name, email);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+    }
+
     try {
       if (isSignup) {
-        if (password.length < 6) {
-          setError("Password must be at least 6 characters.");
-          return;
-        }
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
@@ -73,11 +78,7 @@ const AuthForm = ({ mode }) => {
       navigate("/profile");
     } catch (err) {
       console.error(`Error ${isSignup ? "signing up" : "logging in"}:`, err);
-      setError(
-        err.code === "auth/invalid-credential"
-          ? "Invalid email or password."
-          : err.message
-      );
+      setError(err.message);
     }
   };
 
