@@ -112,7 +112,6 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
           .map(([tag]) => tag);
 
         if (!sortedTags.length) {
-          console.warn("No strong tag matches for recommendations.");
           setCategories([]);
           return;
         }
