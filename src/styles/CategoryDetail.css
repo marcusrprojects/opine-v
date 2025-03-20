@@ -5,3 +5,12 @@
     align-items: center;
     gap: var(--padding-ml);
 }
+
+.clickable-username {
+  font-weight: var(--fw-ml);
+}
+
+.clickable-username:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}

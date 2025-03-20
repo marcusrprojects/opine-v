@@ -256,7 +256,12 @@ const CategoryDetail = () => {
       <div className="category-header">
         <h2>{category.name}</h2>
         <p>{category.description || "No description available."}</p>
-        <p>@{creatorUsername}</p>
+        <span
+          className="clickable-username"
+          onClick={() => navigate(`/profile/${creatorId}`)}
+        >
+          @{creatorUsername}
+        </span>
         <p>
           {likeCount} {likeCount === 1 ? "Like" : "Likes"}
         </p>
