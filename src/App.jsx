@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import EditCategory from "./components/EditCategory";
 import ForgotPassword from "./components/ForgotPassword";
 import FollowList from "./components/FollowList";
+import EditProfile from "./components/EditProfile";
 
 // Context Providers
 import { LikedCategoriesProvider } from "./context/LikedCategoriesContext";
@@ -99,6 +100,7 @@ function App() {
                     path="/profile/:uid/following"
                     element={<FollowList mode="following" />}
                   />
+                  <Route path="/profile/edit" element={<EditProfile />} />
                 </Routes>
               </div>
             </div>
