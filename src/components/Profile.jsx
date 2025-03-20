@@ -46,7 +46,7 @@ const Profile = () => {
     };
 
     fetchUserProfile();
-  }, [uid, user, navigate]);
+  }, [uid, user, navigate, following]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
