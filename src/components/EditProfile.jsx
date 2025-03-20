@@ -7,6 +7,7 @@ import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
 import { useAuth } from "../context/useAuth";
 import { handleError } from "../utils/errorUtils";
+import { validateUserProfile } from "../utils/validationUtils";
 
 const EditProfile = () => {
   const { user } = useAuth();
@@ -46,8 +47,15 @@ const EditProfile = () => {
 
   // Save changes to Firestore & Firebase Auth
   const handleSave = async () => {
-    if (!username.trim() || !displayName.trim() || !email.trim()) {
-      alert("All fields are required.");
+    // Validate inputs using the modular validation function
+    const validationError = await validateUserProfile(
+      username,
+      displayName,
+      email,
+      user.username
+    );
+    if (validationError) {
+      alert(validationError);
       return;
     }
 
@@ -60,11 +68,12 @@ const EditProfile = () => {
         name: displayName.trim(),
       });
 
-      // Update Firebase Auth email
+      // Update Firebase Auth email (if changed)
       if (email !== user.email) {
         await updateEmail(auth.currentUser, email.trim());
       }
 
+      // Navigate back to the profile page after successful update
       navigate(`/profile/${user.uid}`);
     } catch (error) {
       handleError(error, "Error saving profile.");
