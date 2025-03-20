@@ -78,8 +78,8 @@ const FollowList = ({ mode }) => {
           {users.map((user) => (
             <li key={user.id} className="follow-item">
               <Card onClick={() => navigate(`/profile/${user.id}`)}>
-                <h4>{user.name}</h4>
-                <p>@{user.username}</p>
+                <h4 className="card-name">{user.name}</h4>
+                <p className="card-username">@{user.username}</p>
               </Card>
             </li>
           ))}
