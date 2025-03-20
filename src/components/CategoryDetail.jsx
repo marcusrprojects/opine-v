@@ -251,6 +251,7 @@ const CategoryDetail = () => {
         showSettings={showSettings}
         onSettingsToggle={handleSettingsToggle}
         canEdit={user && creatorId && user.uid === creatorId}
+        isCreator={user && creatorId && user.uid === creatorId}
       />
 
       <div className="category-header">
