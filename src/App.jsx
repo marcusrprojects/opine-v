@@ -1,20 +1,19 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Feed from "./components/Feed.jsx";
+import Feed from "./components/Feed";
 import Categories from "./components/Categories";
 import CreateCategory from "./components/CreateCategory";
-import CategoryDetail from "./components/CategoryDetail.jsx";
+import CategoryDetail from "./components/CategoryDetail";
 import AddItem from "./components/AddItemFlow";
 import Profile from "./components/Profile";
 import "./App.css";
 import "./styles/variables.css";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
-import Sidebar from "./components/Sidebar.jsx";
+import AuthForm from "./components/AuthForm";
+import Sidebar from "./components/Sidebar";
 import "./firebaseConfig";
 import ItemView from "./components/ItemView";
 import ReRankFlow from "./components/ReRankFlow";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import ProtectedRoute from "./components/ProtectedRoute";
 import EditCategory from "./components/EditCategory";
 import ForgotPassword from "./components/ForgotPassword";
 import FollowList from "./components/FollowList";
@@ -89,8 +88,8 @@ function App() {
                   />
                   {/* Route for viewing profiles (own or others') */}
                   <Route path="/profile/:uid?" element={<Profile />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/login" element={<AuthForm mode="login" />} />
+                  <Route path="/signup" element={<AuthForm mode="signup" />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route
                     path="/profile/:uid/followers"
