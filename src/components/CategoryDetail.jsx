@@ -13,7 +13,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import ItemList from "./ItemList";
-import CategoryPanel from "./Navigation/CategoryPanel";
+import CategoryCreatorPanel from "./Navigation/CategoryCreatorPanel";
 import CategoryFilters from "./CategoryFilters";
 import { useAuth } from "../context/useAuth";
 import { useLikedCategories } from "../context/useLikedCategories";
@@ -21,6 +21,7 @@ import { handleError } from "../utils/errorUtils";
 import { PRIVACY_LEVELS } from "../constants/privacy";
 import { useFollow } from "../context/useFollow";
 import "../styles/CategoryDetail.css";
+import CategoryViewerPanel from "./Navigation/CategoryViewerPanel";
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -240,20 +241,26 @@ const CategoryDetail = () => {
 
   return (
     <div className="category-detail-container">
-      <CategoryPanel
-        onAdd={handleAddItem}
-        isAddDisabled={false}
-        onToggleFilter={toggleFilter}
-        onLike={handleToggleLike}
-        isLiked={likedCategories.includes(categoryId)}
-        onEdit={handleEditCategory}
-        onDelete={handleDeleteCategory}
-        showSettings={showSettings}
-        onSettingsToggle={handleSettingsToggle}
-        canEdit={user && creatorId && user.uid === creatorId}
-        isCreator={user && creatorId && user.uid === creatorId}
-      />
-
+      {user && creatorId && user.uid === creatorId ? (
+        <CategoryCreatorPanel
+          onAdd={handleAddItem}
+          isAddDisabled={false}
+          onToggleFilter={toggleFilter}
+          onLike={handleToggleLike}
+          isLiked={likedCategories.includes(categoryId)}
+          onEdit={handleEditCategory}
+          onDelete={handleDeleteCategory}
+          showSettings={showSettings}
+          onSettingsToggle={handleSettingsToggle}
+          canEdit={user && creatorId && user.uid === creatorId}
+        />
+      ) : (
+        <CategoryViewerPanel
+          onToggleFilter={toggleFilter}
+          onLike={handleToggleLike}
+          isLiked={likedCategories.includes(categoryId)}
+        />
+      )}
       <div className="category-header">
         <h2>{category.name}</h2>
         <p>{category.description || "No description available."}</p>
@@ -267,7 +274,6 @@ const CategoryDetail = () => {
           {likeCount} {likeCount === 1 ? "Like" : "Likes"}
         </p>
       </div>
-
       {filterOpen && (
         <CategoryFilters
           fields={orderedFields}
@@ -277,13 +283,11 @@ const CategoryDetail = () => {
           onFilterFieldChange={handleFilterFieldChange}
         />
       )}
-
       <ItemList
         items={filteredItems}
         orderedFields={orderedFields}
         onItemClick={handleItemClick}
       />
-
       <p>Last Edited: {getRelativeTime(lastEdited)}</p>
     </div>
   );

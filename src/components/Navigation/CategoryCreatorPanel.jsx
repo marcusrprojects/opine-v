@@ -10,9 +10,8 @@ import {
 } from "react-icons/fa";
 import Panel from "./Panel";
 import Button from "./Button";
-// import "../../styles/CategorySettings.css";
 
-const CategoryPanel = ({
+const CategoryCreatorPanel = ({
   onAdd,
   isAddDisabled,
   onToggleFilter,
@@ -26,18 +25,14 @@ const CategoryPanel = ({
 }) => {
   return (
     <Panel>
-      {/* Navigation Buttons */}
+      {/* If the user is the creator, display full control panel */}
       <Button
         onClick={onAdd}
         title="Add Item"
         icon={FaPlus}
         disabled={isAddDisabled}
       />
-
-      {/* Settings Button */}
       <Button onClick={onSettingsToggle} title="Settings" icon={FaCog} />
-
-      {/* Additional Action Buttons (only visible when settings are open) */}
       {showSettings && (
         <div className="category-actions open">
           <Button
@@ -60,7 +55,7 @@ const CategoryPanel = ({
   );
 };
 
-CategoryPanel.propTypes = {
+CategoryCreatorPanel.propTypes = {
   onAdd: PropTypes.func.isRequired,
   isAddDisabled: PropTypes.bool,
   onToggleFilter: PropTypes.func.isRequired,
@@ -73,4 +68,4 @@ CategoryPanel.propTypes = {
   canEdit: PropTypes.bool.isRequired,
 };
 
-export default CategoryPanel;
+export default CategoryCreatorPanel;
