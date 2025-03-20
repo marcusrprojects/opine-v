@@ -24,19 +24,29 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      if (!uid) {
+        navigate(user?.uid ? `/profile/${user.uid}` : "/login");
+        return;
+      }
+
       try {
         const userDocRef = doc(db, "users", uid);
         const userSnapshot = await getDoc(userDocRef);
+
         if (userSnapshot.exists()) {
           setProfileData(userSnapshot.data());
+        } else {
+          navigate("/");
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, [following, uid]);
+  }, [uid, user, navigate]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
