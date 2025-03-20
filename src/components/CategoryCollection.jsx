@@ -23,7 +23,7 @@ import "../styles/CategoryCollection.css";
 const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
   const { user } = useAuth();
   const { following } = useFollow();
-  const { likedCategories = [], toggleLikeCategory } = useLikedCategories(); // ✅ Ensure default empty array
+  const { likedCategories = [], toggleLikeCategory } = useLikedCategories();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [availableTags, setAvailableTags] = useState(new Set());
@@ -43,8 +43,6 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
 
   // ✅ Refactored function for fetching categories
   const fetchCategories = useCallback(async () => {
-    if (!user && mode !== "all") return;
-
     try {
       let categoryQuery = collection(db, "categories");
 
