@@ -206,17 +206,17 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
 
   return (
     <>
-      {mode === "recommended" && filteredCategories.length === 0 ? (
-        <div className="empty-recommendation">
+      {filteredCategories.length === 0 ? (
+        mode === "recommended" ? (
           <p>
             No recommendations yet. Try liking some categories to get
             personalized suggestions!
           </p>
-        </div>
-      ) : mode === "likedByUser" && filteredCategories.length === 0 ? (
-        <div className="no-liked-categories-message">
+        ) : mode === "likedByUser" || mode === "liked" ? (
           <p>No liked categories yet.</p>
-        </div>
+        ) : (
+          <p>No categories yet.</p>
+        )
       ) : (
         <CategoryList
           categories={filteredCategories}
