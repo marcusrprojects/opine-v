@@ -12,10 +12,12 @@ import TextInput from "./TextInput";
 import "../styles/AuthForm.css";
 import PropTypes from "prop-types";
 import { validateUserProfile } from "../utils/validationUtils";
+import { useAuth } from "../context/useAuth";
 
 const AuthForm = ({ mode }) => {
   const navigate = useNavigate();
   const isSignup = mode === "signup";
+  const { user } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +31,12 @@ const AuthForm = ({ mode }) => {
   useEffect(() => {
     setError("");
   }, [email, password, name, username]);
+
+  useEffect(() => {
+    if (user) {
+      navigate(`/profile/${user.uid}`);
+    }
+  }, [user, navigate]);
 
   /**
    * Creates a user profile in Firestore if it doesn't exist.
