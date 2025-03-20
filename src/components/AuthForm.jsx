@@ -83,7 +83,6 @@ const AuthForm = ({ mode }) => {
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      navigate("/profile");
     } catch (err) {
       console.error(`Error ${isSignup ? "signing up" : "logging in"}:`, err);
       setError(err.message);
@@ -113,7 +112,6 @@ const AuthForm = ({ mode }) => {
 
         await createUserProfile(user, newName, newUsername);
       }
-      navigate("/profile");
     } catch (err) {
       console.error(`Error with Google ${isSignup ? "signup" : "login"}:`, err);
       setError("Google sign-in failed. Please try again.");
