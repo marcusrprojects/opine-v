@@ -8,6 +8,7 @@ import TextInput from "./TextInput";
 import { useAuth } from "../context/useAuth";
 import { handleError } from "../utils/errorUtils";
 import { validateUserProfile } from "../utils/validationUtils";
+import "../styles/EditProfile.css";
 
 const EditProfile = () => {
   const { user } = useAuth();
@@ -33,7 +34,7 @@ const EditProfile = () => {
           const data = userSnapshot.data();
           setUsername(data.username || "");
           setDisplayName(data.name || "");
-          setEmail(user.email); // Use the auth email
+          setEmail(user.email);
         }
       } catch (error) {
         handleError(error, "Error fetching profile data");
@@ -108,7 +109,11 @@ const EditProfile = () => {
         />
 
         <label className="edit-label">Email</label>
-        <TextInput value={email} onChange={(e) => setEmail(e.target.value)} />
+        {user.authMethod === "google" ? (
+          <p className="email-text">{email}</p>
+        ) : (
+          <TextInput value={email} onChange={(e) => setEmail(e.target.value)} />
+        )}
       </div>
     </div>
   );
