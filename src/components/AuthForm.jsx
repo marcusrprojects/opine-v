@@ -101,19 +101,31 @@ const AuthForm = ({ mode }) => {
       const userRef = doc(db, "users", user.uid);
       const userSnapshot = await getDoc(userRef);
 
-      if (!userSnapshot.exists() && isSignup) {
-        const newName = prompt("Enter your display name:");
-        const newUsername = prompt("Choose a username:");
+      if (!userSnapshot.exists()) {
+        // Generate username from email (remove special characters & add random digits)
+        const emailPrefix = user.email
+          .split("@")[0]
+          .replace(/[^a-zA-Z0-9]/g, "");
+        const randomDigits = Math.floor(100 + Math.random() * 900); // Random 3-digit number
+        const generatedUsername = `${emailPrefix}${randomDigits}`;
 
-        if (!newName || !newUsername) {
-          alert("Both display name and username are required.");
-          return;
-        }
+        // Automatically create a new user profile
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || "New User",
+          username: generatedUsername,
+          createdAt: new Date().toISOString(),
+          followers: [],
+          following: [],
+          authMethod: "google", // Track how they signed up
+        });
 
-        await createUserProfile(user, newName, newUsername);
+        // Redirect to edit profile
+        navigate("/profile/edit");
       }
     } catch (err) {
-      console.error(`Error with Google ${isSignup ? "signup" : "login"}:`, err);
+      console.error("Error with Google authentication:", err);
       setError("Google sign-in failed. Please try again.");
     }
   };
