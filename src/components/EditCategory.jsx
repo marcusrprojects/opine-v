@@ -8,7 +8,7 @@ import { handleError } from "../utils/errorUtils";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
-import { PRIVACY_LEVELS } from "../constants/privacy";
+import { CATEGORY_PRIVACY } from "../constants/privacy";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
 
@@ -28,8 +28,8 @@ const EditCategory = () => {
     location.state?.fields?.map((name) => ({ name })) || []
   );
   const [tags, setTags] = useState(location.state?.tags || []);
-  const [privacy, setPrivacy] = useState(
-    location.state?.privacy ?? PRIVACY_LEVELS.PUBLIC
+  const [categoryPrivacy, setCategoryPrivacy] = useState(
+    location.state?.categoryPrivacy ?? CATEGORY_PRIVACY.DEFAULT
   );
   const [loading, setLoading] = useState(!location.state);
 
@@ -47,7 +47,9 @@ const EditCategory = () => {
             setDescription(data.description || "");
             setFields(data.fields?.map((name) => ({ name })) || []);
             setTags(data.tags || []);
-            setPrivacy(data.privacy ?? PRIVACY_LEVELS.PUBLIC);
+            setCategoryPrivacy(
+              data.categoryPrivacy || CATEGORY_PRIVACY.DEFAULT
+            );
           }
         } catch (error) {
           handleError(error, "Error fetching category data");
@@ -78,7 +80,7 @@ const EditCategory = () => {
         description,
         fields: fields.map((field) => field.name), // Convert back to string array
         tags,
-        privacy,
+        categoryPrivacy,
         updatedAt: Timestamp.now(),
       });
 
@@ -135,7 +137,12 @@ const EditCategory = () => {
         <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
       </div>
 
-      <PrivacySelector privacy={privacy} setPrivacy={setPrivacy} />
+      <label className="edit-label">&quot;Only Me&quot;</label>
+      <PrivacySelector
+        privacy={categoryPrivacy}
+        setPrivacy={setCategoryPrivacy}
+        type="category"
+      />
     </div>
   );
 };
