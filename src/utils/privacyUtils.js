@@ -77,3 +77,21 @@ export const updateUserCategoriesPrivacy = async (userId, newPrivacy) => {
     throw error; // Allow caller to handle errors if needed
   }
 };
+
+// must be called only if (!category || !user) return; check isn't returned from.
+export const canUserViewCategory = (category, user, following) => {
+  const isCreator = user.uid === category.createdBy;
+  const isFollower = following.has(category.createdBy);
+
+  const categoryIsPublic =
+    category.categoryPrivacy === CATEGORY_PRIVACY.DEFAULT;
+  const userIsPublic = category.creatorPrivacy === USER_PRIVACY.PUBLIC;
+
+  console.log(isCreator, isFollower, categoryIsPublic, userIsPublic);
+
+  return (
+    isCreator ||
+    (userIsPublic && categoryIsPublic) ||
+    (isFollower && categoryIsPublic)
+  );
+};
