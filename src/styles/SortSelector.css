@@ -1,0 +1,19 @@
+.sort-selector {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* align-items: center; */
+}
+
+.sort-dropdown {
+    display: flex;
+    flex-direction: column;
+    max-width: 2rem;
+    min-height: 12.2rem;
+    overflow-y: hidden !important;
+}
+
+.sort-item {
+    background-color: var(--primary-color);
+}
