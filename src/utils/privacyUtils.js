@@ -6,6 +6,7 @@ import {
   doc,
   getDoc,
   writeBatch,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { USER_PRIVACY, CATEGORY_PRIVACY } from "../constants/privacy";
@@ -20,14 +21,16 @@ export async function getVisibleCategoriesForUser(creatorId, viewerId) {
     // The creator sees all categories
     categoriesQuery = query(
       collection(db, "categories"),
-      where("createdBy", "==", creatorId)
+      where("createdBy", "==", creatorId),
+      orderBy("updatedAt", "desc")
     );
   } else if (creatorPrivacy === USER_PRIVACY.PUBLIC) {
     // For a public account, show categories unless they are marked as "only-me"
     categoriesQuery = query(
       collection(db, "categories"),
       where("createdBy", "==", creatorId),
-      where("categoryPrivacy", "!=", CATEGORY_PRIVACY.ONLY_ME)
+      where("categoryPrivacy", "!=", CATEGORY_PRIVACY.ONLY_ME),
+      orderBy("updatedAt", "desc")
     );
   } else if (creatorPrivacy === USER_PRIVACY.PRIVATE) {
     // For a private account, the viewer must be an approved follower.
@@ -39,7 +42,8 @@ export async function getVisibleCategoriesForUser(creatorId, viewerId) {
     categoriesQuery = query(
       collection(db, "categories"),
       where("createdBy", "==", creatorId),
-      where("categoryPrivacy", "!=", CATEGORY_PRIVACY.ONLY_ME)
+      where("categoryPrivacy", "!=", CATEGORY_PRIVACY.ONLY_ME),
+      orderBy("updatedAt", "desc")
     );
   } else {
     // Fallback: return no categories
@@ -86,8 +90,6 @@ export const canUserViewCategory = (category, user, following) => {
   const categoryIsPublic =
     category.categoryPrivacy === CATEGORY_PRIVACY.DEFAULT;
   const userIsPublic = category.creatorPrivacy === USER_PRIVACY.PUBLIC;
-
-  console.log(isCreator, isFollower, categoryIsPublic, userIsPublic);
 
   return (
     isCreator ||
