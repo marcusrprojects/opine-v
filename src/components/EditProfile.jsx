@@ -9,15 +9,19 @@ import { useAuth } from "../context/useAuth";
 import { handleError } from "../utils/errorUtils";
 import { validateUserProfile } from "../utils/validationUtils";
 import "../styles/EditProfile.css";
+import PrivacySelector from "./PrivacySelector";
+import { USER_PRIVACY } from "../constants/privacy";
+import { updateUserCategoriesPrivacy } from "../utils/privacyUtils";
 
 const EditProfile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // State for user fields
+  // Local state for profile fields
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
+  const [creatorPrivacy, setCreatorPrivacy] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,6 +39,7 @@ const EditProfile = () => {
           setUsername(data.username || "");
           setDisplayName(data.name || "");
           setEmail(user.email);
+          setCreatorPrivacy(data.creatorPrivacy || USER_PRIVACY.PUBLIC);
         }
       } catch (error) {
         handleError(error, "Error fetching profile data");
@@ -46,9 +51,10 @@ const EditProfile = () => {
     fetchUserData();
   }, [user, navigate]);
 
-  // Save changes to Firestore & Firebase Auth
+  // Save changes to Firestore & Firebase Auth,
+  // and propagate new privacy setting to the user's categories.
   const handleSave = async () => {
-    // Validate inputs using the modular validation function
+    // Validate inputs
     const validationError = await validateUserProfile(
       username,
       displayName,
@@ -63,18 +69,20 @@ const EditProfile = () => {
     try {
       const userDocRef = doc(db, "users", user.uid);
 
-      // Update Firestore user document
+      // Update user document with new username, name, and privacy setting.
       await updateDoc(userDocRef, {
         username: username.trim(),
         name: displayName.trim(),
+        creatorPrivacy: creatorPrivacy,
       });
 
-      // Update Firebase Auth email (if changed)
+      // Update Firebase Auth email if it changed (only for email/password users)
       if (email !== user.email) {
         await updateEmail(auth.currentUser, email.trim());
       }
 
-      // Navigate back to the profile page after successful update
+      await updateUserCategoriesPrivacy(user.uid, creatorPrivacy);
+      // Navigate back to profile after successful update
       navigate(`/profile/${user.uid}`);
     } catch (error) {
       handleError(error, "Error saving profile.");
@@ -114,6 +122,13 @@ const EditProfile = () => {
         ) : (
           <TextInput value={email} onChange={(e) => setEmail(e.target.value)} />
         )}
+
+        <label className="edit-label">Account Privacy</label>
+        <PrivacySelector
+          privacy={creatorPrivacy}
+          setPrivacy={setCreatorPrivacy}
+          type={"user"}
+        />
       </div>
     </div>
   );
