@@ -81,7 +81,11 @@ const FieldManager = ({ fields, setFields }) => {
 };
 
 FieldManager.propTypes = {
-  fields: PropTypes.arrayOf(PropTypes.object).isRequired,
+  fields: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ).isRequired,
   setFields: PropTypes.func.isRequired,
 };
 

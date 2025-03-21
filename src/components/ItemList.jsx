@@ -3,7 +3,9 @@ import CardList from "./CardList";
 import ItemCard from "./ItemCard";
 
 const ItemList = ({ items, orderedFields, onItemClick }) => {
-  const [primaryField, ...secondaryFields] = orderedFields;
+  const [primaryFieldObj, ...secondaryFieldObjs] = orderedFields;
+  const primaryField = primaryFieldObj?.name;
+  const secondaryFields = secondaryFieldObjs.map((f) => f.name);
 
   return (
     <CardList
@@ -24,7 +26,9 @@ const ItemList = ({ items, orderedFields, onItemClick }) => {
 
 ItemList.propTypes = {
   items: PropTypes.array.isRequired,
-  orderedFields: PropTypes.array.isRequired,
+  orderedFields: PropTypes.arrayOf(
+    PropTypes.shape({ name: PropTypes.string.isRequired })
+  ).isRequired,
   onItemClick: PropTypes.func.isRequired,
 };
 

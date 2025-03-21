@@ -16,7 +16,7 @@ const ComparisonStep = ({
   const [lo, setLo] = useState(0);
   const [hi, setHi] = useState(0);
   const hasSavedInitialItem = useRef(false);
-  const primaryField = fields[0];
+  const primaryField = fields[0]?.name;
 
   useEffect(() => {
     const fetchRankedItems = async () => {
@@ -95,7 +95,9 @@ const ComparisonStep = ({
 ComparisonStep.propTypes = {
   categoryId: PropTypes.string.isRequired,
   itemData: PropTypes.object.isRequired,
-  fields: PropTypes.array.isRequired,
+  fields: PropTypes.arrayOf(
+    PropTypes.shape({ name: PropTypes.string.isRequired })
+  ).isRequired,
   rankCategory: PropTypes.number.isRequired,
   onSave: PropTypes.func.isRequired,
   setIsRankingComplete: PropTypes.func.isRequired,

@@ -13,7 +13,7 @@ const ItemDetailsStep = ({
   const CHAR_LIMIT = 64;
 
   const validateField = useCallback(
-    (field, value) => {
+    (fieldName, value) => {
       if (!value.trim()) {
         return "This field is required.";
       }
@@ -25,51 +25,50 @@ const ItemDetailsStep = ({
     [CHAR_LIMIT]
   );
 
-  const handleInputChange = (field, value) => {
-    const errorMessage = validateField(field, value);
+  const handleInputChange = (fieldName, value) => {
+    const errorMessage = validateField(fieldName, value);
 
     // Update error state
     setError((prev) => ({
       ...prev,
-      [field]: errorMessage,
+      [fieldName]: errorMessage,
     }));
 
     // Notify parent about validation status
     const allFieldsValid = fields.every(
-      (field) => !validateField(field, itemData[field] || "")
+      ({ name }) => !validateField(name, itemData[name] || "")
     );
     onValidationChange(allFieldsValid);
 
     // Update item data
-    updateItemData({ ...itemData, [field]: value });
+    updateItemData({ ...itemData, [fieldName]: value });
+  };
+
+  const handleBlur = (fieldName) => {
+    const errorMessage = validateField(fieldName, itemData[fieldName] || "");
+    setError((prev) => ({ ...prev, [fieldName]: errorMessage }));
   };
 
   useEffect(() => {
-    // Initial validation check
     const allFieldsValid = fields.every(
-      (field) => !validateField(field, itemData[field] || "")
+      ({ name }) => !validateField(name, itemData[name] || "")
     );
     onValidationChange(allFieldsValid);
   }, [itemData, fields, onValidationChange, validateField]);
 
-  const handleBlur = (field) => {
-    const errorMessage = validateField(field, itemData[field] || "");
-    setError((prev) => ({ ...prev, [field]: errorMessage }));
-  };
-
   return (
     <div className="item-details-container">
       <h2>Item Details</h2>
-      {fields.map((field, index) => (
+      {fields.map(({ name }, index) => (
         <div key={index}>
           <TextInput
-            value={itemData[field] || ""}
-            onChange={(e) => handleInputChange(field, e.target.value)}
-            placeholder={field}
+            value={itemData[name] || ""}
+            onChange={(e) => handleInputChange(name, e.target.value)}
+            placeholder={name}
             required
-            onBlur={() => handleBlur(field)}
+            onBlur={() => handleBlur(name)}
           />
-          {error[field] && <p className="error-message">{error[field]}</p>}
+          {error[name] && <p className="error-message">{error[name]}</p>}
         </div>
       ))}
 
@@ -84,9 +83,12 @@ const ItemDetailsStep = ({
   );
 };
 
-// PropTypes for validation
 ItemDetailsStep.propTypes = {
-  fields: PropTypes.arrayOf(PropTypes.string).isRequired,
+  fields: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ).isRequired,
   itemData: PropTypes.object.isRequired,
   updateItemData: PropTypes.func.isRequired,
   onValidationChange: PropTypes.func.isRequired,

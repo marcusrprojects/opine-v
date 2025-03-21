@@ -78,7 +78,7 @@ const CategoryDetail = () => {
       if (!snapshot.exists()) return navigate("/categories");
       const data = snapshot.data();
       setCategory(data);
-      setOrderedFields(data.fields || []);
+      setOrderedFields(Array.isArray(data.fields) ? data.fields : []);
       setCreatorId(data.createdBy || "");
       setLikeCount(data.likeCount || 0);
       setLastEdited(data.updatedAt ? data.updatedAt.toDate() : null);
@@ -127,11 +127,11 @@ const CategoryDetail = () => {
   const filteredItems = useMemo(() => {
     if (filterFields.length === 0) return items;
     return items.filter((item) =>
-      filterFields.every((field) =>
-        (item[field] || "")
+      filterFields.every(({ name }) =>
+        (item[name] || "")
           .toString()
           .toLowerCase()
-          .includes((filters[field] || "").toLowerCase())
+          .includes((filters[name] || "").toLowerCase())
       )
     );
   }, [items, filters, filterFields]);
@@ -174,10 +174,13 @@ const CategoryDetail = () => {
   const toggleFilter = () => setFilterOpen((prev) => !prev);
   const handleFilterChange = (field, value) =>
     setFilters((prev) => ({ ...prev, [field]: value }));
-  const handleFilterFieldChange = (field) =>
+  const handleFilterFieldChange = ({ name }) => {
     setFilterFields((prev) =>
-      prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]
+      prev.some((f) => f.name === name)
+        ? prev.filter((f) => f.name !== name)
+        : [...prev, { name }]
     );
+  };
 
   const handleToggleLike = async () => {
     try {

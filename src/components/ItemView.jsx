@@ -39,7 +39,7 @@ const ItemView = () => {
 
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
-        setOrderedFields(categoryData.fields);
+        setOrderedFields(categoryData.fields ?? []);
         setCreatorId(categoryData.createdBy);
       }
     };
@@ -89,7 +89,7 @@ const ItemView = () => {
   };
 
   const handleReRank = () => {
-    if (!canEdit) return; // Prevents non-creators from clicking
+    if (!canEdit) return;
     navigate(`/categories/${categoryId}/items/${itemId}/rerank`, {
       state: { existingItem: itemData },
     });
@@ -103,7 +103,6 @@ const ItemView = () => {
 
   return (
     <div className="item-view-container">
-      {/* Use BackDeletePanel for navigation and delete actions */}
       <BackDeletePanel
         onBack={() => navigate(`/categories/${categoryId}`)}
         onDelete={handleDelete}
@@ -111,7 +110,7 @@ const ItemView = () => {
       />
 
       <h2 className="item-title">
-        {itemData[orderedFields[0]] || "Unnamed Item"}
+        {itemData[orderedFields[0]?.name] || "Unnamed Item"}
       </h2>
 
       <div className="rating-container">
@@ -125,34 +124,36 @@ const ItemView = () => {
         </div>
       </div>
 
-      {/* Render ordered fields excluding "Notes" */}
-      {orderedFields.map((field, index) => (
-        <div
-          key={index}
-          className={`item-field ${canEdit ? "editable" : "non-editable"}`}
-          onClick={() => setEditingField(field)}
-        >
-          <div className="field-content">
-            <label className="item-label">{field}</label>
-            {canEdit && editingField === field ? (
-              <input
-                type="text"
-                value={itemData[field] || ""}
-                onChange={(e) => handleChange(field, e.target.value)}
-                onBlur={() => handleSaveField(field)}
-                autoFocus
-                className="item-input"
-              />
-            ) : (
-              <span className="item-value">
-                {itemData[field] || "Click to edit"}
-              </span>
-            )}
+      {/* Render ordered fields */}
+      {orderedFields.map(({ name: field }, index) => {
+        return (
+          <div
+            key={index}
+            className={`item-field ${canEdit ? "editable" : "non-editable"}`}
+            onClick={() => setEditingField(field)}
+          >
+            <div className="field-content">
+              <label className="item-label">{field}</label>
+              {canEdit && editingField === field ? (
+                <input
+                  type="text"
+                  value={itemData[field] || ""}
+                  onChange={(e) => handleChange(field, e.target.value)}
+                  onBlur={() => handleSaveField(field)}
+                  autoFocus
+                  className="item-input"
+                />
+              ) : (
+                <span className="item-value">
+                  {itemData[field] || "Click to edit"}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
-      {/* Render "Notes" field separately */}
+      {/* Notes field */}
       <div
         className={`item-field ${canEdit ? "editable" : "non-editable"}`}
         onClick={() => setEditingField("notes")}

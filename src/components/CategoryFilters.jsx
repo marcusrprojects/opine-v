@@ -12,26 +12,28 @@ const CategoryFilters = ({
   return (
     <div className="filter-container open">
       <div className="filter-checkboxes">
-        {fields.map((field, index) => (
+        {fields.map((fieldObj, index) => (
           <div key={index} className="filter-checkbox-container">
             <label className="filter-field">
               <input
                 type="checkbox"
-                checked={filterFieldsSelected.includes(field)}
-                onChange={() => onFilterFieldChange(field)}
+                checked={filterFieldsSelected.some(
+                  (f) => f.name === fieldObj.name
+                )}
+                onChange={() => onFilterFieldChange(fieldObj)}
               />
-              {field}
+              {fieldObj.name}
             </label>
           </div>
         ))}
       </div>
       <div className="filter-inputs">
-        {filterFieldsSelected.map((field) => (
-          <div key={field} className="filter-input-container">
+        {filterFieldsSelected.map(({ name }) => (
+          <div key={name} className="filter-input-container">
             <TextInput
-              placeholder={`Filter by ${field}`}
-              value={filters[field] || ""}
-              onChange={(e) => onFilterChange(field, e.target.value)}
+              placeholder={`Filter by ${name}`}
+              value={filters[name] || ""}
+              onChange={(e) => onFilterChange(name, e.target.value)}
             />
           </div>
         ))}
@@ -41,8 +43,16 @@ const CategoryFilters = ({
 };
 
 CategoryFilters.propTypes = {
-  fields: PropTypes.array.isRequired,
-  filterFieldsSelected: PropTypes.array.isRequired,
+  fields: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  filterFieldsSelected: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ).isRequired,
   filters: PropTypes.object.isRequired,
   onFilterChange: PropTypes.func.isRequired,
   onFilterFieldChange: PropTypes.func.isRequired,
