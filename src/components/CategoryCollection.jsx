@@ -17,8 +17,9 @@ import { useAuth } from "../context/useAuth";
 import { useFollow } from "../context/useFollow";
 import { useLikedCategories } from "../context/useLikedCategories";
 import { useNavigate } from "react-router-dom";
-import { PRIVACY_LEVELS } from "../constants/privacy";
+import { USER_PRIVACY, CATEGORY_PRIVACY } from "../constants/privacy";
 import "../styles/CategoryCollection.css";
+import { getVisibleCategoriesForUser } from "../utils/privacyUtils"; // our helper function
 
 const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
   const { user } = useAuth();
@@ -28,7 +29,7 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
   const [categories, setCategories] = useState([]);
   const [availableTags, setAvailableTags] = useState(new Set());
 
-  // ✅ Fetch tags from Firestore once on mount
+  // Fetch tags once on mount
   useEffect(() => {
     const loadTags = async () => {
       try {
@@ -41,11 +42,9 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
     loadTags();
   }, []);
 
-  // ✅ Refactored function for fetching categories
+  // Refactored function for fetching categories based on privacy
   const fetchCategories = useCallback(async () => {
     try {
-      let categoryQuery = collection(db, "categories");
-
       // ✅ Handle early exits for empty `likedCategories`
       if (
         (mode === "liked" || mode === "recommended") &&
@@ -54,15 +53,27 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
         setCategories([]);
         return;
       }
-
+      // For modes that fetch by a specific creator, use our helper
       if (mode === "own") {
-        categoryQuery = query(
-          categoryQuery,
-          where("createdBy", "==", user.uid)
+        const categories = await getVisibleCategoriesForUser(
+          user.uid,
+          user.uid
         );
+        setCategories(categories);
+        return;
       } else if (mode === "user" && userId) {
-        categoryQuery = query(categoryQuery, where("createdBy", "==", userId));
-      } else if (mode === "liked") {
+        const categories = await getVisibleCategoriesForUser(
+          userId,
+          user ? user.uid : null
+        );
+        setCategories(categories);
+        return;
+      }
+
+      // For other modes, we query the entire collection and filter later.
+      let categoryQuery = collection(db, "categories");
+
+      if (mode === "liked") {
         categoryQuery = query(
           categoryQuery,
           where("__name__", "in", likedCategories)
@@ -73,50 +84,39 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
         const likedCategoryIds = userSnapshot.exists()
           ? userSnapshot.data().likedCategories ?? []
           : [];
-
         if (!likedCategoryIds.length) {
           setCategories([]);
           return;
         }
-
         categoryQuery = query(
           categoryQuery,
           where("__name__", "in", likedCategoryIds)
         );
       } else if (mode === "recommended") {
-        // ✅ Step 1: Pick Random Liked Categories
-        const randomLikedCategories = likedCategories
+        // Pick random liked categories
+        const randomLiked = likedCategories
           .sort(() => 0.5 - Math.random())
           .slice(0, 10);
-
-        // ✅ Step 2: Fetch Full Category Data
         const likedSnapshot = await getDocs(
-          query(categoryQuery, where("__name__", "in", randomLikedCategories))
+          query(categoryQuery, where("__name__", "in", randomLiked))
         );
 
         const tagFrequency = {};
-
-        // ✅ Step 3: Extract Tag Frequencies
-        likedSnapshot.docs.forEach((doc) => {
-          (doc.data().tags ?? []).forEach((tag) => {
+        likedSnapshot.docs.forEach((docSnap) => {
+          (docSnap.data().tags ?? []).forEach((tag) => {
             if (availableTags.has(tag)) {
               tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
             }
           });
         });
-
-        // ✅ Step 4: Select Top 3 Most Frequent Tags
         const sortedTags = Object.entries(tagFrequency)
-          .sort((a, b) => b[1] - a[1])
+          .sort(([, a], [, b]) => b - a)
           .slice(0, 3)
           .map(([tag]) => tag);
-
         if (!sortedTags.length) {
           setCategories([]);
           return;
         }
-
-        // ✅ Step 5: New Query to Find Any Categories Matching the Tags
         categoryQuery = query(
           categoryQuery,
           where("tags", "array-contains-any", sortedTags),
@@ -128,18 +128,21 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
           orderBy("likeCount", "desc"),
           limit(5)
         );
+      } else {
+        // Default sorting for "all" and fallback cases
+        categoryQuery = query(categoryQuery, orderBy("updatedAt", "desc"));
       }
 
-      const categorySnapshot = await getDocs(categoryQuery);
-      let categoryList = categorySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
+      const snapshot = await getDocs(categoryQuery);
+      let categoryList = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data(),
       }));
 
-      // ✅ Fallback for empty `recommended` categories
+      // Fallback for recommended mode if no categories found
       if (mode === "recommended" && !categoryList.length) {
         console.warn(
-          "No recommended categories found. Falling back to recently updated."
+          "No recommended categories found. Falling back to recent updates."
         );
         const fallbackQuery = query(
           collection(db, "categories"),
@@ -147,35 +150,43 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
           limit(5)
         );
         const recentSnapshot = await getDocs(fallbackQuery);
-        categoryList = recentSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
+        categoryList = recentSnapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
         }));
       }
 
-      // ✅ Apply Privacy Filters
+      // Apply privacy filters based on our new system
       const filteredCategories = categoryList.filter((category) => {
-        if (category.privacy === PRIVACY_LEVELS.PUBLIC) return true;
-
-        // ✅ Ensure users see categories they created
+        // Always allow if the viewer is the creator
         if (user && category.createdBy === user.uid) return true;
 
-        // ✅ Otherwise, check if the user follows the creator
-        return user && following.has(category.createdBy);
+        // For categories created by public accounts:
+        if (category.creatorPrivacy === USER_PRIVACY.PUBLIC) {
+          // Show category if it is not marked "only-me"
+          return category.categoryPrivacy !== CATEGORY_PRIVACY.ONLY_ME;
+        }
+
+        // For categories from private accounts:
+        if (category.creatorPrivacy === USER_PRIVACY.PRIVATE) {
+          // Only show if viewer is following the creator
+          return user && following && following.has(category.createdBy);
+        }
+        return false;
       });
 
       setCategories(filteredCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
-  }, [availableTags, user, following, mode, userId, likedCategories]);
+  }, [availableTags, mode, likedCategories, user, userId, following]);
 
-  // ✅ Fetch categories on dependencies change
+  // Fetch categories on dependency changes
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  // ✅ Search optimization using `useMemo`
+  // Search optimization using useMemo
   const filteredCategories = useMemo(() => {
     if (!searchTerm.trim()) return categories;
     const searchLower = searchTerm.toLowerCase();
