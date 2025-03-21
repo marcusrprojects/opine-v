@@ -24,7 +24,7 @@ const EditCategory = () => {
   const [categoryName, setCategoryName] = useState(category.name ?? "");
   const [description, setDescription] = useState(category.description ?? "");
   const [fields, setFields] = useState(
-    category.fields?.map((name) => ({ name })) ?? []
+    Array.isArray(category.fields) ? category.fields : []
   );
   const [tags, setTags] = useState(category.tags ?? []);
   const [categoryPrivacy, setCategoryPrivacy] = useState(
@@ -44,7 +44,7 @@ const EditCategory = () => {
             const data = categorySnapshot.data();
             setCategoryName(data.name || "");
             setDescription(data.description || "");
-            setFields(data.fields?.map((name) => ({ name })) || []);
+            setFields(Array.isArray(data.fields) ? data.fields : []);
             setTags(data.tags || []);
             setCategoryPrivacy(
               data.categoryPrivacy || CATEGORY_PRIVACY.DEFAULT
@@ -77,7 +77,7 @@ const EditCategory = () => {
       await updateDoc(categoryDocRef, {
         name: categoryName.trim(),
         description,
-        fields: fields.map((field) => field.name),
+        fields,
         tags,
         categoryPrivacy,
         updatedAt: Timestamp.now(),
@@ -150,7 +150,11 @@ EditCategory.propTypes = {
   category: PropTypes.shape({
     name: PropTypes.string,
     description: PropTypes.string,
-    fields: PropTypes.arrayOf(PropTypes.string),
+    fields: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+      })
+    ),
     tags: PropTypes.arrayOf(PropTypes.string),
     categoryPrivacy: PropTypes.string,
   }),
