@@ -20,8 +20,14 @@ import { useNavigate } from "react-router-dom";
 import { USER_PRIVACY, CATEGORY_PRIVACY } from "../constants/privacy";
 import "../styles/CategoryCollection.css";
 import { getVisibleCategoriesForUser } from "../utils/privacyUtils"; // our helper function
+import SortOptions from "../constants/SortOptions";
 
-const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
+const CategoryCollection = ({
+  mode,
+  userId,
+  searchTerm = "",
+  sortOption = SortOptions.UPDATED_DESC,
+}) => {
   const { user } = useAuth();
   const { following } = useFollow();
   const { likedCategories = [], toggleLikeCategory } = useLikedCategories();
@@ -215,6 +221,21 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
     [user, navigate, toggleLikeCategory]
   );
 
+  const sortedCategories = useMemo(() => {
+    const compare = {
+      [SortOptions.UPDATED_DESC]: (a, b) =>
+        b.updatedAt?.seconds - a.updatedAt?.seconds,
+      [SortOptions.UPDATED_ASC]: (a, b) =>
+        a.updatedAt?.seconds - b.updatedAt?.seconds,
+      [SortOptions.ALPHA_ASC]: (a, b) => a.name.localeCompare(b.name),
+      [SortOptions.ALPHA_DESC]: (a, b) => b.name.localeCompare(a.name),
+      [SortOptions.MOST_LIKED]: (a, b) =>
+        (b.likeCount || 0) - (a.likeCount || 0),
+    }[sortOption];
+
+    return [...filteredCategories].sort(compare);
+  }, [filteredCategories, sortOption]);
+
   return (
     <>
       {filteredCategories.length === 0 ? (
@@ -230,7 +251,7 @@ const CategoryCollection = ({ mode, userId, searchTerm = "" }) => {
         )
       ) : (
         <CategoryList
-          categories={filteredCategories}
+          categories={sortedCategories}
           onCategoryClick={handleCategoryClick}
           onLike={handleLike}
           likedCategories={likedCategories}
@@ -252,6 +273,7 @@ CategoryCollection.propTypes = {
   ]),
   userId: PropTypes.string,
   searchTerm: PropTypes.string,
+  sortOption: PropTypes.oneOf(Object.values(SortOptions)),
 };
 
 export default CategoryCollection;

@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import AddSearchPanel from "../components/Navigation/AddSearchPanel";
 import CategorySearch from "../components/CategorySearch";
 import CategoryCollection from "./CategoryCollection";
+import SortOptions from "../constants/SortOptions";
 
 const Categories = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
   const navigate = useNavigate();
+  const [sortOption, setSortOption] = useState(SortOptions.UPDATED_DESC);
 
   return (
     <div className="categories-container">
@@ -16,6 +18,8 @@ const Categories = () => {
         onAdd={() => navigate("/create-category")}
         onToggleSearch={() => setShowSearchBox(!showSearchBox)}
         isAddDisabled={false}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
       />
       {showSearchBox && (
         <CategorySearch
@@ -23,7 +27,11 @@ const Categories = () => {
           onSearchChange={setSearchTerm}
         />
       )}
-      <CategoryCollection mode="all" searchTerm={searchTerm} />
+      <CategoryCollection
+        mode="all"
+        searchTerm={searchTerm}
+        sortOption={sortOption}
+      />
     </div>
   );
 };
