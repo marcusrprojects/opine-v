@@ -3,33 +3,34 @@ import { USER_PRIVACY, CATEGORY_PRIVACY } from "../constants/privacy";
 import "../styles/PrivacySelector.css";
 
 const PrivacySelector = ({ privacy, setPrivacy, type }) => {
-  const handleToggle = () => {
-    if (type === "user") {
-      setPrivacy(
-        privacy === USER_PRIVACY.PRIVATE
-          ? USER_PRIVACY.PUBLIC
-          : USER_PRIVACY.PRIVATE
-      );
-    } else if (type === "category") {
-      setPrivacy(
-        privacy === CATEGORY_PRIVACY.ONLY_ME
-          ? CATEGORY_PRIVACY.DEFAULT
-          : CATEGORY_PRIVACY.ONLY_ME
-      );
-    }
+  const privacyOptions = {
+    user: {
+      private: USER_PRIVACY.PRIVATE,
+      public: USER_PRIVACY.PUBLIC,
+    },
+    category: {
+      private: CATEGORY_PRIVACY.ONLY_ME,
+      public: CATEGORY_PRIVACY.DEFAULT,
+    },
   };
 
-  const isChecked =
-    (type === "user" && privacy === USER_PRIVACY.PRIVATE) ||
-    (type === "category" && privacy === CATEGORY_PRIVACY.ONLY_ME);
+  const handleToggle = () => {
+    setPrivacy(
+      privacy === privacyOptions[type].private
+        ? privacyOptions[type].public
+        : privacyOptions[type].private
+    );
+  };
+
+  const isPrivate = privacy === privacyOptions[type].private;
 
   return (
     <div className="privacy-section">
       <div className="toggle-privacy">
         <input
           type="checkbox"
-          id="privacy-toggle"
-          checked={isChecked}
+          id={`privacy-toggle`}
+          checked={isPrivate}
           onChange={handleToggle}
         />
       </div>
