@@ -1,9 +1,11 @@
-export const PRIVACY_LEVELS = {
-  PUBLIC: 0,
-  FRIENDS_ONLY: 1,
+// For user privacy
+export const USER_PRIVACY = {
+  PUBLIC: "public",
+  PRIVATE: "private",
 };
 
-export const PRIVACY_LABELS = {
-  [PRIVACY_LEVELS.PUBLIC]: "Public",
-  [PRIVACY_LEVELS.FRIENDS_ONLY]: "Friends Only",
+// For category privacy
+export const CATEGORY_PRIVACY = {
+  DEFAULT: "default",
+  ONLY_ME: "only-me",
 };
