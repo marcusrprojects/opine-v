@@ -7,7 +7,7 @@ import "../styles/CreateCategory.css";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
-import { PRIVACY_LEVELS } from "../constants/privacy";
+import { USER_PRIVACY } from "../constants/privacy";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
 
@@ -19,7 +19,7 @@ const CreateCategory = () => {
   const navigate = useNavigate();
 
   // Using categoryPrivacy for the category-level privacy
-  const [privacy, setPrivacy] = useState(PRIVACY_LEVELS.PUBLIC);
+  const [privacy, setPrivacy] = useState(USER_PRIVACY.PUBLIC);
 
   const isConfirmDisabled =
     !categoryName.trim() ||
@@ -39,8 +39,8 @@ const CreateCategory = () => {
         name: categoryName.trim(),
         fields: fields.map((field) => field.name),
         tags,
-        categoryPrivacy: privacy, // category-level privacy ("public" or "only-me")
-        creatorPrivacy: user.accountPrivacy, // user account privacy ("public" or "private")
+        categoryPrivacy: privacy,
+        creatorPrivacy: user.creatorPrivacy,
         createdBy: user.uid,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
@@ -85,7 +85,11 @@ const CreateCategory = () => {
         </div>
 
         {/* Privacy Selector */}
-        <PrivacySelector privacy={privacy} setPrivacy={setPrivacy} />
+        <PrivacySelector
+          privacy={privacy}
+          setPrivacy={setPrivacy}
+          type="category"
+        />
       </form>
     </div>
   );
