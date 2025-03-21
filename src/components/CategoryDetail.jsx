@@ -18,10 +18,10 @@ import CategoryFilters from "./CategoryFilters";
 import { useAuth } from "../context/useAuth";
 import { useLikedCategories } from "../context/useLikedCategories";
 import { handleError } from "../utils/errorUtils";
-import { PRIVACY_LEVELS } from "../constants/privacy";
 import { useFollow } from "../context/useFollow";
 import "../styles/CategoryDetail.css";
 import CategoryViewerPanel from "./Navigation/CategoryViewerPanel";
+import { canUserViewCategory } from "../utils/privacyUtils";
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -30,7 +30,6 @@ const CategoryDetail = () => {
   const { following } = useFollow();
   const { likedCategories, toggleLikeCategory } = useLikedCategories();
 
-  // Data states
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
   const [orderedFields, setOrderedFields] = useState([]);
@@ -40,51 +39,43 @@ const CategoryDetail = () => {
   const [likeCount, setLikeCount] = useState(0);
   const [lastEdited, setLastEdited] = useState(null);
 
-  // UI states
   const [showSettings, setShowSettings] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState({});
   const [filterFields, setFilterFields] = useState([]);
 
-  // Firestore listener references to prevent memory leaks
   const categoryUnsubscribeRef = useRef(null);
   const itemsUnsubscribeRef = useRef(null);
 
-  // Fetches the creator's username **only when createdBy changes**
   useEffect(() => {
     if (!creatorId) {
       setCreatorUsername(UNKNOWN_USER);
       return;
     }
 
-    const fetchCreatorUsername = async () => {
+    const fetchCreatorData = async () => {
       try {
         const userDocRef = doc(db, "users", creatorId);
         const userSnapshot = await getDoc(userDocRef);
-
-        setCreatorUsername(
-          userSnapshot.exists()
-            ? userSnapshot.data()?.username ?? UNKNOWN_USER
-            : UNKNOWN_USER
-        );
+        if (userSnapshot.exists()) {
+          const data = userSnapshot.data();
+          setCreatorUsername(data.username || UNKNOWN_USER);
+        }
       } catch (error) {
-        console.error("Error fetching creator username:", error);
+        console.error("Error fetching creator info:", error);
       }
     };
 
-    fetchCreatorUsername();
+    fetchCreatorData();
   }, [creatorId]);
 
   useEffect(() => {
     if (!categoryId) return;
-
-    // Cleanup previous subscription
     if (categoryUnsubscribeRef.current) categoryUnsubscribeRef.current();
 
     const categoryRef = doc(db, "categories", categoryId);
     categoryUnsubscribeRef.current = onSnapshot(categoryRef, (snapshot) => {
       if (!snapshot.exists()) return navigate("/categories");
-
       const data = snapshot.data();
       setCategory(data);
       setOrderedFields(data.fields || []);
@@ -98,10 +89,8 @@ const CategoryDetail = () => {
     };
   }, [categoryId, navigate]);
 
-  // Subscribe to real-time item updates
   useEffect(() => {
     if (!categoryId) return;
-
     if (itemsUnsubscribeRef.current) itemsUnsubscribeRef.current();
 
     const itemsCollectionRef = collection(db, `categories/${categoryId}/items`);
@@ -120,19 +109,13 @@ const CategoryDetail = () => {
     };
   }, [categoryId]);
 
-  // Redirect users if privacy settings block access
   useEffect(() => {
     if (!category || !user) return;
-    if (
-      category.privacy === PRIVACY_LEVELS.FRIENDS_ONLY &&
-      !following.has(category.createdBy) &&
-      user.uid !== category.createdBy
-    ) {
+    if (!canUserViewCategory(category, user, following)) {
       navigate("/categories");
     }
   }, [category, user, following, navigate]);
 
-  // Auto-hide settings after 4 seconds if filter panel is not open
   useEffect(() => {
     let timeoutId;
     if (showSettings && !filterOpen) {
@@ -141,7 +124,6 @@ const CategoryDetail = () => {
     return () => clearTimeout(timeoutId);
   }, [showSettings, filterOpen]);
 
-  // Efficient filtering with useMemo
   const filteredItems = useMemo(() => {
     if (filterFields.length === 0) return items;
     return items.filter((item) =>
@@ -154,42 +136,29 @@ const CategoryDetail = () => {
     );
   }, [items, filters, filterFields]);
 
-  if (!category) {
-    return <p>Category not found.</p>;
-  }
+  if (!category) return <p>Category not found.</p>;
 
-  // Navigation and action handlers
   const handleItemClick = (itemId) => navigate(`./items/${itemId}`);
   const handleAddItem = () => navigate(`/categories/${categoryId}/add-item`);
   const handleEditCategory = () =>
     navigate(`/categories/${categoryId}/edit`, {
-      state: {
-        categoryName: category.name,
-        description: category.description,
-        fields: orderedFields,
-        creatorUsername,
-        tags: category.tags,
-        privacy: category.privacy,
-      },
+      state: { category },
     });
 
   const handleDeleteCategory = async () => {
     if (!window.confirm("Are you sure you want to delete this category?"))
       return;
-
     try {
       const itemsCollectionRef = collection(
         db,
         `categories/${categoryId}/items`
       );
       const itemsSnapshot = await getDocs(itemsCollectionRef);
-
       if (!itemsSnapshot.empty) {
         const batch = writeBatch(db);
         itemsSnapshot.forEach((itemDoc) => batch.delete(itemDoc.ref));
         await batch.commit();
       }
-
       await deleteDoc(doc(db, "categories", categoryId));
       navigate("/categories");
     } catch (error) {
@@ -197,16 +166,12 @@ const CategoryDetail = () => {
     }
   };
 
-  // Settings toggle: when closing settings, also close the filter panel
   const handleSettingsToggle = () => {
     setShowSettings((prev) => !prev);
     if (showSettings) setFilterOpen(false);
   };
 
-  // Toggle the filter sub-panel
   const toggleFilter = () => setFilterOpen((prev) => !prev);
-
-  // Update filter state
   const handleFilterChange = (field, value) =>
     setFilters((prev) => ({ ...prev, [field]: value }));
   const handleFilterFieldChange = (field) =>
@@ -224,10 +189,8 @@ const CategoryDetail = () => {
 
   const getRelativeTime = (timestamp) => {
     if (!timestamp) return "N/A";
-
     const now = new Date();
-    const diff = Math.floor((now - timestamp) / 1000); // Convert ms to seconds
-
+    const diff = Math.floor((now - timestamp) / 1000);
     if (diff === 0) return `just now`;
     if (diff < 60) return `${diff} seconds ago`;
     if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
@@ -235,7 +198,6 @@ const CategoryDetail = () => {
     if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
     if (diff < 2592000) return `${Math.floor(diff / 604800)} weeks ago`;
     if (diff < 31536000) return `${Math.floor(diff / 2592000)} months ago`;
-
     return `${Math.floor(diff / 31536000)} years ago`;
   };
 
