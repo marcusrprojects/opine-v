@@ -7,19 +7,20 @@ import "../styles/CreateCategory.css";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
-import { USER_PRIVACY } from "../constants/privacy";
+import { CATEGORY_PRIVACY } from "../constants/privacy";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
   const [fields, setFields] = useState([{ name: "Name" }]);
-  const [tags, setTags] = useState([]); // Stores tag IDs
+  const [tags, setTags] = useState([]);
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Using categoryPrivacy for the category-level privacy
-  const [privacy, setPrivacy] = useState(USER_PRIVACY.PUBLIC);
+  const [categoryPrivacy, setCategoryPrivacy] = useState(
+    CATEGORY_PRIVACY.DEFAULT
+  );
 
   const isConfirmDisabled =
     !categoryName.trim() ||
@@ -37,9 +38,9 @@ const CreateCategory = () => {
     try {
       const newCategory = {
         name: categoryName.trim(),
-        fields: fields.map((field) => field.name),
+        fields,
         tags,
-        categoryPrivacy: privacy,
+        categoryPrivacy,
         creatorPrivacy: user.creatorPrivacy,
         createdBy: user.uid,
         createdAt: Timestamp.now(),
@@ -64,7 +65,6 @@ const CreateCategory = () => {
       <h2>Create a Category</h2>
 
       <form className="category-form">
-        {/* Category Name Section */}
         <div className="category-name-group">
           <label>Category Name</label>
           <TextInput
@@ -75,19 +75,17 @@ const CreateCategory = () => {
           />
         </div>
 
-        {/* Attributes Section */}
         <FieldManager fields={fields} setFields={setFields} />
 
-        {/* Tags Section */}
         <div className="tags-group">
           <label>Tags</label>
           <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
         </div>
 
-        {/* Privacy Selector */}
+        <label className="edit-label">&quot;Only Me&quot;</label>
         <PrivacySelector
-          privacy={privacy}
-          setPrivacy={setPrivacy}
+          privacy={categoryPrivacy}
+          setPrivacy={setCategoryPrivacy}
           type="category"
         />
       </form>
