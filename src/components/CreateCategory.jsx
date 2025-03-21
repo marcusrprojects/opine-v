@@ -17,6 +17,8 @@ const CreateCategory = () => {
   const [tags, setTags] = useState([]); // Stores tag IDs
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Using categoryPrivacy for the category-level privacy
   const [privacy, setPrivacy] = useState(PRIVACY_LEVELS.PUBLIC);
 
   const isConfirmDisabled =
@@ -37,7 +39,8 @@ const CreateCategory = () => {
         name: categoryName.trim(),
         fields: fields.map((field) => field.name),
         tags,
-        privacy,
+        categoryPrivacy: privacy, // category-level privacy ("public" or "only-me")
+        creatorPrivacy: user.accountPrivacy, // user account privacy ("public" or "private")
         createdBy: user.uid,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
@@ -81,6 +84,7 @@ const CreateCategory = () => {
           <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
         </div>
 
+        {/* Privacy Selector */}
         <PrivacySelector privacy={privacy} setPrivacy={setPrivacy} />
       </form>
     </div>
