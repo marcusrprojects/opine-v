@@ -24,6 +24,10 @@ export const AuthProvider = ({ children }) => {
             name: userData.name,
             username: userData.username,
             authMethod: userData.authMethod,
+            accountPrivacy: userData.accountPrivacy || "public",
+            followers: userData.followers || [],
+            following: userData.following || [],
+            pendingFollowRequests: userData.pendingFollowRequests || [],
           });
         } else {
           setUser(authUser);
@@ -36,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  // ✅ Logout function takes `navigate` as an argument
+  // Logout function
   const logout = async (navigate) => {
     try {
       await signOut(auth);
