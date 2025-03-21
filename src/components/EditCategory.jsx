@@ -17,21 +17,20 @@ const EditCategory = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Extract category from state (or default to empty object)
+  const category = location.state?.category ?? {};
+
   // Local state
-  const [categoryName, setCategoryName] = useState(
-    location.state?.categoryName || ""
-  );
-  const [description, setDescription] = useState(
-    location.state?.description || ""
-  );
+  const [categoryName, setCategoryName] = useState(category.name ?? "");
+  const [description, setDescription] = useState(category.description ?? "");
   const [fields, setFields] = useState(
-    location.state?.fields?.map((name) => ({ name })) || []
+    category.fields?.map((name) => ({ name })) ?? []
   );
-  const [tags, setTags] = useState(location.state?.tags || []);
+  const [tags, setTags] = useState(category.tags ?? []);
   const [categoryPrivacy, setCategoryPrivacy] = useState(
-    location.state?.categoryPrivacy ?? CATEGORY_PRIVACY.DEFAULT
+    category.categoryPrivacy ?? CATEGORY_PRIVACY.DEFAULT
   );
-  const [loading, setLoading] = useState(!location.state);
+  const [loading, setLoading] = useState(Object.keys(category).length === 0);
 
   // Fetch category data if not provided via location.state
   useEffect(() => {
@@ -78,7 +77,7 @@ const EditCategory = () => {
       await updateDoc(categoryDocRef, {
         name: categoryName.trim(),
         description,
-        fields: fields.map((field) => field.name), // Convert back to string array
+        fields: fields.map((field) => field.name),
         tags,
         categoryPrivacy,
         updatedAt: Timestamp.now(),
@@ -148,10 +147,13 @@ const EditCategory = () => {
 };
 
 EditCategory.propTypes = {
-  categoryName: PropTypes.string,
-  description: PropTypes.string,
-  fields: PropTypes.arrayOf(PropTypes.string),
-  tags: PropTypes.arrayOf(PropTypes.string),
+  category: PropTypes.shape({
+    name: PropTypes.string,
+    description: PropTypes.string,
+    fields: PropTypes.arrayOf(PropTypes.string),
+    tags: PropTypes.arrayOf(PropTypes.string),
+    categoryPrivacy: PropTypes.string,
+  }),
 };
 
 export default EditCategory;
