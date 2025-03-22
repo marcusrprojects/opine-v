@@ -9,7 +9,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import { USER_PRIVACY, CATEGORY_PRIVACY } from "../constants/privacy";
+import { UserPrivacy, CategoryPrivacy } from "../enums/PrivacyEnums";
 
 export async function getVisibleCategoriesForUser(creatorId, viewerId) {
   const creatorDoc = await getDoc(doc(db, "users", creatorId));
@@ -24,15 +24,15 @@ export async function getVisibleCategoriesForUser(creatorId, viewerId) {
       where("createdBy", "==", creatorId),
       orderBy("updatedAt", "desc")
     );
-  } else if (creatorPrivacy === USER_PRIVACY.PUBLIC) {
+  } else if (creatorPrivacy === UserPrivacy.PUBLIC) {
     // For a public account, show categories unless they are marked as "only-me"
     categoriesQuery = query(
       collection(db, "categories"),
       where("createdBy", "==", creatorId),
-      where("categoryPrivacy", "!=", CATEGORY_PRIVACY.ONLY_ME),
+      where("categoryPrivacy", "!=", CategoryPrivacy.ONLY_ME),
       orderBy("updatedAt", "desc")
     );
-  } else if (creatorPrivacy === USER_PRIVACY.PRIVATE) {
+  } else if (creatorPrivacy === UserPrivacy.PRIVATE) {
     // For a private account, the viewer must be an approved follower.
     // (Assume the user’s document has a `followers` array.)
     const creatorData = creatorDoc.data();
@@ -42,7 +42,7 @@ export async function getVisibleCategoriesForUser(creatorId, viewerId) {
     categoriesQuery = query(
       collection(db, "categories"),
       where("createdBy", "==", creatorId),
-      where("categoryPrivacy", "!=", CATEGORY_PRIVACY.ONLY_ME),
+      where("categoryPrivacy", "!=", CategoryPrivacy.ONLY_ME),
       orderBy("updatedAt", "desc")
     );
   } else {
@@ -87,9 +87,8 @@ export const canUserViewCategory = (category, user, following) => {
   const isCreator = user.uid === category.createdBy;
   const isFollower = following.has(category.createdBy);
 
-  const categoryIsPublic =
-    category.categoryPrivacy === CATEGORY_PRIVACY.DEFAULT;
-  const userIsPublic = category.creatorPrivacy === USER_PRIVACY.PUBLIC;
+  const categoryIsPublic = category.categoryPrivacy === CategoryPrivacy.DEFAULT;
+  const userIsPublic = category.creatorPrivacy === UserPrivacy.PUBLIC;
 
   return (
     isCreator ||

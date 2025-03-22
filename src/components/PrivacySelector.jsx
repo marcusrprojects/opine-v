@@ -1,16 +1,16 @@
 import PropTypes from "prop-types";
-import { USER_PRIVACY, CATEGORY_PRIVACY } from "../constants/privacy";
+import { UserPrivacy, CategoryPrivacy } from "../enums/PrivacyEnums";
 import "../styles/PrivacySelector.css";
 
 const PrivacySelector = ({ privacy, setPrivacy, type }) => {
   const privacyOptions = {
     user: {
-      private: USER_PRIVACY.PRIVATE,
-      public: USER_PRIVACY.PUBLIC,
+      private: UserPrivacy.PRIVATE,
+      public: UserPrivacy.PUBLIC,
     },
     category: {
-      private: CATEGORY_PRIVACY.ONLY_ME,
-      public: CATEGORY_PRIVACY.DEFAULT,
+      private: CategoryPrivacy.ONLY_ME,
+      public: CategoryPrivacy.DEFAULT,
     },
   };
 

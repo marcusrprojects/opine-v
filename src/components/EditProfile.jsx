@@ -10,7 +10,7 @@ import { handleError } from "../utils/errorUtils";
 import { validateUserProfile } from "../utils/validationUtils";
 import "../styles/EditProfile.css";
 import PrivacySelector from "./PrivacySelector";
-import { USER_PRIVACY } from "../constants/privacy";
+import { UserPrivacy } from "../enums/PrivacyEnums";
 import { updateUserCategoriesPrivacy } from "../utils/privacyUtils";
 
 const EditProfile = () => {
@@ -39,7 +39,7 @@ const EditProfile = () => {
           setUsername(data.username || "");
           setDisplayName(data.name || "");
           setEmail(user.email);
-          setCreatorPrivacy(data.creatorPrivacy || USER_PRIVACY.PUBLIC);
+          setCreatorPrivacy(data.creatorPrivacy || UserPrivacy.PUBLIC);
         }
       } catch (error) {
         handleError(error, "Error fetching profile data");

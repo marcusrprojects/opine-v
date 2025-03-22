@@ -8,7 +8,7 @@ import { handleError } from "../utils/errorUtils";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
-import { CATEGORY_PRIVACY } from "../constants/privacy";
+import { CategoryPrivacy } from "../enums/PrivacyEnums";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
 
@@ -28,7 +28,7 @@ const EditCategory = () => {
   );
   const [tags, setTags] = useState(category.tags ?? []);
   const [categoryPrivacy, setCategoryPrivacy] = useState(
-    category.categoryPrivacy ?? CATEGORY_PRIVACY.DEFAULT
+    category.categoryPrivacy ?? CategoryPrivacy.DEFAULT
   );
   const [loading, setLoading] = useState(Object.keys(category).length === 0);
 
@@ -46,9 +46,7 @@ const EditCategory = () => {
             setDescription(data.description || "");
             setFields(Array.isArray(data.fields) ? data.fields : []);
             setTags(data.tags || []);
-            setCategoryPrivacy(
-              data.categoryPrivacy || CATEGORY_PRIVACY.DEFAULT
-            );
+            setCategoryPrivacy(data.categoryPrivacy || CategoryPrivacy.DEFAULT);
           }
         } catch (error) {
           handleError(error, "Error fetching category data");

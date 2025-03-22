@@ -7,7 +7,7 @@ import "../styles/CreateCategory.css";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
-import { CATEGORY_PRIVACY } from "../constants/privacy";
+import { CategoryPrivacy } from "../enums/PrivacyEnums";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
 
@@ -19,7 +19,7 @@ const CreateCategory = () => {
   const navigate = useNavigate();
 
   const [categoryPrivacy, setCategoryPrivacy] = useState(
-    CATEGORY_PRIVACY.DEFAULT
+    CategoryPrivacy.DEFAULT
   );
 
   const isConfirmDisabled =

@@ -17,7 +17,7 @@ import { useAuth } from "../context/useAuth";
 import { useFollow } from "../context/useFollow";
 import { useLikedCategories } from "../context/useLikedCategories";
 import { useNavigate } from "react-router-dom";
-import { USER_PRIVACY, CATEGORY_PRIVACY } from "../constants/privacy";
+import { UserPrivacy, CategoryPrivacy } from "../enums/PrivacyEnums";
 import "../styles/CategoryCollection.css";
 import { getVisibleCategoriesForUser } from "../utils/privacyUtils"; // our helper function
 import SortOptions from "../enums/SortOptions";
@@ -168,13 +168,13 @@ const CategoryCollection = ({
         if (user && category.createdBy === user.uid) return true;
 
         // For categories created by public accounts:
-        if (category.creatorPrivacy === USER_PRIVACY.PUBLIC) {
+        if (category.creatorPrivacy === UserPrivacy.PUBLIC) {
           // Show category if it is not marked "only-me"
-          return category.categoryPrivacy !== CATEGORY_PRIVACY.ONLY_ME;
+          return category.categoryPrivacy !== CategoryPrivacy.ONLY_ME;
         }
 
         // For categories from private accounts:
-        if (category.creatorPrivacy === USER_PRIVACY.PRIVATE) {
+        if (category.creatorPrivacy === UserPrivacy.PRIVATE) {
           // Only show if viewer is following the creator
           return user && following && following.has(category.createdBy);
         }

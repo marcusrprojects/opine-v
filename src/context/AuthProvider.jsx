@@ -4,7 +4,7 @@ import { auth } from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import { USER_PRIVACY } from "../constants/privacy";
+import { UserPrivacy } from "../enums/PrivacyEnums";
 
 const AuthContext = createContext();
 
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
             name: userData.name,
             username: userData.username,
             authMethod: userData.authMethod,
-            creatorPrivacy: userData.creatorPrivacy || USER_PRIVACY.PUBLIC,
+            creatorPrivacy: userData.creatorPrivacy || UserPrivacy.PUBLIC,
             followers: userData.followers || [],
             following: userData.following || [],
             pendingFollowRequests: userData.pendingFollowRequests || [],
