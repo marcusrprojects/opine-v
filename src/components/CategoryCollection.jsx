@@ -52,16 +52,20 @@ const CategoryCollection = ({
   // Refactored function for fetching categories based on privacy
   const fetchCategories = useCallback(async () => {
     try {
-      // ✅ Handle early exits for empty `likedCategories`
+      // ✅ Handle early exits.
       if (
         ((mode === CategoryCollectionMode.LIKED ||
           mode === CategoryCollectionMode.RECOMMENDED) &&
-          !likedCategories.length) ||
-        (mode === CategoryCollectionMode.FOLLOWING && !following.length)
+          likedCategories.length === 0) ||
+        (mode === CategoryCollectionMode.FOLLOWING && following.size === 0) ||
+        ((mode === CategoryCollectionMode.USER ||
+          mode === CategoryCollectionMode.LIKED_BY_USER) &&
+          !userId)
       ) {
         setCategories([]);
         return;
       }
+
       // For modes that fetch by a specific creator, use our helper
       if (mode === CategoryCollectionMode.OWN) {
         const categories = await getVisibleCategoriesForUser(
@@ -70,16 +74,16 @@ const CategoryCollection = ({
         );
         setCategories(categories);
         return;
-      } else if (mode === CategoryCollectionMode.USER && userId) {
+      } else if (mode === CategoryCollectionMode.USER) {
         const categories = await getVisibleCategoriesForUser(
           userId,
-          user ? user.uid : null
+          user?.uid ?? null
         );
         setCategories(categories);
         return;
       }
 
-      // For other modes, we query the entire collection and filter later.
+      // ✅ Construct the query for Firestore
       let categoryQuery = collection(db, "categories");
 
       if (mode === CategoryCollectionMode.LIKED) {
@@ -87,13 +91,14 @@ const CategoryCollection = ({
           categoryQuery,
           where("__name__", "in", likedCategories)
         );
-      } else if (mode === CategoryCollectionMode.LIKED_BY_USER && userId) {
+      } else if (mode === CategoryCollectionMode.LIKED_BY_USER) {
         const userDocRef = doc(db, "users", userId);
         const userSnapshot = await getDoc(userDocRef);
         const likedCategoryIds = userSnapshot.exists()
           ? userSnapshot.data().likedCategories ?? []
           : [];
-        if (!likedCategoryIds.length) {
+
+        if (likedCategoryIds.length === 0) {
           setCategories([]);
           return;
         }
@@ -104,7 +109,7 @@ const CategoryCollection = ({
       } else if (mode === CategoryCollectionMode.FOLLOWING) {
         categoryQuery = query(
           categoryQuery,
-          where("createdBy", "in", Array.from(following))
+          where("createdBy", "in", [...following])
         );
       } else if (mode === CategoryCollectionMode.RECOMMENDED) {
         // Pick random liked categories
@@ -123,14 +128,16 @@ const CategoryCollection = ({
             }
           });
         });
+
         const sortedTags = Object.entries(tagFrequency)
           .sort(([, a], [, b]) => b - a)
           .slice(0, 3)
           .map(([tag]) => tag);
-        if (!sortedTags.length) {
+        if (sortedTags.length === 0) {
           setCategories([]);
           return;
         }
+
         categoryQuery = query(
           categoryQuery,
           where("tags", "array-contains-any", sortedTags),
@@ -147,6 +154,7 @@ const CategoryCollection = ({
         categoryQuery = query(categoryQuery, orderBy("updatedAt", "desc"));
       }
 
+      // ✅ Execute Firestore query
       const snapshot = await getDocs(categoryQuery);
       let categoryList = snapshot.docs.map((docSnap) => ({
         id: docSnap.id,
@@ -154,7 +162,10 @@ const CategoryCollection = ({
       }));
 
       // Fallback for recommended mode if no categories found
-      if (mode === CategoryCollectionMode.RECOMMENDED && !categoryList.length) {
+      if (
+        mode === CategoryCollectionMode.RECOMMENDED &&
+        categoryList.length === 0
+      ) {
         console.warn(
           "No recommended categories found. Falling back to recent updates."
         );
@@ -170,17 +181,14 @@ const CategoryCollection = ({
         }));
       }
 
-      // Apply privacy filters based on our new system
+      // ✅ Apply privacy filters efficiently
       const filteredCategories = categoryList.filter((category) => {
         if (user && category.createdBy === user.uid) return true;
 
-        if (category.creatorPrivacy === UserPrivacy.PUBLIC) {
-          return category.categoryPrivacy !== CategoryPrivacy.ONLY_ME;
-        }
-
         if (
-          category.creatorPrivacy === UserPrivacy.PRIVATE &&
-          following.has(category.createdBy)
+          category.creatorPrivacy === UserPrivacy.PUBLIC ||
+          (category.creatorPrivacy === UserPrivacy.PRIVATE &&
+            following.has(category.createdBy))
         ) {
           return category.categoryPrivacy !== CategoryPrivacy.ONLY_ME;
         }
