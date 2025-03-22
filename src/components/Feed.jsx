@@ -1,13 +1,14 @@
 import CategoryCollection from "./CategoryCollection";
+import { CategoryCollectionMode } from "../enums/ModeEnums";
 
 const Feed = () => {
   return (
     <div className="feed-container">
       <h2>Recommended For You</h2>
-      <CategoryCollection mode="recommended" />
+      <CategoryCollection mode={CategoryCollectionMode.RECOMMENDED} />
 
       <h2>Popular Categories</h2>
-      <CategoryCollection mode="popular" />
+      <CategoryCollection mode={CategoryCollectionMode.POPULAR} />
     </div>
   );
 };

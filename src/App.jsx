@@ -18,6 +18,7 @@ import EditCategory from "./components/EditCategory";
 import ForgotPassword from "./components/ForgotPassword";
 import FollowList from "./components/FollowList";
 import EditProfile from "./components/EditProfile";
+import { AuthFormMode, FollowListMode } from "./enums/ModeEnums";
 
 // Context Providers
 import { LikedCategoriesProvider } from "./context/LikedCategoriesContext";
@@ -89,16 +90,22 @@ function App() {
                   />
                   {/* Route for viewing profiles (own or others') */}
                   <Route path="/profile/:uid?" element={<Profile />} />
-                  <Route path="/login" element={<AuthForm mode="login" />} />
-                  <Route path="/signup" element={<AuthForm mode="signup" />} />
+                  <Route
+                    path="/login"
+                    element={<AuthForm mode={AuthFormMode.LOGIN} />}
+                  />
+                  <Route
+                    path="/signup"
+                    element={<AuthForm mode={AuthFormMode.SIGNUP} />}
+                  />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route
                     path="/profile/:uid/followers"
-                    element={<FollowList mode="followers" />}
+                    element={<FollowList mode={FollowListMode.FOLLOWERS} />}
                   />
                   <Route
                     path="/profile/:uid/following"
-                    element={<FollowList mode="following" />}
+                    element={<FollowList mode={FollowListMode.FOLLOWING} />}
                   />
                   <Route path="/profile/edit" element={<EditProfile />} />
                 </Routes>

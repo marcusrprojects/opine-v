@@ -8,6 +8,7 @@ import FollowPanel from "./Navigation/FollowPanel";
 import "../styles/Profile.css";
 import CategoryCollection from "./CategoryCollection";
 import { useFollow } from "../context/useFollow";
+import { CategoryCollectionMode } from "../enums/ModeEnums";
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -119,9 +120,12 @@ const Profile = () => {
 
       <div className="profile-categories-section">
         <h3>Categories</h3>
-        <CategoryCollection mode="user" userId={uid} />
+        <CategoryCollection mode={CategoryCollectionMode.USER} userId={uid} />
         <h3>Liked Categories</h3>
-        <CategoryCollection mode="likedByUser" userId={uid} />
+        <CategoryCollection
+          mode={CategoryCollectionMode.LIKED_BY_USER}
+          userId={uid}
+        />
       </div>
     </div>
   );

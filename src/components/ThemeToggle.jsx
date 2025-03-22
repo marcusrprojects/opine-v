@@ -1,24 +1,30 @@
-import { useState, useEffect } from 'react';
-import '../styles/ThemeToggle.css';
-import { FaAdjust, FaSun, FaMoon } from 'react-icons/fa';
+import { useState, useEffect } from "react";
+import "../styles/ThemeToggle.css";
+import { FaAdjust, FaSun, FaMoon } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import ThemeMode from "../enums/ThemeEnums";
 
 const ThemeToggle = () => {
   const [themeMode, setThemeMode] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
+    const savedTheme = localStorage.getItem("theme");
     if (savedTheme) return savedTheme;
-    return 'auto'; 
+    return "auto";
   });
 
   useEffect(() => {
     const applyTheme = () => {
-      if (themeMode === 'auto') {
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.setAttribute('data-theme', systemPrefersDark ? 'dark' : 'light');
+      if (themeMode === ThemeMode.AUTO) {
+        const systemPrefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        document.documentElement.setAttribute(
+          "data-theme",
+          systemPrefersDark ? "dark" : "light"
+        );
       } else {
-        document.documentElement.setAttribute('data-theme', themeMode);
+        document.documentElement.setAttribute("data-theme", themeMode);
       }
-      localStorage.setItem('theme', themeMode);
+      localStorage.setItem("theme", themeMode);
     };
 
     applyTheme();
@@ -26,20 +32,24 @@ const ThemeToggle = () => {
 
   const toggleTheme = () => {
     setThemeMode((prevMode) => {
-      if (prevMode === 'auto') return 'light';
-      if (prevMode === 'light') return 'dark';
-      return 'auto';
+      if (prevMode === ThemeMode.AUTO) return "light";
+      if (prevMode === ThemeMode.LIGHT) return "dark";
+      return "auto";
     });
   };
 
   const getThemeIcon = () => {
-    if (themeMode === 'auto') return <FaAdjust />;
-    if (themeMode === 'light') return <FaSun />;
-    if (themeMode === 'dark') return <FaMoon />;
+    if (themeMode === ThemeMode.AUTO) return <FaAdjust />;
+    if (themeMode === ThemeMode.LIGHT) return <FaSun />;
+    if (themeMode === ThemeMode.DARK) return <FaMoon />;
   };
 
   return (
-    <Link className="theme-toggle" onClick={toggleTheme} aria-label="Toggle Theme">
+    <Link
+      className="theme-toggle"
+      onClick={toggleTheme}
+      aria-label="Toggle Theme"
+    >
       {getThemeIcon()}
     </Link>
   );

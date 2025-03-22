@@ -21,6 +21,7 @@ import { UserPrivacy, CategoryPrivacy } from "../enums/PrivacyEnums";
 import "../styles/CategoryCollection.css";
 import { getVisibleCategoriesForUser } from "../utils/privacyUtils"; // our helper function
 import SortOptions from "../enums/SortOptions";
+import { CategoryCollectionMode } from "../enums/ModeEnums";
 
 const CategoryCollection = ({
   mode,
@@ -53,21 +54,22 @@ const CategoryCollection = ({
     try {
       // ✅ Handle early exits for empty `likedCategories`
       if (
-        (mode === "liked" || mode === "recommended") &&
+        (mode === CategoryCollectionMode.LIKED ||
+          mode === CategoryCollectionMode.RECOMMENDED) &&
         !likedCategories.length
       ) {
         setCategories([]);
         return;
       }
       // For modes that fetch by a specific creator, use our helper
-      if (mode === "own") {
+      if (mode === CategoryCollectionMode.OWN) {
         const categories = await getVisibleCategoriesForUser(
           user.uid,
           user.uid
         );
         setCategories(categories);
         return;
-      } else if (mode === "user" && userId) {
+      } else if (mode === CategoryCollectionMode.USER && userId) {
         const categories = await getVisibleCategoriesForUser(
           userId,
           user ? user.uid : null
@@ -79,12 +81,12 @@ const CategoryCollection = ({
       // For other modes, we query the entire collection and filter later.
       let categoryQuery = collection(db, "categories");
 
-      if (mode === "liked") {
+      if (mode === CategoryCollectionMode.LIKED) {
         categoryQuery = query(
           categoryQuery,
           where("__name__", "in", likedCategories)
         );
-      } else if (mode === "likedByUser" && userId) {
+      } else if (mode === CategoryCollectionMode.LIKED_BY_USER && userId) {
         const userDocRef = doc(db, "users", userId);
         const userSnapshot = await getDoc(userDocRef);
         const likedCategoryIds = userSnapshot.exists()
@@ -98,7 +100,7 @@ const CategoryCollection = ({
           categoryQuery,
           where("__name__", "in", likedCategoryIds)
         );
-      } else if (mode === "recommended") {
+      } else if (mode === CategoryCollectionMode.RECOMMENDED) {
         // Pick random liked categories
         const randomLiked = likedCategories
           .sort(() => 0.5 - Math.random())
@@ -128,7 +130,7 @@ const CategoryCollection = ({
           where("tags", "array-contains-any", sortedTags),
           limit(5)
         );
-      } else if (mode === "popular") {
+      } else if (mode === CategoryCollectionMode.POPULAR) {
         categoryQuery = query(
           categoryQuery,
           orderBy("likeCount", "desc"),
@@ -146,7 +148,7 @@ const CategoryCollection = ({
       }));
 
       // Fallback for recommended mode if no categories found
-      if (mode === "recommended" && !categoryList.length) {
+      if (mode === CategoryCollectionMode.RECOMMENDED && !categoryList.length) {
         console.warn(
           "No recommended categories found. Falling back to recent updates."
         );
@@ -239,12 +241,13 @@ const CategoryCollection = ({
   return (
     <>
       {filteredCategories.length === 0 ? (
-        mode === "recommended" ? (
+        mode === CategoryCollectionMode.RECOMMENDED ? (
           <p>
             No recommendations yet. Try liking some categories to get
             personalized suggestions!
           </p>
-        ) : mode === "likedByUser" || mode === "liked" ? (
+        ) : mode === CategoryCollectionMode.LIKED_BY_USER ||
+          mode === CategoryCollectionMode.LIKED ? (
           <p>No liked categories yet.</p>
         ) : (
           <p>No categories yet.</p>
@@ -262,15 +265,7 @@ const CategoryCollection = ({
 };
 
 CategoryCollection.propTypes = {
-  mode: PropTypes.oneOf([
-    "own",
-    "user",
-    "liked",
-    "likedByUser",
-    "all",
-    "recommended",
-    "popular",
-  ]),
+  mode: PropTypes.oneOf(Object.values(CategoryCollectionMode)),
   userId: PropTypes.string,
   searchTerm: PropTypes.string,
   sortOption: PropTypes.oneOf(Object.values(SortOptions)),

@@ -21,10 +21,11 @@ import "../styles/AuthForm.css";
 import PropTypes from "prop-types";
 import { validateUserProfile } from "../utils/validationUtils";
 import { useAuth } from "../context/useAuth";
+import { AuthFormMode } from "../enums/ModeEnums";
 
 const AuthForm = ({ mode }) => {
   const navigate = useNavigate();
-  const isSignup = mode === "signup";
+  const isSignup = mode === AuthFormMode.SIGNUP;
   const { user } = useAuth();
 
   const [email, setEmail] = useState("");

@@ -6,6 +6,7 @@ import "../styles/FollowList.css";
 import PropTypes from "prop-types";
 import BackPanel from "./Navigation/BackPanel";
 import Card from "./Card";
+import { FollowListMode } from "../enums/ModeEnums";
 
 const FollowList = ({ mode }) => {
   const { uid } = useParams();
@@ -13,7 +14,7 @@ const FollowList = ({ mode }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const title = mode === "followers" ? "Followers" : "Following";
+  const title = mode === FollowListMode.FOLLOWERS ? "Followers" : "Following";
 
   useEffect(() => {
     const fetchFollowData = async () => {
@@ -26,7 +27,9 @@ const FollowList = ({ mode }) => {
         if (userSnapshot.exists()) {
           const userData = userSnapshot.data();
           const followIds =
-            mode === "followers" ? userData.followers : userData.following;
+            mode === FollowListMode.FOLLOWERS
+              ? userData.followers
+              : userData.following;
 
           if (!followIds || followIds.length === 0) {
             setUsers([]);
@@ -92,7 +95,7 @@ const FollowList = ({ mode }) => {
 };
 
 FollowList.propTypes = {
-  mode: PropTypes.oneOf(["followers", "following"]).isRequired,
+  mode: PropTypes.oneOf(Object.values(FollowListMode)).isRequired,
 };
 
 export default FollowList;

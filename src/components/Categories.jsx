@@ -4,6 +4,7 @@ import AddSearchPanel from "../components/Navigation/AddSearchPanel";
 import CategorySearch from "../components/CategorySearch";
 import CategoryCollection from "./CategoryCollection";
 import SortOptions from "../enums/SortOptions";
+import { CategoryCollectionMode } from "../enums/ModeEnums";
 
 const Categories = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,7 +29,7 @@ const Categories = () => {
         />
       )}
       <CategoryCollection
-        mode="all"
+        mode={CategoryCollectionMode.ALL}
         searchTerm={searchTerm}
         sortOption={sortOption}
       />
