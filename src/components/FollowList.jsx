@@ -24,40 +24,41 @@ const FollowList = ({ mode }) => {
         const userDocRef = doc(db, "users", uid);
         const userSnapshot = await getDoc(userDocRef);
 
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const followIds =
-            mode === FollowListMode.FOLLOWERS
-              ? userData.followers
-              : userData.following;
-
-          if (!followIds || followIds.length === 0) {
-            setUsers([]);
-            return;
-          }
-
-          // 🔹 Fetch user details for each UID
-          const userDetailsPromises = followIds.map(async (followId) => {
-            const followDocRef = doc(db, "users", followId);
-            const followSnapshot = await getDoc(followDocRef);
-            if (followSnapshot.exists()) {
-              const followData = followSnapshot.data();
-              return {
-                id: followId,
-                name: followData.name || "Anonymous",
-                username: followData.username || "unknown",
-              };
-            }
-            return null;
-          });
-
-          const resolvedUsers = (await Promise.all(userDetailsPromises)).filter(
-            Boolean
-          );
-          setUsers(resolvedUsers);
-        } else {
+        if (!userSnapshot.exists()) {
           setUsers([]);
+          return;
         }
+
+        const userData = userSnapshot.data();
+        const followIds =
+          mode === FollowListMode.FOLLOWERS
+            ? userData.followers
+            : userData.following;
+
+        if (!followIds || followIds.length === 0) {
+          setUsers([]);
+          return;
+        }
+
+        // 🔹 Fetch user details for each UID
+        const userDetailsPromises = followIds.map(async (followId) => {
+          const followDocRef = doc(db, "users", followId);
+          const followSnapshot = await getDoc(followDocRef);
+          if (followSnapshot.exists()) {
+            const followData = followSnapshot.data();
+            return {
+              id: followId,
+              name: followData.name || "Anonymous",
+              username: followData.username || "unknown",
+            };
+          }
+          return null;
+        });
+
+        const resolvedUsers = (await Promise.all(userDetailsPromises)).filter(
+          Boolean
+        );
+        setUsers(resolvedUsers);
       } catch (error) {
         console.error(`Error fetching ${title}:`, error);
         setUsers([]);
