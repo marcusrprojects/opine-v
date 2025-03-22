@@ -13,6 +13,7 @@ import PrivacySelector from "./PrivacySelector";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
+  const [categoryDescription, setCategoryDescription] = useState(""); // ✅ New state for description
   const [fields, setFields] = useState([{ name: "Name" }]);
   const [tags, setTags] = useState([]);
   const { user } = useAuth();
@@ -38,6 +39,7 @@ const CreateCategory = () => {
     try {
       const newCategory = {
         name: categoryName.trim(),
+        description: categoryDescription.trim(),
         fields,
         tags,
         categoryPrivacy,
@@ -72,6 +74,17 @@ const CreateCategory = () => {
             onChange={(e) => setCategoryName(e.target.value)}
             placeholder="Category Name"
             required
+          />
+        </div>
+
+        <div className="category-description-group">
+          <label>Category Description</label>
+          <textarea
+            value={categoryDescription}
+            onChange={(e) => setCategoryDescription(e.target.value)}
+            placeholder="Describe your category..."
+            rows={4}
+            className="category-description-input"
           />
         </div>
 
