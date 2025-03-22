@@ -54,9 +54,10 @@ const CategoryCollection = ({
     try {
       // ✅ Handle early exits for empty `likedCategories`
       if (
-        (mode === CategoryCollectionMode.LIKED ||
+        ((mode === CategoryCollectionMode.LIKED ||
           mode === CategoryCollectionMode.RECOMMENDED) &&
-        !likedCategories.length
+          !likedCategories.length) ||
+        (mode === CategoryCollectionMode.FOLLOWING && !following.length)
       ) {
         setCategories([]);
         return;
@@ -99,6 +100,11 @@ const CategoryCollection = ({
         categoryQuery = query(
           categoryQuery,
           where("__name__", "in", likedCategoryIds)
+        );
+      } else if (mode === CategoryCollectionMode.FOLLOWING) {
+        categoryQuery = query(
+          categoryQuery,
+          where("createdBy", "in", Array.from(following))
         );
       } else if (mode === CategoryCollectionMode.RECOMMENDED) {
         // Pick random liked categories
@@ -166,20 +172,19 @@ const CategoryCollection = ({
 
       // Apply privacy filters based on our new system
       const filteredCategories = categoryList.filter((category) => {
-        // Always allow if the viewer is the creator
         if (user && category.createdBy === user.uid) return true;
 
-        // For categories created by public accounts:
         if (category.creatorPrivacy === UserPrivacy.PUBLIC) {
-          // Show category if it is not marked "only-me"
           return category.categoryPrivacy !== CategoryPrivacy.ONLY_ME;
         }
 
-        // For categories from private accounts:
-        if (category.creatorPrivacy === UserPrivacy.PRIVATE) {
-          // Only show if viewer is following the creator
-          return user && following && following.has(category.createdBy);
+        if (
+          category.creatorPrivacy === UserPrivacy.PRIVATE &&
+          following.has(category.createdBy)
+        ) {
+          return category.categoryPrivacy !== CategoryPrivacy.ONLY_ME;
         }
+
         return false;
       });
 
@@ -249,6 +254,8 @@ const CategoryCollection = ({
         ) : mode === CategoryCollectionMode.LIKED_BY_USER ||
           mode === CategoryCollectionMode.LIKED ? (
           <p>No liked categories yet.</p>
+        ) : mode === CategoryCollectionMode.FOLLOWING ? (
+          <p>No following content yet.</p>
         ) : (
           <p>No categories yet.</p>
         )
