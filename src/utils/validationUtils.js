@@ -21,8 +21,8 @@ export const validateUserProfile = async (
   }
 
   // Display name validation: Ensure it's at least 3 characters
-  if (displayName.length < 2) {
-    return "Display name must be at least 2 characters long.";
+  if (displayName.length < 1) {
+    return "Display name must be at least a character long.";
   }
 
   // Email validation: Must be in standard email format
@@ -54,3 +54,11 @@ const isUsernameTaken = async (username) => {
   );
   return !querySnapshot.empty;
 };
+
+export function validateCategoryDescription(description, maxLength = 500) {
+  const trimmed = description.trim();
+  if (trimmed.length > maxLength) {
+    return `Description is too long. Max ${maxLength} characters allowed.`;
+  }
+  return null; // No error
+}
