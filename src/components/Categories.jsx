@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AddSearchPanel from "../components/Navigation/AddSearchPanel";
 import CategorySearch from "../components/CategorySearch";
 import CategoryCollection from "./CategoryCollection";
-import SortOptions from "../constants/SortOptions";
+import SortOptions from "../enums/SortOptions";
 
 const Categories = () => {
   const [searchTerm, setSearchTerm] = useState("");

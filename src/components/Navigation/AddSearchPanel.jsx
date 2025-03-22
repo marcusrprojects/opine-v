@@ -3,7 +3,7 @@ import { FaPlus, FaSearch } from "react-icons/fa";
 import Panel from "./Panel";
 import Button from "./Button";
 import SortSelector from "../SortSelector";
-import SortOptions from "../../constants/SortOptions";
+import SortOptions from "../../enums/SortOptions";
 
 const AddSearchPanel = ({
   onAdd,

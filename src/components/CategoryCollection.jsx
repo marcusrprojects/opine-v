@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { USER_PRIVACY, CATEGORY_PRIVACY } from "../constants/privacy";
 import "../styles/CategoryCollection.css";
 import { getVisibleCategoriesForUser } from "../utils/privacyUtils"; // our helper function
-import SortOptions from "../constants/SortOptions";
+import SortOptions from "../enums/SortOptions";
 
 const CategoryCollection = ({
   mode,

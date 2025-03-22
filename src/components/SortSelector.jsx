@@ -8,7 +8,7 @@ import {
   FaSortAlphaUp,
   FaHeart,
 } from "react-icons/fa";
-import SortOptions from "../constants/SortOptions";
+import SortOptions from "../enums/SortOptions";
 import "../styles/SortSelector.css";
 
 const SortSelector = ({ sortOption, onSortChange }) => {
