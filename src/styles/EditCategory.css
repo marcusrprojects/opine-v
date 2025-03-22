@@ -122,3 +122,9 @@
 .delete-icon:hover {
   filter: brightness(85%);
 }
+
+.mini-text {
+  margin: 0;
+  font-weight: var(--fw-sx);
+  font-size: var(--font-small);
+}
