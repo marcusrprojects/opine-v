@@ -27,3 +27,7 @@
   gap: var(--padding-sm);
   justify-content: center;
 }
+
+.profile-description {
+  white-space: pre-line;
+}
