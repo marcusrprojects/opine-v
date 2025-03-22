@@ -14,3 +14,18 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+.category-header p {
+  white-space: pre-line;
+  /* max-width: 600px; */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.char-count {
+  margin: 0;
+}

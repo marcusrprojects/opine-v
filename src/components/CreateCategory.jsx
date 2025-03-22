@@ -10,6 +10,7 @@ import TextInput from "./TextInput";
 import { CategoryPrivacy } from "../enums/PrivacyEnums";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
+import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -79,12 +80,14 @@ const CreateCategory = () => {
 
         <div className="category-description-group">
           <label>Category Description</label>
+          <p className="mini-text">{categoryDescription.length}/500</p>
           <textarea
             value={categoryDescription}
             onChange={(e) => setCategoryDescription(e.target.value)}
             placeholder="Describe your category..."
             rows={4}
             className="category-description-input"
+            maxLength={MAX_DESCRIPTION_LENGTH}
           />
         </div>
 

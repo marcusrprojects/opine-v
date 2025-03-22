@@ -40,3 +40,9 @@
   resize: vertical;
   width: 50vw;
 }
+
+.mini-text {
+  margin: 0;
+  font-weight: var(--fw-sx);
+  font-size: var(--font-small);
+}

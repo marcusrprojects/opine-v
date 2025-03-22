@@ -11,6 +11,7 @@ import TextInput from "./TextInput";
 import { CategoryPrivacy } from "../enums/PrivacyEnums";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
+import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -117,11 +118,14 @@ const EditCategory = () => {
         />
 
         <label className="edit-label">Description</label>
+        <p className="mini-text">{description.length}/500</p>
         <textarea
           className="edit-description"
-          placeholder="Any words of advice for understanding how to read this board?"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          placeholder="Describe your category..."
+          rows={4}
+          maxLength={MAX_DESCRIPTION_LENGTH}
         />
       </div>
 
