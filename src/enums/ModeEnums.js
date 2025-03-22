@@ -11,6 +11,7 @@ const CategoryCollectionMode = Object.freeze({
   ALL: "all",
   RECOMMENDED: "recommended",
   POPULAR: "popular",
+  FOLLOWING: "following",
 });
 
 const FollowListMode = Object.freeze({
