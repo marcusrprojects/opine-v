@@ -4,9 +4,8 @@ const UserPrivacy = Object.freeze({
 });
 
 const CategoryPrivacy = Object.freeze({
-  EVERYONE: "everyone",
-  ONLY_ME: "only_me",
-  FOLLOWERS_ONLY: "followers_only",
+  DEFAULT: "default",
+  ONLY_ME: "only-me",
 });
 
 export { UserPrivacy, CategoryPrivacy };
