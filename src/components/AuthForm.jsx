@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, googleProvider, db } from "../firebaseConfig";
 import {
@@ -25,8 +25,10 @@ import { AuthFormMode } from "../enums/ModeEnums";
 
 const AuthForm = ({ mode }) => {
   const navigate = useNavigate();
-  const isSignup = mode === AuthFormMode.SIGNUP;
   const { user } = useAuth();
+
+  // ✅ Store auth mode using useMemo
+  const isSignup = useMemo(() => mode === AuthFormMode.SIGNUP, [mode]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,94 +71,76 @@ const AuthForm = ({ mode }) => {
   };
 
   /**
-   * Handles Email Signup/Login.
+   * Handles Email & Google Authentication (Unified Function)
    */
-  const handleAuth = async (e) => {
-    e.preventDefault();
+  const handleAuth = async (e = null, provider = "email") => {
+    if (e) e.preventDefault();
 
-    if (isSignup) {
-      const validationError = await validateUserProfile(username, name, email);
-      if (validationError) {
-        setError(validationError);
-        return;
-      }
-    }
+    setError(""); // Reset errors
+
+    let userCredential;
 
     try {
-      if (isSignup) {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        await createUserProfile(userCredential.user, name, username, "email");
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
+      if (provider === "email") {
+        if (isSignup) {
+          const validationError = await validateUserProfile(
+            username,
+            name,
+            email
+          );
+          if (validationError) {
+            setError(validationError);
+            return;
+          }
+
+          userCredential = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          await createUserProfile(userCredential.user, name, username, "email");
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+        }
+      } else if (provider === "google") {
+        userCredential = await signInWithPopup(auth, googleProvider);
+        const { user } = userCredential;
+        const userRef = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userRef);
+
+        if (!userSnapshot.exists()) {
+          const emailPrefix = user.email
+            .split("@")[0]
+            .replace(/[^a-zA-Z0-9]/g, "");
+          const uniqueUsername = await generateUniqueUsername(emailPrefix);
+          await createUserProfile(
+            user,
+            user.displayName,
+            uniqueUsername,
+            "google"
+          );
+          navigate("/profile/edit");
+        }
       }
     } catch (err) {
-      console.error(`Error ${isSignup ? "signing up" : "logging in"}:`, err);
+      console.error(`Error during authentication:`, err);
       setError(err.message);
     }
   };
 
   const generateUniqueUsername = async (emailPrefix) => {
-    let baseUsername = emailPrefix.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-    let username = baseUsername;
-    let count = 1; // Start count for duplicates
-    let exists = true;
+    let username = emailPrefix.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    let count = 1;
 
-    while (exists) {
-      // Check Firestore for existing username
+    while (true) {
       const usernameQuery = query(
         collection(db, "users"),
         where("username", "==", username)
       );
       const querySnapshot = await getDocs(usernameQuery);
 
-      if (querySnapshot.empty) {
-        exists = false; // Username is unique
-      } else {
-        // Increment count if the username is taken
-        username = `${baseUsername}${count}`;
-        count++;
-      }
-    }
-
-    return username;
-  };
-
-  /**
-   * Handles Google Signup/Login.
-   */
-  const handleGoogleAuth = async () => {
-    setError(""); // Reset previous errors
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      const userRef = doc(db, "users", user.uid);
-      const userSnapshot = await getDoc(userRef);
-
-      if (!userSnapshot.exists()) {
-        // Generate username from email (remove special characters & add random digits)
-        const emailPrefix = user.email
-          .split("@")[0]
-          .replace(/[^a-zA-Z0-9]/g, "");
-        const uniqueUsername = await generateUniqueUsername(emailPrefix);
-
-        await createUserProfile(
-          user,
-          user.displayName,
-          uniqueUsername,
-          "google"
-        );
-
-        // Redirect to edit profile
-        navigate("/profile/edit");
-      }
-    } catch (err) {
-      console.error("Error with Google authentication:", err);
-      setError("Google sign-in failed. Please try again.");
+      if (querySnapshot.empty) return username;
+      username = `${emailPrefix}${count++}`;
     }
   };
 
@@ -164,7 +148,6 @@ const AuthForm = ({ mode }) => {
    * Sends password reset email.
    */
   const handleForgotPassword = async () => {
-    setError(""); // Reset previous errors
     if (!email) {
       setError("Enter your email to reset password.");
       return;
@@ -181,7 +164,7 @@ const AuthForm = ({ mode }) => {
   return (
     <div className="auth-container">
       <h2 className="auth-title">{isSignup ? "Sign Up" : "Login"}</h2>
-      <form className="auth-form" onSubmit={handleAuth}>
+      <form className="auth-form" onSubmit={(e) => handleAuth(e, "email")}>
         {isSignup && (
           <>
             <TextInput
@@ -219,7 +202,10 @@ const AuthForm = ({ mode }) => {
           {isSignup ? "Sign Up" : "Login"}
         </button>
 
-        <button onClick={handleGoogleAuth} className="submit-button">
+        <button
+          onClick={() => handleAuth(null, "google")}
+          className="submit-button"
+        >
           {isSignup ? "Sign up" : "Login"} with Google
         </button>
 
@@ -245,7 +231,7 @@ const AuthForm = ({ mode }) => {
 };
 
 AuthForm.propTypes = {
-  mode: PropTypes.oneOf(["signup", "login"]).isRequired,
+  mode: PropTypes.oneOf(Object.values(AuthFormMode)).isRequired,
 };
 
 export default AuthForm;
