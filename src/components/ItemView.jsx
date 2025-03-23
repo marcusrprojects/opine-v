@@ -12,15 +12,19 @@ import "../styles/ItemView.css";
 import { refreshRankedItems, calculateCardColor } from "../utils/ranking";
 import { useAuth } from "../context/useAuth";
 import BackDeletePanel from "./Navigation/BackDeletePanel";
+import { canUserViewCategory } from "../utils/privacyUtils";
+import { useFollow } from "../context/useFollow";
 
 const ItemView = () => {
   const { user } = useAuth();
+  const { following } = useFollow();
   const { categoryId, itemId } = useParams();
   const navigate = useNavigate();
   const [itemData, setItemData] = useState({});
   const [creatorId, setCreatorId] = useState("");
   const [editingField, setEditingField] = useState(null);
   const [orderedFields, setOrderedFields] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -28,23 +32,34 @@ const ItemView = () => {
 
   useEffect(() => {
     const fetchItem = async () => {
-      const itemDoc = await getDoc(
-        doc(db, `categories/${categoryId}/items`, itemId)
-      );
-      const categoryDoc = await getDoc(doc(db, "categories", categoryId));
+      try {
+        const itemDoc = await getDoc(
+          doc(db, `categories/${categoryId}/items`, itemId)
+        );
+        const categoryDoc = await getDoc(doc(db, "categories", categoryId));
 
-      if (itemDoc.exists()) {
-        setItemData(itemDoc.data());
-      }
+        if (!categoryDoc.exists()) return navigate("/categories");
 
-      if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
+        if (!canUserViewCategory(categoryData, user, following)) {
+          navigate("/categories");
+          return;
+        }
+
+        if (itemDoc.exists()) {
+          setItemData(itemDoc.data());
+        }
+
         setOrderedFields(categoryData.fields ?? []);
         setCreatorId(categoryData.createdBy);
+        setLoading(false);
+      } catch (error) {
+        console.warn("Error fetching item or category:", error);
       }
     };
+
     fetchItem();
-  }, [categoryId, itemId]);
+  }, [categoryId, itemId, following, navigate, user]);
 
   const canEdit = useMemo(() => {
     return user && user.uid === creatorId;
@@ -101,6 +116,8 @@ const ItemView = () => {
     return calculateCardColor(rating, rankCategory);
   }, [itemData.rating, itemData.rankCategory]);
 
+  if (loading) return <p>Loading...</p>;
+
   return (
     <div className="item-view-container">
       <BackDeletePanel
@@ -124,36 +141,32 @@ const ItemView = () => {
         </div>
       </div>
 
-      {/* Render ordered fields */}
-      {orderedFields.map(({ name: field }, index) => {
-        return (
-          <div
-            key={index}
-            className={`item-field ${canEdit ? "editable" : "non-editable"}`}
-            onClick={() => setEditingField(field)}
-          >
-            <div className="field-content">
-              <label className="item-label">{field}</label>
-              {canEdit && editingField === field ? (
-                <input
-                  type="text"
-                  value={itemData[field] || ""}
-                  onChange={(e) => handleChange(field, e.target.value)}
-                  onBlur={() => handleSaveField(field)}
-                  autoFocus
-                  className="item-input"
-                />
-              ) : (
-                <span className="item-value">
-                  {itemData[field] || "Click to edit"}
-                </span>
-              )}
-            </div>
+      {orderedFields.map(({ name: field }, index) => (
+        <div
+          key={index}
+          className={`item-field ${canEdit ? "editable" : "non-editable"}`}
+          onClick={() => setEditingField(field)}
+        >
+          <div className="field-content">
+            <label className="item-label">{field}</label>
+            {canEdit && editingField === field ? (
+              <input
+                type="text"
+                value={itemData[field] || ""}
+                onChange={(e) => handleChange(field, e.target.value)}
+                onBlur={() => handleSaveField(field)}
+                autoFocus
+                className="item-input"
+              />
+            ) : (
+              <span className="item-value">
+                {itemData[field] || "Click to edit"}
+              </span>
+            )}
           </div>
-        );
-      })}
+        </div>
+      ))}
 
-      {/* Notes field */}
       <div
         className={`item-field ${canEdit ? "editable" : "non-editable"}`}
         onClick={() => setEditingField("notes")}
