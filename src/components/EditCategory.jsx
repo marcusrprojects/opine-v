@@ -12,11 +12,16 @@ import { CategoryPrivacy } from "../enums/PrivacyEnums";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
 import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
+import { canUserViewCategory } from "../utils/privacyUtils";
+import { useAuth } from "../context/useAuth";
+import { useFollow } from "../context/useFollow";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { following } = useFollow();
 
   // Extract category from state (or default to empty object)
   const category = location.state?.category ?? {};
@@ -43,22 +48,25 @@ const EditCategory = () => {
 
           if (categorySnapshot.exists()) {
             const data = categorySnapshot.data();
+            if (!canUserViewCategory(data, user, following)) {
+              navigate("/categories");
+              return;
+            }
             setCategoryName(data.name || "");
             setDescription(data.description || "");
             setFields(Array.isArray(data.fields) ? data.fields : []);
             setTags(data.tags || []);
             setCategoryPrivacy(data.categoryPrivacy || CategoryPrivacy.DEFAULT);
+            setLoading(false);
           }
         } catch (error) {
-          handleError(error, "Error fetching category data");
-        } finally {
-          setLoading(false);
+          console.warn(`${error}, Error fetching category data`);
         }
       };
 
       fetchCategoryData();
     }
-  }, [categoryId, location.state]);
+  }, [categoryId, location.state, following, navigate, user]);
 
   // Save changes to Firestore
   const handleSave = async () => {
