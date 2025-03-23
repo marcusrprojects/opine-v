@@ -1,64 +1,65 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getDoc, doc } from "firebase/firestore";
-import { db } from "../firebaseConfig";
-import "../styles/FollowList.css";
 import PropTypes from "prop-types";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  getDoc,
+  doc,
+  updateDoc,
+  arrayRemove,
+  arrayUnion,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { db } from "../firebaseConfig";
 import BackPanel from "./Navigation/BackPanel";
-import Card from "./Card";
+import FollowCard from "./FollowCard";
+import FollowRequestCard from "./FollowRequestCard";
 import { FollowListMode } from "../enums/ModeEnums";
+import "../styles/FollowList.css";
 
-const FollowList = ({ mode }) => {
+const FollowList = ({ mode, className = "" }) => {
   const { uid } = useParams();
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const title = mode === FollowListMode.FOLLOWERS ? "Followers" : "Following";
+  const title = {
+    [FollowListMode.FOLLOWERS]: "Followers",
+    [FollowListMode.FOLLOWING]: "Following",
+    [FollowListMode.FOLLOW_REQUESTS]: "Follow Requests",
+  }[mode];
 
   useEffect(() => {
     const fetchFollowData = async () => {
       if (!uid) return;
       setLoading(true);
       try {
-        const userDocRef = doc(db, "users", uid);
-        const userSnapshot = await getDoc(userDocRef);
+        const userSnapshot = await getDoc(doc(db, "users", uid));
+        if (!userSnapshot.exists()) return setUsers([]);
 
-        if (!userSnapshot.exists()) {
-          setUsers([]);
-          return;
-        }
-
-        const userData = userSnapshot.data();
-        const followIds =
+        const data = userSnapshot.data();
+        const ids =
           mode === FollowListMode.FOLLOWERS
-            ? userData.followers
-            : userData.following;
+            ? data.followers
+            : mode === FollowListMode.FOLLOWING
+            ? data.following
+            : data.followRequests;
 
-        if (!followIds || followIds.length === 0) {
-          setUsers([]);
-          return;
-        }
+        if (!ids || ids.length === 0) return setUsers([]);
 
-        // 🔹 Fetch user details for each UID
-        const userDetailsPromises = followIds.map(async (followId) => {
-          const followDocRef = doc(db, "users", followId);
-          const followSnapshot = await getDoc(followDocRef);
-          if (followSnapshot.exists()) {
-            const followData = followSnapshot.data();
+        const promises = ids.map(async (id) => {
+          const snap = await getDoc(doc(db, "users", id));
+          if (snap.exists()) {
+            const d = snap.data();
             return {
-              id: followId,
-              name: followData.name || "Anonymous",
-              username: followData.username || "unknown",
+              id,
+              name: d.name || "Anonymous",
+              username: d.username || "unknown",
             };
           }
           return null;
         });
 
-        const resolvedUsers = (await Promise.all(userDetailsPromises)).filter(
-          Boolean
-        );
-        setUsers(resolvedUsers);
+        const results = (await Promise.all(promises)).filter(Boolean);
+        setUsers(results);
       } catch (error) {
         console.error(`Error fetching ${title}:`, error);
         setUsers([]);
@@ -70,21 +71,60 @@ const FollowList = ({ mode }) => {
     fetchFollowData();
   }, [uid, mode, title]);
 
+  const handleApprove = async (requesterId) => {
+    try {
+      await updateDoc(doc(db, "users", uid), {
+        followRequests: arrayRemove(requesterId),
+        followers: arrayUnion(requesterId),
+      });
+      await updateDoc(doc(db, "users", requesterId), {
+        following: arrayUnion(uid),
+      });
+      setUsers((prev) => prev.filter((u) => u.id !== requesterId));
+    } catch (err) {
+      console.error("Approve error:", err);
+    }
+  };
+
+  const handleReject = async (requesterId) => {
+    try {
+      await updateDoc(doc(db, "users", uid), {
+        followRequests: arrayRemove(requesterId),
+      });
+      setUsers((prev) => prev.filter((u) => u.id !== requesterId));
+    } catch (err) {
+      console.error("Reject error:", err);
+    }
+  };
+
   return (
     <div className="follow-list-container">
-      <BackPanel onBack={() => navigate(`/profile/${uid}`)} />
-      <h2>{title}</h2>
-
+      {mode !== FollowListMode.FOLLOW_REQUESTS && (
+        <>
+          <BackPanel onBack={() => navigate(`/profile/${uid}`)} />
+          <h2>{title}</h2>
+        </>
+      )}
       {loading ? (
         <p>Loading...</p>
       ) : users.length > 0 ? (
         <ul className="follow-list">
           {users.map((user) => (
             <li key={user.id} className="follow-item">
-              <Card onClick={() => navigate(`/profile/${user.id}`)}>
-                <h4 className="card-name">{user.name}</h4>
-                <p className="card-username">@{user.username}</p>
-              </Card>
+              {mode === FollowListMode.FOLLOW_REQUESTS ? (
+                <FollowRequestCard
+                  user={user}
+                  onApprove={() => handleApprove(user.id)}
+                  onReject={() => handleReject(user.id)}
+                  className={className}
+                />
+              ) : (
+                <FollowCard
+                  user={user}
+                  onClick={() => navigate(`/profile/${user.id}`)}
+                  className={className}
+                />
+              )}
             </li>
           ))}
         </ul>
@@ -97,6 +137,7 @@ const FollowList = ({ mode }) => {
 
 FollowList.propTypes = {
   mode: PropTypes.oneOf(Object.values(FollowListMode)).isRequired,
+  className: PropTypes.string,
 };
 
 export default FollowList;
