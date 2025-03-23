@@ -1,0 +1,24 @@
+.request-card:hover {
+    background-color: var(--primary-color);
+}
+
+.request-actions {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  gap: var(--padding-xsmall);
+}
+
+.approve-button,
+.reject-button {
+  background: none;
+  border: none;
+}
+
+.approve-button:hover, .reject-button:hover {
+    background-color: var(--tertiary-color);
+}
+
+.approve-button:focus, .reject-button:focus {
+    outline: none;
+}
