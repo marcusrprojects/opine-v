@@ -1,17 +1,21 @@
 import { db } from "../firebaseConfig";
-import { writeBatch, doc, collection, getDocs } from "firebase/firestore";
+import {
+  writeBatch,
+  doc,
+  collection,
+  getDocs,
+  Timestamp,
+} from "firebase/firestore";
 import RankCategory from "../enums/RankCategory";
 
 export const writeItemsToFirestore = async (
   categoryId,
   items,
-  rankCategory
+  rankCategory,
+  updateCategoryTimestamp = true
 ) => {
-  const totalRange = (1 / 3) * 10; // Each category gets a third of the 10-point range
-
-  // Dynamic offset: The first item should not start at the exact lower boundary
+  const totalRange = (1 / 3) * 10;
   const dynamicOffset = totalRange / items.length;
-
   const minRating =
     rankCategory === RankCategory.GOOD
       ? (2 / 3) * 10
@@ -20,16 +24,14 @@ export const writeItemsToFirestore = async (
       : 0;
 
   if (items.length === 1) {
-    items[0].rating = minRating + totalRange / 2; // Single item is placed in the middle
+    items[0].rating = minRating + totalRange / 2;
   } else {
     rankCategory += dynamicOffset;
-    // Adjust ratings dynamically within the category range
     items.forEach((item, index) => {
       item.rating = minRating + index * dynamicOffset;
     });
   }
 
-  // Write batch to Firestore
   const batch = writeBatch(db);
   items.forEach((item) => {
     const itemRef = item.id
@@ -40,6 +42,12 @@ export const writeItemsToFirestore = async (
     }
     batch.set(itemRef, item, { merge: true });
   });
+
+  if (updateCategoryTimestamp) {
+    const categoryRef = doc(db, "categories", categoryId);
+    batch.update(categoryRef, { updatedAt: Timestamp.now() });
+  }
+
   await batch.commit();
 };
 
