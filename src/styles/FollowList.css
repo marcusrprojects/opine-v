@@ -1,13 +1,22 @@
 .follow-list-container {
-    display: flex;
-    flex-direction: column;
-    gap: var(--padding-large);
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-large);
+  justify-content: center;
+  align-items: center;
+}
+
+.follow-list {
+  display: flex;
+  gap: var(--padding-large);
+  margin: 0;
+  padding: 0;
 }
 
 .card-name, .card-username {
-    margin: 0;
+  margin: 0;
 }
 
 .card-username {
-    font-weight: var(--fw-medium);
+  font-weight: var(--fw-medium);
 }
