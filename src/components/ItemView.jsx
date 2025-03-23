@@ -97,6 +97,9 @@ const ItemView = () => {
     await canEditAction(async () => {
       if (window.confirm("Are you sure you want to delete this item?")) {
         await deleteDoc(doc(db, `categories/${categoryId}/items`, itemId));
+        await updateDoc(doc(db, "categories", categoryId), {
+          updatedAt: Timestamp.now(),
+        });
         await refreshRankedItems(categoryId, itemData.rankCategory);
         navigate(`/categories/${categoryId}`);
       }
