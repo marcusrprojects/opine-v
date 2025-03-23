@@ -79,7 +79,7 @@ const CategoryDetail = () => {
       const data = snapshot.data();
       setCategory(data);
       setOrderedFields(Array.isArray(data.fields) ? data.fields : []);
-      setCreatorId(data.createdBy || "");
+      setCreatorId(data.createdBy ?? "");
       setLikeCount(data.likeCount || 0);
       setLastEdited(data.updatedAt ? data.updatedAt.toDate() : null);
     });

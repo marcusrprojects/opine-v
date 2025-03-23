@@ -29,7 +29,7 @@ export const LikedCategoriesProvider = ({ children }) => {
         const userDocRef = doc(db, "users", user.uid);
         const userSnapshot = await getDoc(userDocRef);
         if (userSnapshot.exists()) {
-          setLikedCategories(userSnapshot.data().likedCategories || []);
+          setLikedCategories(userSnapshot.data().likedCategories ?? []);
         }
       } catch (error) {
         console.error("Error fetching liked categories:", error);

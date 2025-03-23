@@ -236,7 +236,7 @@ const CategoryCollection = ({
       [SortOptions.ALPHA_ASC]: (a, b) => a.name.localeCompare(b.name),
       [SortOptions.ALPHA_DESC]: (a, b) => b.name.localeCompare(a.name),
       [SortOptions.MOST_LIKED]: (a, b) =>
-        (b.likeCount || 0) - (a.likeCount || 0),
+        (b.likeCount ?? 0) - (a.likeCount ?? 0),
     }[sortOption];
 
     return [...filteredCategories].sort(compare);

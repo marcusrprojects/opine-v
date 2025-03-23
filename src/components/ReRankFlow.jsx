@@ -37,7 +37,7 @@ const ReRankFlow = () => {
         const categoryDoc = await getDoc(doc(db, "categories", categoryId));
         if (categoryDoc.exists()) {
           const categoryData = categoryDoc.data();
-          setFields(categoryData.fields || []);
+          setFields(categoryData.fields ?? []);
         }
       } catch (error) {
         console.error("Error fetching fields:", error);

@@ -55,7 +55,7 @@ const EditCategory = () => {
             setCategoryName(data.name || "");
             setDescription(data.description || "");
             setFields(Array.isArray(data.fields) ? data.fields : []);
-            setTags(data.tags || []);
+            setTags(data.tags ?? []);
             setCategoryPrivacy(data.categoryPrivacy || CategoryPrivacy.DEFAULT);
             setLoading(false);
           }
