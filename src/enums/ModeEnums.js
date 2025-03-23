@@ -1,9 +1,9 @@
-const AuthFormMode = Object.freeze({
+export const AuthFormMode = Object.freeze({
   SIGNUP: "signup",
   LOGIN: "login",
 });
 
-const CategoryCollectionMode = Object.freeze({
+export const CategoryCollectionMode = Object.freeze({
   OWN: "own",
   USER: "user",
   LIKED: "liked",
@@ -14,9 +14,14 @@ const CategoryCollectionMode = Object.freeze({
   FOLLOWING: "following",
 });
 
-const FollowListMode = Object.freeze({
+export const FollowListMode = Object.freeze({
   FOLLOWERS: "followers",
   FOLLOWING: "following",
+  FOLLOW_REQUESTS: "follow_requests",
 });
 
-export { AuthFormMode, CategoryCollectionMode, FollowListMode };
+export const FollowStatus = Object.freeze({
+  FOLLOWING: "following",
+  PENDING: "pending",
+  NONE: "none",
+});
