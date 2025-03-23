@@ -35,6 +35,15 @@ const Profile = () => {
     return FollowStatus.NONE;
   }, [user, uid, following, followRequests]);
 
+  const hasFollowRequests = useMemo(() => {
+    return (
+      isCurrentUser &&
+      profileData?.creatorPrivacy === UserPrivacy.PRIVATE &&
+      Array.isArray(profileData.followRequests) &&
+      profileData.followRequests.length > 0
+    );
+  }, [isCurrentUser, profileData?.followRequests, profileData?.creatorPrivacy]);
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!uid) {
@@ -76,12 +85,6 @@ const Profile = () => {
     setShowFollowRequests((prev) => !prev);
   };
 
-  const hasFollowRequests =
-    isCurrentUser &&
-    profileData?.creatorPrivacy === UserPrivacy.PRIVATE &&
-    Array.isArray(profileData.followRequests) &&
-    profileData.followRequests.length > 0;
-
   return (
     <div className="profile-container">
       {isCurrentUser ? (
@@ -92,7 +95,7 @@ const Profile = () => {
             showFollowRequests={showFollowRequests}
             hasFollowRequests={hasFollowRequests}
           />
-          {showFollowRequests && (
+          {showFollowRequests && hasFollowRequests && (
             <FollowList mode={FollowListMode.FOLLOW_REQUESTS} />
           )}
         </>
