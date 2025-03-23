@@ -14,7 +14,7 @@ import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
-  const [categoryDescription, setCategoryDescription] = useState(""); // ✅ New state for description
+  const [categoryDescription, setCategoryDescription] = useState("");
   const [fields, setFields] = useState([{ name: "Name" }]);
   const [tags, setTags] = useState([]);
   const { user } = useAuth();
