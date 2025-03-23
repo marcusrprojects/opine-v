@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
@@ -8,20 +8,32 @@ import FollowPanel from "./Navigation/FollowPanel";
 import "../styles/Profile.css";
 import CategoryCollection from "./CategoryCollection";
 import { useFollow } from "../context/useFollow";
-import { CategoryCollectionMode } from "../enums/ModeEnums";
+import {
+  CategoryCollectionMode,
+  FollowStatus,
+  FollowListMode,
+} from "../enums/ModeEnums";
+import FollowList from "./FollowList";
+import { UserPrivacy } from "../enums/PrivacyEnums";
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { uid } = useParams();
   const navigate = useNavigate();
-  const { following, toggleFollow } = useFollow();
+  const { following, followRequests, toggleFollow } = useFollow();
 
-  // State for user profile
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showFollowRequests, setShowFollowRequests] = useState(false);
 
   const isCurrentUser = user && uid === user.uid;
-  const isFollowing = !!(user && uid && following?.has(uid));
+
+  const followStatus = useMemo(() => {
+    if (!user || !uid) return FollowStatus.NONE;
+    if (following.has(uid)) return FollowStatus.FOLLOWING;
+    if (followRequests.has(uid)) return FollowStatus.PENDING;
+    return FollowStatus.NONE;
+  }, [user, uid, following, followRequests]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -47,37 +59,6 @@ const Profile = () => {
     };
 
     fetchUserProfile();
-  }, [uid, user, navigate, following]);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!uid) {
-        if (user?.uid) {
-          navigate(`/profile/${user.uid}`);
-        } else {
-          navigate("/login");
-        }
-        return;
-      }
-
-      try {
-        const userDocRef = doc(db, "users", uid);
-        const userSnapshot = await getDoc(userDocRef);
-
-        if (userSnapshot.exists()) {
-          setProfileData(userSnapshot.data());
-        } else {
-          console.warn("User not found");
-          navigate("/");
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
   }, [uid, user, navigate]);
 
   if (loading) return <p>Loading...</p>;
@@ -91,16 +72,33 @@ const Profile = () => {
     navigate(`/profile/${uid}/following`);
   };
 
+  const toggleFollowRequests = () => {
+    setShowFollowRequests((prev) => !prev);
+  };
+
+  const hasFollowRequests =
+    isCurrentUser &&
+    profileData?.creatorPrivacy === UserPrivacy.PRIVATE &&
+    Array.isArray(profileData.followRequests) &&
+    profileData.followRequests.length > 0;
+
   return (
     <div className="profile-container">
       {isCurrentUser ? (
-        <EditLogoutPanel
-          onEdit={() => navigate("/profile/edit")}
-          onLogout={logout}
-        />
+        <>
+          <EditLogoutPanel
+            onEdit={() => navigate("/profile/edit")}
+            onToggleFollowRequests={toggleFollowRequests}
+            showFollowRequests={showFollowRequests}
+            hasFollowRequests={hasFollowRequests}
+          />
+          {showFollowRequests && (
+            <FollowList mode={FollowListMode.FOLLOW_REQUESTS} />
+          )}
+        </>
       ) : (
         <FollowPanel
-          isFollowing={isFollowing}
+          followStatus={followStatus}
           onToggleFollow={() => (user ? toggleFollow(uid) : navigate("/login"))}
         />
       )}
