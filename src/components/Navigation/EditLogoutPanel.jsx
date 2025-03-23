@@ -4,7 +4,6 @@ import Button from "./Button";
 import { FaEdit, FaSignOutAlt, FaUserClock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
-import "../../styles/EditLogoutPanel.css";
 
 const EditLogoutPanel = ({
   onEdit,
