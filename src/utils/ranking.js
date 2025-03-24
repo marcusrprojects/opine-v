@@ -80,26 +80,94 @@ export const recalcRankingsForCategory = async (categoryId) => {
   await writeItemsToFirestore(categoryId, items);
 };
 
+// Helper: Convert hex color to HSL.
+const hexToHSL = (hex) => {
+  // Remove '#' if present.
+  hex = hex.replace(/^#/, "");
+  // Expand shorthand form (e.g. "03F") to full form ("0033FF").
+  if (hex.length === 3) {
+    hex = hex
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  }
+  const r = parseInt(hex.substr(0, 2), 16) / 255;
+  const g = parseInt(hex.substr(2, 2), 16) / 255;
+  const b = parseInt(hex.substr(4, 2), 16) / 255;
+
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
+  let h, s;
+  const l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+      default:
+        break;
+    }
+    h /= 6;
+  }
+
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100),
+  };
+};
+
+// Helper: Convert an HSL object to a CSS hsl() string.
+const hslToString = ({ h, s, l }) => `hsl(${h}, ${s}%, ${l}%)`;
+
 /**
- * Calculates a card color for an item based on its rating and the provided tiers.
+ * Given a rating (0–10) and an array of tier objects (each with a name, a hex color, and a cutoff),
+ * this function determines the tier the rating belongs to, computes how far into that tier the rating is,
+ * and returns a shade of the tier’s base color (using a linear interpolation of lightness).
  *
- * The tiers parameter should be an array of tier objects, each containing:
- *   - name: string
- *   - color: string (the user-selected color)
- *   - cutoff: number (the lower boundary for this tier)
- *
- * Tiers should be sorted in ascending order by cutoff.
- * This function finds the highest tier for which rating >= cutoff.
+ * Assumes that each tier’s cutoff represents the maximum rating for that tier.
  */
 export const calculateCardColor = (rating, tiers) => {
   if (!tiers || tiers.length === 0) return "#fff";
-  let selectedTier = tiers[0];
-  for (let i = 0; i < tiers.length; i++) {
-    if (rating >= tiers[i].cutoff) {
-      selectedTier = tiers[i];
-    } else {
-      break;
-    }
-  }
-  return selectedTier.color;
+
+  // Sort tiers in ascending order by cutoff.
+  const sortedTiers = [...tiers].sort((a, b) => a.cutoff - b.cutoff);
+
+  // Find the tier index where the rating is less than or equal to the cutoff.
+  let tierIndex = sortedTiers.findIndex((tier) => rating <= tier.cutoff);
+  if (tierIndex === -1) tierIndex = sortedTiers.length - 1;
+  const tier = sortedTiers[tierIndex];
+
+  // Define lower bound for this tier.
+  const lowerBound = tierIndex === 0 ? 0 : sortedTiers[tierIndex - 1].cutoff;
+  const upperBound = tier.cutoff;
+
+  // Clamp the rating between lowerBound and upperBound.
+  const clampedRating = Math.min(Math.max(rating, lowerBound), upperBound);
+  const range = upperBound - lowerBound || 1; // avoid division by zero
+  const ratio = (clampedRating - lowerBound) / range;
+
+  // Define desired lightness range (adjust these as needed).
+  const minLightness = 75; // lighter shade at lower bound
+  const maxLightness = 40; // darker shade at upper bound
+  const newLightness = Math.round(
+    minLightness - (minLightness - maxLightness) * ratio
+  );
+
+  // Convert the tier's base hex color to HSL.
+  const baseHSL = hexToHSL(tier.color);
+
+  // Keep the original hue and saturation, but override lightness.
+  return hslToString({ h: baseHSL.h, s: baseHSL.s, l: newLightness });
 };
