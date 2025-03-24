@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 import { useCallback } from "react";
-// import "../styles/TemplateDropdown.css";
+import "../styles/TemplateDropdown.css";
 
-const TemplateDropdown = ({ templates, onSelect }) => {
+const TemplateDropdown = ({ templates, onSelect, selectedId }) => {
   const handleChange = useCallback(
     (e) => {
       const selected = templates.find((t) => t.id === e.target.value);
@@ -13,8 +13,12 @@ const TemplateDropdown = ({ templates, onSelect }) => {
 
   return (
     <div className="template-dropdown">
-      <label htmlFor="template-select">Preset</label>
-      <select id="template-select" onChange={handleChange}>
+      <select
+        className="text-input"
+        id="template-select"
+        value={selectedId}
+        onChange={handleChange}
+      >
         {templates.map((template) => (
           <option key={template.id} value={template.id}>
             {template.name}
@@ -38,6 +42,7 @@ TemplateDropdown.propTypes = {
       ).isRequired,
     })
   ).isRequired,
+  selectedId: PropTypes.string.isRequired,
   onSelect: PropTypes.func.isRequired,
 };
 
