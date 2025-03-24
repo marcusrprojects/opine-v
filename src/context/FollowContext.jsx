@@ -12,7 +12,7 @@ import {
 import { UserPrivacy } from "../enums/PrivacyEnums";
 import { FollowStatus } from "../enums/ModeEnums";
 
-export const FollowContext = createContext();
+const FollowContext = createContext();
 
 export const FollowProvider = ({ children }) => {
   const { user } = useAuth();
@@ -115,3 +115,5 @@ export const FollowProvider = ({ children }) => {
 FollowProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+export default FollowContext;

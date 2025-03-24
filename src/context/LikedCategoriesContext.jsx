@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { useAuth } from "./useAuth";
 
-export const LikedCategoriesContext = createContext();
+const LikedCategoriesContext = createContext();
 
 export const LikedCategoriesProvider = ({ children }) => {
   const [likedCategories, setLikedCategories] = useState([]);
@@ -84,3 +84,5 @@ export const LikedCategoriesProvider = ({ children }) => {
 LikedCategoriesProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+export default LikedCategoriesContext;

@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { LikedCategoriesContext } from "./LikedCategoriesContext";
+import LikedCategoriesContext from "./LikedCategoriesContext";
 
 export const useLikedCategories = () => {
   const context = useContext(LikedCategoriesContext);
