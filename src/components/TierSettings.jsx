@@ -21,7 +21,6 @@ const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
   const handleTemplateSelect = useCallback(
     (preset) => {
       const defaultCutoffs = updateCutoffsFromTiers(preset.tiers);
-
       setPresetId(preset.id);
       setTiers(preset.tiers.map((t) => ({ ...t }))); // clone to avoid mutation
       setCutoffs(defaultCutoffs);
@@ -29,7 +28,6 @@ const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
     [setCutoffs, setTiers]
   );
 
-  // On mount and when switching presetId
   useEffect(() => {
     if (presetId === "custom") {
       setTiers(customState.tiers);
@@ -44,39 +42,41 @@ const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
     }
   }, [presetId, customState, setTiers, setCutoffs]);
 
-  const switchToCustomMode = (newTiers, newCutoffs) => {
+  const updateAndSwitchToCustom = (newTiers) => {
+    const newCutoffs = updateCutoffsFromTiers(newTiers);
     setCustomState({ tiers: [...newTiers], cutoffs: [...newCutoffs] });
     setPresetId("custom");
+    setTiers(newTiers);
+    setCutoffs(newCutoffs);
   };
 
   const handleTierChange = (index, field, value) => {
     const updated = [...tiers];
     updated[index] = { ...updated[index], [field]: value };
-    switchToCustomMode(updated, cutoffs);
+    updateAndSwitchToCustom(updated);
   };
 
   const handleCutoffChange = (updatedCutoffs) => {
-    switchToCustomMode(tiers, updatedCutoffs);
+    setCustomState({ tiers: [...tiers], cutoffs: [...updatedCutoffs] });
+    setPresetId("custom");
+    setCutoffs(updatedCutoffs);
   };
 
   const handleColorChange = (index, newColor) => {
     const updated = [...tiers];
     updated[index] = { ...updated[index], color: newColor };
-    switchToCustomMode(updated, cutoffs);
+    updateAndSwitchToCustom(updated);
   };
 
   const handleAddTier = () => {
-    const newTier = { name: `New Tier`, color: "#CCCCCC" };
-    const updatedTiers = [...tiers, newTier];
-    const updatedCutoffs = updateCutoffsFromTiers(updatedTiers);
-    switchToCustomMode(updatedTiers, updatedCutoffs);
+    const updatedTiers = [...tiers, { name: `New Tier`, color: "#CCCCCC" }];
+    updateAndSwitchToCustom(updatedTiers);
   };
 
   const handleRemoveTier = (index) => {
     if (tiers.length <= 2) return;
     const updatedTiers = tiers.filter((_, i) => i !== index);
-    const updatedCutoffs = updateCutoffsFromTiers(updatedTiers);
-    switchToCustomMode(updatedTiers, updatedCutoffs);
+    updateAndSwitchToCustom(updatedTiers);
   };
 
   return (
