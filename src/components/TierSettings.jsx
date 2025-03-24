@@ -1,82 +1,95 @@
 import PropTypes from "prop-types";
-import { useState, useEffect } from "react";
-import TierSlider from "./TierSlider";
+import { useState, useEffect, useCallback } from "react";
+import MultiThumbSlider from "./MultiThumbSlider";
 import TemplateDropdown from "./TemplateDropdown";
 import TextInput from "./TextInput";
 import { DEFAULT_TIER_PRESETS } from "../constants/TierTemplates";
 import { FaPlus, FaMinus } from "react-icons/fa";
+import "../styles/TierSettings.css";
 
 const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
-  const [selectedPresetId, setSelectedPresetId] = useState("good-ok-bad");
-  const [customState, setCustomState] = useState(null);
+  const [presetId, setPresetId] = useState("good-ok-bad");
+  const [customState, setCustomState] = useState({ tiers: [], cutoffs: [] });
 
   const updateCutoffsFromTiers = (tierArray) => {
     const spacing = 10 / tierArray.length;
-    return tierArray.map((_, i) => parseFloat(((i + 1) * spacing).toFixed(2)));
+    return tierArray
+      .map((_, i) => parseFloat(((i + 1) * spacing).toFixed(2)))
+      .slice(0, tierArray.length - 1);
   };
 
-  // Sync tiers/cutoffs with selected preset unless custom
-  useEffect(() => {
-    if (selectedPresetId === "custom") {
-      if (customState) {
-        setTiers(customState.tiers);
-        setCutoffs(customState.cutoffs);
-      }
-    } else {
-      const preset = DEFAULT_TIER_PRESETS.find(
-        (p) => p.id === selectedPresetId
-      );
+  const handleTemplateSelect = useCallback(
+    (preset) => {
+      const tierCount = preset.tiers.length;
+      const defaultCutoffs = preset.tiers
+        .map((_, i) => parseFloat(((i + 1) * (10 / tierCount)).toFixed(2)))
+        .slice(0, tierCount - 1);
+
+      setPresetId(preset.id);
       setTiers(preset.tiers.map((t) => ({ ...t }))); // clone to avoid mutation
-      setCutoffs(updateCutoffsFromTiers(preset.tiers));
+      setCutoffs(defaultCutoffs);
+    },
+    [setCutoffs, setTiers]
+  );
+
+  // On mount and when switching presetId
+  useEffect(() => {
+    if (presetId === "custom") {
+      setTiers(customState.tiers);
+      setCutoffs(customState.cutoffs);
+    } else {
+      const preset = DEFAULT_TIER_PRESETS.find((p) => p.id === presetId);
+      if (preset) {
+        const defaultCutoffs = updateCutoffsFromTiers(preset.tiers);
+        setTiers(preset.tiers.map((t) => ({ ...t })));
+        setCutoffs(defaultCutoffs);
+      }
     }
-  }, [customState, selectedPresetId, setCutoffs, setTiers]);
+  }, [presetId, customState, setTiers, setCutoffs]);
 
-  const switchToCustom = (newTiers = tiers, newCutoffs = cutoffs) => {
+  const switchToCustomMode = (newTiers, newCutoffs) => {
     setCustomState({ tiers: [...newTiers], cutoffs: [...newCutoffs] });
-    setSelectedPresetId("custom");
-  };
-
-  const handleTemplateSelect = (preset) => {
-    setSelectedPresetId(preset.id);
+    setPresetId("custom");
   };
 
   const handleTierChange = (index, field, value) => {
     const updated = [...tiers];
     updated[index] = { ...updated[index], [field]: value };
-    switchToCustom(updated, cutoffs);
+    switchToCustomMode(updated, cutoffs);
   };
 
-  const handleCutoffChange = (newCutoffs) => {
-    switchToCustom(tiers, newCutoffs);
+  const handleCutoffChange = (updatedCutoffs) => {
+    switchToCustomMode(tiers, updatedCutoffs);
+  };
+
+  const handleColorChange = (index, newColor) => {
+    const updated = [...tiers];
+    updated[index] = { ...updated[index], color: newColor };
+    switchToCustomMode(updated, cutoffs);
   };
 
   const handleAddTier = () => {
-    const newTier = {
-      name: `New Tier`,
-      color: "#CCCCCC",
-    };
+    const newTier = { name: `New Tier`, color: "#CCCCCC" };
     const updatedTiers = [...tiers, newTier];
     const updatedCutoffs = updateCutoffsFromTiers(updatedTiers);
-    switchToCustom(updatedTiers, updatedCutoffs);
+    switchToCustomMode(updatedTiers, updatedCutoffs);
   };
 
   const handleRemoveTier = (index) => {
     if (tiers.length <= 2) return;
     const updatedTiers = tiers.filter((_, i) => i !== index);
     const updatedCutoffs = updateCutoffsFromTiers(updatedTiers);
-    switchToCustom(updatedTiers, updatedCutoffs);
+    switchToCustomMode(updatedTiers, updatedCutoffs);
   };
 
   return (
     <div className="tier-settings">
-      <h3>Tier Settings</h3>
-
       <TemplateDropdown
         templates={[
           ...DEFAULT_TIER_PRESETS,
-          { id: "custom", name: "Custom", tiers: [] },
+          { id: "custom", name: "Custom", tiers: customState.tiers },
         ]}
-        selectedId={selectedPresetId}
+        selectedId={presetId}
         onSelect={handleTemplateSelect}
       />
 
@@ -87,12 +100,6 @@ const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
               value={tier.name}
               onChange={(e) => handleTierChange(i, "name", e.target.value)}
               placeholder="Tier Name"
-            />
-            <input
-              type="color"
-              value={tier.color}
-              onChange={(e) => handleTierChange(i, "color", e.target.value)}
-              title="Pick Tier Color"
             />
             {tiers.length > 2 && (
               <FaMinus
@@ -107,10 +114,11 @@ const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
         ))}
       </div>
 
-      <TierSlider
+      <MultiThumbSlider
         tiers={tiers}
         cutoffs={cutoffs}
         onChange={handleCutoffChange}
+        onColorChange={handleColorChange}
       />
     </div>
   );
