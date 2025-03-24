@@ -101,15 +101,17 @@ const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
               onChange={(e) => handleTierChange(i, "name", e.target.value)}
               placeholder="Tier Name"
             />
-            {tiers.length > 2 && (
-              <FaMinus
-                className="remove-tier-icon"
-                onClick={() => handleRemoveTier(i)}
-              />
-            )}
-            {i === tiers.length - 1 && (
-              <FaPlus className="add-tier-icon" onClick={handleAddTier} />
-            )}
+            <div className="tier-icons">
+              {tiers.length > 2 && (
+                <FaMinus
+                  className="remove-tier-icon"
+                  onClick={() => handleRemoveTier(i)}
+                />
+              )}
+              {i === tiers.length - 1 && (
+                <FaPlus className="add-tier-icon" onClick={handleAddTier} />
+              )}
+            </div>
           </div>
         ))}
       </div>
