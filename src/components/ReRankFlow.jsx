@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ComparisonStep from "./ComparisonStep";
 import LoadingComponent from "./LoadingComponent";
-import { refreshRankedItems, writeItemsToFirestore } from "../utils/ranking";
+import { writeItemsToFirestore } from "../utils/ranking";
 import { db } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -65,7 +65,6 @@ const ReRankFlow = () => {
     setLoading(true);
     try {
       await writeItemsToFirestore(categoryId, updatedRankedItems);
-      await refreshRankedItems(categoryId);
       navigate(`/categories/${categoryId}`);
     } catch (error) {
       console.error("Error saving re-ranked item:", error);
