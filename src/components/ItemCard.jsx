@@ -7,10 +7,10 @@ const ItemCard = ({
   primaryValue,
   secondaryValues,
   rating,
-  rankCategory,
+  tiers,
   onClick,
 }) => {
-  const ratingColor = calculateCardColor(rating, rankCategory);
+  const ratingColor = calculateCardColor(rating, tiers);
 
   return (
     <Card onClick={onClick}>
@@ -32,10 +32,16 @@ const ItemCard = ({
 };
 
 ItemCard.propTypes = {
-  primaryValue: PropTypes.string.isRequired, // ✅ Only pass the extracted primary field
-  secondaryValues: PropTypes.array.isRequired, // ✅ Only pass the values, no keys
+  primaryValue: PropTypes.string.isRequired,
+  secondaryValues: PropTypes.array.isRequired,
   rating: PropTypes.number.isRequired,
-  rankCategory: PropTypes.number.isRequired,
+  tiers: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      color: PropTypes.string.isRequired,
+      cutoff: PropTypes.number.isRequired,
+    })
+  ).isRequired,
   onClick: PropTypes.func.isRequired,
 };
 
