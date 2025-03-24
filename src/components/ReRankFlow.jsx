@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import RankSelectionStep from "./RankSelectionStep";
 import ComparisonStep from "./ComparisonStep";
 import LoadingComponent from "./LoadingComponent";
 import { refreshRankedItems, writeItemsToFirestore } from "../utils/ranking";
@@ -14,10 +13,8 @@ const ReRankFlow = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const existingItem = location.state?.existingItem || null;
-  const initialRankCategory = existingItem?.rankCategory || null;
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [rankCategory, setRankCategory] = useState(null);
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
@@ -49,24 +46,16 @@ const ReRankFlow = () => {
   }, [categoryId]);
 
   const handleNext = () => {
-    if (currentStep === 1 && rankCategory === null) {
-      console.warn("Trying to go to Step 2 without selecting a rank category");
-      alert("Please select a ranking category before proceeding.");
+    if (!isRankingComplete) {
+      alert("Please complete the comparisons.");
       return;
     }
-
-    if (currentStep === 2 && !isRankingComplete) {
-      console.warn("Trying to move forward before ranking is complete");
-      return; // Prevent skipping ranking process
-    }
-
     setCurrentStep((prev) => prev + 1);
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
-      setRankCategory(null);
     } else {
       navigate(`/categories/${categoryId}/items/${existingItem.id}`);
     }
@@ -74,14 +63,9 @@ const ReRankFlow = () => {
 
   const handleSave = async (updatedRankedItems) => {
     setLoading(true);
-
     try {
-      await writeItemsToFirestore(categoryId, updatedRankedItems, rankCategory);
-
-      if (initialRankCategory !== rankCategory) {
-        await refreshRankedItems(categoryId, initialRankCategory);
-      }
-
+      await writeItemsToFirestore(categoryId, updatedRankedItems);
+      await refreshRankedItems(categoryId);
       navigate(`/categories/${categoryId}`);
     } catch (error) {
       console.error("Error saving re-ranked item:", error);
@@ -102,23 +86,15 @@ const ReRankFlow = () => {
         isBackDisabled={false}
         isNextDisabled={true}
         currentStep={currentStep}
-        totalSteps={2}
+        totalSteps={1}
       />
 
       <div className="add-item-container">
         {currentStep === 1 && (
-          <RankSelectionStep
-            setRankCategory={setRankCategory}
-            rankCategory={rankCategory}
-            onNext={handleNext}
-          />
-        )}
-        {currentStep === 2 && (
           <ComparisonStep
             categoryId={categoryId}
             itemData={existingItem}
             fields={fields}
-            rankCategory={rankCategory}
             onSave={handleSave}
             setIsRankingComplete={setIsRankingComplete}
           />
