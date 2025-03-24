@@ -63,3 +63,13 @@
   margin-top: auto;
   user-select: none;
 }
+
+.color-picker {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    top: -1vw;
+}

@@ -4,7 +4,14 @@ import "../styles/MultiThumbSlider.css";
 
 const MultiThumbSlider = ({ tiers, onChange, onColorChange }) => {
   const trackRef = useRef(null);
+  const colorInputRef = useRef(null);
   const [activeThumb, setActiveThumb] = useState(null);
+  const [colorPicker, setColorPicker] = useState({
+    visible: false,
+    index: null,
+    color: "",
+    position: { left: 0, top: 0 },
+  });
 
   const getPercentage = (value) => (value / 10) * 100;
 
@@ -62,12 +69,48 @@ const MultiThumbSlider = ({ tiers, onChange, onColorChange }) => {
     };
   }, [activeThumb, adjustableCutoffs, tiers, onChange]);
 
+  // When a segment is clicked, show the color picker at the click position.
+  const handleSegmentClick = (index, color, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!trackRef.current) return;
+
+    // Calculate position relative to the slider track.
+    const trackRect = trackRef.current.getBoundingClientRect();
+    const segmentRect = e.currentTarget.getBoundingClientRect();
+    const left = segmentRect.left - trackRect.left;
+    const top = segmentRect.bottom - trackRect.top; // position below the segment
+
+    setColorPicker({
+      visible: true,
+      index,
+      color,
+      position: { left, top },
+    });
+  };
+
+  // Automatically open the native color picker as soon as the input appears.
+  useEffect(() => {
+    if (colorPicker.visible && colorInputRef.current) {
+      if (colorInputRef.current.showPicker) {
+        colorInputRef.current.showPicker();
+      } else {
+        colorInputRef.current.click();
+      }
+    }
+  }, [colorPicker.visible]);
+
+  // Handle the color picker's change event.
+  const handleColorPickerChange = (e) => {
+    onColorChange(colorPicker.index, e.target.value);
+    setColorPicker({ ...colorPicker, visible: false });
+  };
+
   return (
-    <div className="multi-thumb-slider">
+    <div className="multi-thumb-slider" style={{ position: "relative" }}>
       <div className="slider-track" ref={trackRef}>
         {fullCutoffs.map((_, i) => {
           if (i === fullCutoffs.length - 1) return null;
-          // Each segment gets its color from the corresponding tier.
           const left = getPercentage(fullCutoffs[i]);
           const width = getPercentage(fullCutoffs[i + 1]) - left;
           const color = tiers[i]?.color || "#ccc";
@@ -81,26 +124,7 @@ const MultiThumbSlider = ({ tiers, onChange, onColorChange }) => {
                 width: `${width}%`,
                 backgroundColor: color,
               }}
-              onClick={() => {
-                // Create a hidden color input for selecting a new color
-                const input = document.createElement("input");
-                input.type = "color";
-                input.value = color;
-                input.style.display = "none";
-                document.body.appendChild(input);
-                input.click();
-
-                input.oninput = (e) => {
-                  onColorChange(i, e.target.value);
-                  document.body.removeChild(input);
-                };
-
-                input.onblur = () => {
-                  if (document.body.contains(input)) {
-                    document.body.removeChild(input);
-                  }
-                };
-              }}
+              onClick={(e) => handleSegmentClick(i, color, e)}
             />
           );
         })}
@@ -117,6 +141,23 @@ const MultiThumbSlider = ({ tiers, onChange, onColorChange }) => {
           </div>
         ))}
       </div>
+      {colorPicker.visible && (
+        <input
+          ref={colorInputRef}
+          type="color"
+          value={colorPicker.color}
+          style={{
+            position: "absolute",
+            left: `${colorPicker.position.left}px`,
+            bottom: `${colorPicker.position.top}px`,
+            zIndex: 1000,
+          }}
+          className="color-picker"
+          onChange={handleColorPickerChange}
+          onBlur={() => setColorPicker({ ...colorPicker, visible: false })}
+          autoFocus
+        />
+      )}
     </div>
   );
 };
