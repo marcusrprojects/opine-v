@@ -2,4 +2,41 @@
     display: flex;
     flex-direction: column;
     gap: var(--padding-large);
+    justify-content: center;
+    align-items: center;
+}
+
+.tier-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+    justify-content: center;
+    justify-content: center;
+}
+
+.tier-row {
+    display: flex;
+    flex-direction: row;
+    gap: var(--padding-small);
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  position: relative;
+}
+
+.tier-icons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  right: -4rem;
+  /* right: 39vw; */
+  /* left: 4rem; */
+  width: 3rem;
+}
+
+.remove-tier-icon, .add-tier-icon {
+  color: var(--middle-color);
+  cursor: pointer;
+  transition: color 0.3s ease;
 }
