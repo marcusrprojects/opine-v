@@ -26,7 +26,6 @@ const CreateCategory = () => {
   );
 
   const [tiers, setTiers] = useState([]);
-  const [cutoffs, setCutoffs] = useState([]);
 
   const isConfirmDisabled =
     !categoryName.trim() ||
@@ -53,7 +52,6 @@ const CreateCategory = () => {
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         tiers,
-        tierCutoffs: cutoffs,
       };
 
       await addDoc(collection(db, "categories"), newCategory);
@@ -105,12 +103,7 @@ const CreateCategory = () => {
         </div>
 
         <label className="edit-label">Tier Settings</label>
-        <TierSettings
-          tiers={tiers}
-          setTiers={setTiers}
-          cutoffs={cutoffs}
-          setCutoffs={setCutoffs}
-        />
+        <TierSettings tiers={tiers} setTiers={setTiers} />
 
         <label className="edit-label">&quot;Only Me&quot;</label>
         <PrivacySelector
