@@ -6,34 +6,44 @@ import {
   getDocs,
   Timestamp,
 } from "firebase/firestore";
-import RankCategory from "../enums/RankCategory";
 
+/**
+ * Uniformly recalculates ratings for the items array.
+ * For n items, if n === 1 the rating is set to 5; otherwise,
+ * ratings are uniformly distributed so that the lowest gets 0
+ * and the highest gets 10.
+ */
+const recalcRatings = (items) => {
+  // Ensure items are sorted in ascending order by their current rating.
+  items.sort((a, b) => a.rating - b.rating);
+  const n = items.length;
+  if (n === 0) return items;
+  if (n === 1) {
+    items[0].rating = 5;
+  } else {
+    items.forEach((item, i) => {
+      item.rating = i * (10 / (n - 1));
+    });
+  }
+  return items;
+};
+
+/**
+ * Writes the given items (with their ratings) to Firestore.
+ * The items array is expected to be in the proper ranking order.
+ * Ratings will be recalculated uniformly before writing.
+ * Optionally updates the category's updatedAt timestamp.
+ */
 export const writeItemsToFirestore = async (
   categoryId,
   items,
-  rankCategory,
   updateCategoryTimestamp = true
 ) => {
-  const totalRange = (1 / 3) * 10;
-  const dynamicOffset = totalRange / items.length;
-  const minRating =
-    rankCategory === RankCategory.GOOD
-      ? (2 / 3) * 10
-      : rankCategory === RankCategory.OKAY
-      ? (1 / 3) * 10
-      : 0;
-
-  if (items.length === 1) {
-    items[0].rating = minRating + totalRange / 2;
-  } else {
-    rankCategory += dynamicOffset;
-    items.forEach((item, index) => {
-      item.rating = minRating + index * dynamicOffset;
-    });
-  }
+  // Recalculate ratings uniformly for the provided items.
+  const updatedItems = recalcRatings(items);
 
   const batch = writeBatch(db);
-  items.forEach((item) => {
+  updatedItems.forEach((item) => {
     const itemRef = item.id
       ? doc(db, `categories/${categoryId}/items`, item.id)
       : doc(collection(db, `categories/${categoryId}/items`));
@@ -51,24 +61,45 @@ export const writeItemsToFirestore = async (
   await batch.commit();
 };
 
-// Refresh rankings within a category after a deletion or edit
-export const refreshRankedItems = async (categoryId, rankCategory) => {
+/**
+ * Recalculates the ratings for all items in a category.
+ * It fetches the current items, filters those with a numeric rating,
+ * recalculates their ratings uniformly, and writes the updated list back.
+ */
+export const recalcRankingsForCategory = async (categoryId) => {
   const itemsSnapshot = await getDocs(
     collection(db, `categories/${categoryId}/items`)
   );
-  const rankedItems = itemsSnapshot.docs
-    .map((doc) => ({ id: doc.id, ...doc.data() }))
-    .filter((item) => item.rankCategory === rankCategory)
-    .sort((a, b) => a.rating - b.rating);
-
-  await writeItemsToFirestore(categoryId, rankedItems, rankCategory);
+  let items = itemsSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  // Consider only items that have a numeric rating.
+  items = items.filter((item) => typeof item.rating === "number");
+  if (items.length === 0) return;
+  await writeItemsToFirestore(categoryId, items);
 };
 
-export const calculateCardColor = (rating, rankCategory) => {
-  const maxWhite = 50;
-  const hues = [0, 60, 120];
-  const thresholds = [0, (1 / 3) * 10, (2 / 3) * 10];
-  const adjustedWhiteness =
-    maxWhite - (rating - thresholds[rankCategory]) * (50 / 3);
-  return `hwb(${hues[rankCategory]} ${adjustedWhiteness}% 17.5%)`;
+/**
+ * Calculates a card color for an item based on its rating and the provided tiers.
+ *
+ * The tiers parameter should be an array of tier objects, each containing:
+ *   - name: string
+ *   - color: string (the user-selected color)
+ *   - cutoff: number (the lower boundary for this tier)
+ *
+ * Tiers should be sorted in ascending order by cutoff.
+ * This function finds the highest tier for which rating >= cutoff.
+ */
+export const calculateCardColor = (rating, tiers) => {
+  if (!tiers || tiers.length === 0) return "#fff";
+  let selectedTier = tiers[0];
+  for (let i = 0; i < tiers.length; i++) {
+    if (rating >= tiers[i].cutoff) {
+      selectedTier = tiers[i];
+    } else {
+      break;
+    }
+  }
+  return selectedTier.color;
 };
