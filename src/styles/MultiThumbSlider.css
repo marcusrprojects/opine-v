@@ -13,8 +13,7 @@
 .slider-track {
   position: relative;
   height: var(--padding-sx);
-  background-color: #ddd;
-  border-radius: 4px;
+  background-color: var(--secondary-color);
 }
 
 .slider-segment {
