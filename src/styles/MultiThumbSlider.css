@@ -8,6 +8,7 @@
   align-self: center;
   /* margin: 16px 0; */
   margin-bottom: var(--padding-large);
+  border: 0.05rem solid var(--middle-color);
 }
 
 .slider-track {
