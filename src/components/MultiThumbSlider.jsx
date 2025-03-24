@@ -2,13 +2,15 @@ import PropTypes from "prop-types";
 import { useRef, useState, useEffect } from "react";
 import "../styles/MultiThumbSlider.css";
 
-const MultiThumbSlider = ({ tiers, cutoffs, onChange, onColorChange }) => {
+const MultiThumbSlider = ({ tiers, onChange, onColorChange }) => {
   const trackRef = useRef(null);
   const [activeThumb, setActiveThumb] = useState(null);
 
   const getPercentage = (value) => (value / 10) * 100;
 
+  // Convert a clientX position to a slider value (0–10)
   const getValueFromPosition = (clientX) => {
+    if (!trackRef.current) return 0;
     const rect = trackRef.current.getBoundingClientRect();
     const x = clientX - rect.left;
     const percentage = x / rect.width;
@@ -26,18 +28,24 @@ const MultiThumbSlider = ({ tiers, cutoffs, onChange, onColorChange }) => {
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (activeThumb === null) return;
+
       const value = getValueFromPosition(e.clientX);
+      // Get current cutoff values from tiers
+      const currentCutoffs = tiers
+        .map((t) => t.cutoff)
+        .filter((v) => typeof v === "number");
 
-      const min = activeThumb === 0 ? 0 : cutoffs[activeThumb - 1] + 0.1;
+      // Prevent thumb from crossing its neighbors
+      const min = activeThumb === 0 ? 0 : currentCutoffs[activeThumb - 1] + 0.1;
       const max =
-        activeThumb === cutoffs.length - 1
+        activeThumb === currentCutoffs.length - 1
           ? 10
-          : cutoffs[activeThumb + 1] - 0.1;
-
+          : currentCutoffs[activeThumb + 1] - 0.1;
       const clamped = Math.min(Math.max(value, min), max);
 
-      const updated = [...cutoffs];
-      updated[activeThumb] = clamped;
+      // Update only the cutoff for the active tier
+      const updated = [...tiers];
+      updated[activeThumb] = { ...updated[activeThumb], cutoff: clamped };
       onChange(updated);
     };
 
@@ -47,8 +55,12 @@ const MultiThumbSlider = ({ tiers, cutoffs, onChange, onColorChange }) => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [activeThumb, cutoffs, onChange]);
+  }, [activeThumb, tiers, onChange]);
 
+  // Create an array of cutoff numbers, then add 0 at the beginning and 10 at the end
+  const cutoffs = tiers
+    .map((tier) => tier.cutoff)
+    .filter((v) => typeof v === "number");
   const fullCutoffs = [0, ...cutoffs, 10];
 
   return (
@@ -70,6 +82,7 @@ const MultiThumbSlider = ({ tiers, cutoffs, onChange, onColorChange }) => {
                 backgroundColor: color,
               }}
               onClick={() => {
+                // Create a hidden color input for selecting a new color
                 const input = document.createElement("input");
                 input.type = "color";
                 input.value = color;
@@ -100,7 +113,7 @@ const MultiThumbSlider = ({ tiers, cutoffs, onChange, onColorChange }) => {
             onMouseDown={handleMouseDown(i)}
           >
             <div className="tick-line" />
-            <div className="tick-label">{value.toFixed(1)}</div>
+            <div className="tick-label">{Number(value).toFixed(1)}</div>
           </div>
         ))}
       </div>
@@ -113,9 +126,9 @@ MultiThumbSlider.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       color: PropTypes.string.isRequired,
+      cutoff: PropTypes.number,
     })
   ).isRequired,
-  cutoffs: PropTypes.arrayOf(PropTypes.number).isRequired,
   onChange: PropTypes.func.isRequired,
   onColorChange: PropTypes.func.isRequired,
 };

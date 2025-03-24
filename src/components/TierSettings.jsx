@@ -7,47 +7,50 @@ import { DEFAULT_TIER_PRESETS } from "../constants/TierTemplates";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import "../styles/TierSettings.css";
 
-const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
+const TierSettings = ({ tiers, setTiers }) => {
   const [presetId, setPresetId] = useState("good-ok-bad");
-  const [customState, setCustomState] = useState({ tiers: [], cutoffs: [] });
+  const [customState, setCustomState] = useState({ tiers: [] });
 
-  const updateCutoffsFromTiers = (tierArray) => {
+  // Ensure each tier has a cutoff, spacing them evenly
+  const attachCutoffsToTiers = (tierArray) => {
     const spacing = 10 / tierArray.length;
-    return tierArray
-      .map((_, i) => parseFloat(((i + 1) * spacing).toFixed(2)))
-      .slice(0, tierArray.length - 1);
+    return tierArray.map((tier, i) => ({
+      ...tier,
+      cutoff: parseFloat(((i + 1) * spacing).toFixed(2)),
+    }));
   };
 
   const handleTemplateSelect = useCallback(
     (preset) => {
-      const defaultCutoffs = updateCutoffsFromTiers(preset.tiers);
+      const tiersWithCutoffs = attachCutoffsToTiers(
+        preset.tiers.map((t) => ({ ...t }))
+      );
       setPresetId(preset.id);
-      setTiers(preset.tiers.map((t) => ({ ...t }))); // clone to avoid mutation
-      setCutoffs(defaultCutoffs);
+      setTiers(tiersWithCutoffs);
     },
-    [setCutoffs, setTiers]
+    [setTiers]
   );
 
   useEffect(() => {
     if (presetId === "custom") {
       setTiers(customState.tiers);
-      setCutoffs(customState.cutoffs);
     } else {
       const preset = DEFAULT_TIER_PRESETS.find((p) => p.id === presetId);
       if (preset) {
-        const defaultCutoffs = updateCutoffsFromTiers(preset.tiers);
-        setTiers(preset.tiers.map((t) => ({ ...t })));
-        setCutoffs(defaultCutoffs);
+        const tiersWithCutoffs = attachCutoffsToTiers(
+          preset.tiers.map((t) => ({ ...t }))
+        );
+        setTiers(tiersWithCutoffs);
       }
     }
-  }, [presetId, customState, setTiers, setCutoffs]);
+  }, [presetId, customState, setTiers]);
 
+  // Updates tiers with evenly recalculated cutoffs and switches to custom
   const updateAndSwitchToCustom = (newTiers) => {
-    const newCutoffs = updateCutoffsFromTiers(newTiers);
-    setCustomState({ tiers: [...newTiers], cutoffs: [...newCutoffs] });
+    const updated = attachCutoffsToTiers(newTiers);
+    setCustomState({ tiers: [...updated] });
     setPresetId("custom");
-    setTiers(newTiers);
-    setCutoffs(newCutoffs);
+    setTiers(updated);
   };
 
   const handleTierChange = (index, field, value) => {
@@ -56,10 +59,11 @@ const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
     updateAndSwitchToCustom(updated);
   };
 
-  const handleCutoffChange = (updatedCutoffs) => {
-    setCustomState({ tiers: [...tiers], cutoffs: [...updatedCutoffs] });
+  // Now accepts an updated tiers array (which has new cutoff values)
+  const handleCutoffChange = (updatedTiers) => {
+    setCustomState({ tiers: [...updatedTiers] });
     setPresetId("custom");
-    setCutoffs(updatedCutoffs);
+    setTiers(updatedTiers);
   };
 
   const handleColorChange = (index, newColor) => {
@@ -115,7 +119,6 @@ const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
 
       <MultiThumbSlider
         tiers={tiers}
-        cutoffs={cutoffs}
         onChange={handleCutoffChange}
         onColorChange={handleColorChange}
       />
@@ -128,11 +131,10 @@ TierSettings.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       color: PropTypes.string.isRequired,
+      cutoff: PropTypes.number,
     })
   ).isRequired,
   setTiers: PropTypes.func.isRequired,
-  cutoffs: PropTypes.arrayOf(PropTypes.number).isRequired,
-  setCutoffs: PropTypes.func.isRequired,
 };
 
 export default TierSettings;
