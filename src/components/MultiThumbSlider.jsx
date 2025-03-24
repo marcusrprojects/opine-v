@@ -25,28 +25,33 @@ const MultiThumbSlider = ({ tiers, onChange, onColorChange }) => {
 
   const handleMouseUp = () => setActiveThumb(null);
 
+  // Only tiers except the last one are adjustable.
+  const adjustableTiers = tiers.slice(0, tiers.length - 1);
+  const adjustableCutoffs = adjustableTiers.map((tier) => tier.cutoff);
+  // For segments, boundaries are: 0, adjustable cutoffs, and fixed 10.
+  const fullCutoffs = [0, ...adjustableCutoffs, 10];
+
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (activeThumb === null) return;
 
       const value = getValueFromPosition(e.clientX);
-      // Get current cutoff values from tiers
-      const currentCutoffs = tiers
-        .map((t) => t.cutoff)
-        .filter((v) => typeof v === "number");
-
-      // Prevent thumb from crossing its neighbors
-      const min = activeThumb === 0 ? 0 : currentCutoffs[activeThumb - 1] + 0.1;
+      // Boundaries for the active thumb
+      const min =
+        activeThumb === 0 ? 0 : adjustableCutoffs[activeThumb - 1] + 0.1;
       const max =
-        activeThumb === currentCutoffs.length - 1
+        activeThumb === adjustableCutoffs.length - 1
           ? 10
-          : currentCutoffs[activeThumb + 1] - 0.1;
+          : adjustableCutoffs[activeThumb + 1] - 0.1;
       const clamped = Math.min(Math.max(value, min), max);
 
-      // Update only the cutoff for the active tier
-      const updated = [...tiers];
-      updated[activeThumb] = { ...updated[activeThumb], cutoff: clamped };
-      onChange(updated);
+      // Update only the adjustable tier corresponding to activeThumb.
+      const updatedTiers = [...tiers];
+      updatedTiers[activeThumb] = {
+        ...updatedTiers[activeThumb],
+        cutoff: clamped,
+      };
+      onChange(updatedTiers);
     };
 
     document.addEventListener("mousemove", handleMouseMove);
@@ -55,19 +60,14 @@ const MultiThumbSlider = ({ tiers, onChange, onColorChange }) => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [activeThumb, tiers, onChange]);
-
-  // Create an array of cutoff numbers, then add 0 at the beginning and 10 at the end
-  const cutoffs = tiers
-    .map((tier) => tier.cutoff)
-    .filter((v) => typeof v === "number");
-  const fullCutoffs = [0, ...cutoffs, 10];
+  }, [activeThumb, adjustableCutoffs, tiers, onChange]);
 
   return (
     <div className="multi-thumb-slider">
       <div className="slider-track" ref={trackRef}>
         {fullCutoffs.map((_, i) => {
           if (i === fullCutoffs.length - 1) return null;
+          // Each segment gets its color from the corresponding tier.
           const left = getPercentage(fullCutoffs[i]);
           const width = getPercentage(fullCutoffs[i + 1]) - left;
           const color = tiers[i]?.color || "#ccc";
@@ -105,7 +105,7 @@ const MultiThumbSlider = ({ tiers, onChange, onColorChange }) => {
           );
         })}
 
-        {cutoffs.map((value, i) => (
+        {adjustableCutoffs.map((value, i) => (
           <div
             key={`thumb-${i}`}
             className="slider-thumb tick"
