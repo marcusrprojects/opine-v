@@ -9,7 +9,10 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import "../styles/ItemView.css";
-import { refreshRankedItems, calculateCardColor } from "../utils/ranking";
+import {
+  recalcRankingsForCategory,
+  calculateCardColor,
+} from "../utils/ranking";
 import { useAuth } from "../context/useAuth";
 import BackDeletePanel from "./Navigation/BackDeletePanel";
 import { canUserViewCategory } from "../utils/privacyUtils";
@@ -24,6 +27,7 @@ const ItemView = () => {
   const [creatorId, setCreatorId] = useState("");
   const [editingField, setEditingField] = useState(null);
   const [orderedFields, setOrderedFields] = useState([]);
+  const [tiers, setTiers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,6 +55,7 @@ const ItemView = () => {
         }
 
         setOrderedFields(categoryData.fields ?? []);
+        setTiers(categoryData.tiers ?? []);
         setCreatorId(categoryData.createdBy);
         setLoading(false);
       } catch (error) {
@@ -100,7 +105,8 @@ const ItemView = () => {
         await updateDoc(doc(db, "categories", categoryId), {
           updatedAt: Timestamp.now(),
         });
-        await refreshRankedItems(categoryId, itemData.rankCategory);
+        // Recalculate rankings for the category after deletion.
+        await recalcRankingsForCategory(categoryId);
         navigate(`/categories/${categoryId}`);
       }
     });
@@ -115,9 +121,9 @@ const ItemView = () => {
 
   const cardColor = useMemo(() => {
     const rating = itemData.rating || 0;
-    const rankCategory = itemData.rankCategory || 0;
-    return calculateCardColor(rating, rankCategory);
-  }, [itemData.rating, itemData.rankCategory]);
+    // Use the fetched tiers to determine the card color.
+    return calculateCardColor(rating, tiers);
+  }, [itemData.rating, tiers]);
 
   if (loading) return <p>Loading...</p>;
 
