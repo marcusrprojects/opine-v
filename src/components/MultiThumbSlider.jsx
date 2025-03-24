@@ -27,8 +27,17 @@ const MultiThumbSlider = ({ tiers, cutoffs, onChange, onColorChange }) => {
     const handleMouseMove = (e) => {
       if (activeThumb === null) return;
       const value = getValueFromPosition(e.clientX);
+
+      const min = activeThumb === 0 ? 0 : cutoffs[activeThumb - 1] + 0.1;
+      const max =
+        activeThumb === cutoffs.length - 1
+          ? 10
+          : cutoffs[activeThumb + 1] - 0.1;
+
+      const clamped = Math.min(Math.max(value, min), max);
+
       const updated = [...cutoffs];
-      updated[activeThumb] = value;
+      updated[activeThumb] = clamped;
       onChange(updated);
     };
 
@@ -86,11 +95,12 @@ const MultiThumbSlider = ({ tiers, cutoffs, onChange, onColorChange }) => {
         {cutoffs.map((value, i) => (
           <div
             key={`thumb-${i}`}
-            className="slider-thumb"
+            className="slider-thumb tick"
             style={{ left: `${getPercentage(value)}%` }}
             onMouseDown={handleMouseDown(i)}
           >
-            <span className="thumb-label">{value.toFixed(1)}</span>
+            <div className="tick-line" />
+            <div className="tick-label">{value.toFixed(1)}</div>
           </div>
         ))}
       </div>
