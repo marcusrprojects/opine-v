@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import { useCallback } from "react";
-import "../styles/TemplateDropdown.css";
 
 const TemplateDropdown = ({ templates, onSelect, selectedId }) => {
   const handleChange = useCallback(
