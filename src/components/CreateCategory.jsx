@@ -11,6 +11,7 @@ import { CategoryPrivacy } from "../enums/PrivacyEnums";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
 import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
+import TierSettings from "./TierSettings";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -23,6 +24,9 @@ const CreateCategory = () => {
   const [categoryPrivacy, setCategoryPrivacy] = useState(
     CategoryPrivacy.DEFAULT
   );
+
+  const [tiers, setTiers] = useState([]);
+  const [cutoffs, setCutoffs] = useState([]);
 
   const isConfirmDisabled =
     !categoryName.trim() ||
@@ -48,6 +52,8 @@ const CreateCategory = () => {
         createdBy: user.uid,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
+        tiers,
+        tierCutoffs: cutoffs,
       };
 
       await addDoc(collection(db, "categories"), newCategory);
@@ -97,6 +103,14 @@ const CreateCategory = () => {
           <label>Tags</label>
           <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
         </div>
+
+        <label className="edit-label">Tier Settings</label>
+        <TierSettings
+          tiers={tiers}
+          setTiers={setTiers}
+          cutoffs={cutoffs}
+          setCutoffs={setCutoffs}
+        />
 
         <label className="edit-label">&quot;Only Me&quot;</label>
         <PrivacySelector
