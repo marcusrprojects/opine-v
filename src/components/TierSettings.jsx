@@ -20,10 +20,7 @@ const TierSettings = ({ tiers, setTiers, cutoffs, setCutoffs }) => {
 
   const handleTemplateSelect = useCallback(
     (preset) => {
-      const tierCount = preset.tiers.length;
-      const defaultCutoffs = preset.tiers
-        .map((_, i) => parseFloat(((i + 1) * (10 / tierCount)).toFixed(2)))
-        .slice(0, tierCount - 1);
+      const defaultCutoffs = updateCutoffsFromTiers(preset.tiers);
 
       setPresetId(preset.id);
       setTiers(preset.tiers.map((t) => ({ ...t }))); // clone to avoid mutation
