@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ItemDetailsStep from "./ItemDetailsStep";
-import RankSelectionStep from "./RankSelectionStep";
 import ComparisonStep from "./ComparisonStep";
 import LoadingComponent from "./LoadingComponent";
 import { writeItemsToFirestore } from "../utils/ranking";
@@ -17,11 +16,10 @@ const AddItemFlow = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [itemData, setItemData] = useState({});
-  const [rankCategory, setRankCategory] = useState(null);
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
-  const [isStepValid, setIsStepValid] = useState(false); // Track step validation
+  const [isStepValid, setIsStepValid] = useState(false);
   const [isRankingComplete, setIsRankingComplete] = useState(false);
 
   useEffect(() => {
@@ -38,29 +36,17 @@ const AddItemFlow = () => {
   }, [categoryId]);
 
   const handleNext = () => {
-    if (!isStepValid && currentStep === 1) {
-      return; // Prevent navigating to the next step if validation fails
+    if (currentStep === 1 && !isStepValid) {
+      return; // Prevent navigating if validation fails
     }
-
-    if (currentStep === 2 && rankCategory === null) {
-      // Prevent navigating to step 3 if rankCategory is not selected
-      alert("Please select a rank category before proceeding.");
+    if (currentStep === 2 && !isRankingComplete) {
+      alert("Please complete the comparisons.");
       return;
     }
-
-    // Prevent skipping forward in Step 3
-    if (currentStep === 3 && !isRankingComplete) {
-      alert("Please compare the necessary items.");
-      return;
-    }
-
     setCurrentStep((prev) => prev + 1);
   };
 
   const handleBack = () => {
-    if (currentStep === 3) {
-      setRankCategory(null); // Clear rank when going back to Step 2
-    }
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
     } else {
@@ -70,7 +56,8 @@ const AddItemFlow = () => {
 
   const handleSave = async (updatedRankedItems) => {
     await withLoading(setLoading, async () => {
-      await writeItemsToFirestore(categoryId, updatedRankedItems, rankCategory);
+      // Write the items with their new ratings.
+      await writeItemsToFirestore(categoryId, updatedRankedItems);
       navigate(`/categories/${categoryId}`);
     });
   };
@@ -91,7 +78,7 @@ const AddItemFlow = () => {
         isBackDisabled={false}
         isNextDisabled={!(currentStep === 1 && isStepValid)}
         currentStep={currentStep}
-        totalSteps={3}
+        totalSteps={2}
       />
 
       <div className="add-item-container">
@@ -100,24 +87,15 @@ const AddItemFlow = () => {
             fields={fields}
             itemData={itemData}
             updateItemData={updateItemData}
-            onValidationChange={setIsStepValid} // Pass validation state to AddItemFlow
+            onValidationChange={setIsStepValid}
           />
         )}
 
         {currentStep === 2 && (
-          <RankSelectionStep
-            setRankCategory={setRankCategory}
-            rankCategory={rankCategory}
-            onNext={handleNext}
-          />
-        )}
-
-        {currentStep === 3 && (
           <ComparisonStep
             categoryId={categoryId}
             itemData={itemData}
             fields={fields}
-            rankCategory={rankCategory}
             onSave={handleSave}
             setIsRankingComplete={setIsRankingComplete}
           />
