@@ -120,7 +120,6 @@ const Profile = () => {
       </div>
 
       <div className="profile-categories-section">
-        <h3>Categories</h3>
         <CategoryCollection mode={CategoryCollectionMode.USER} userId={uid} />
         <h3>Liked Categories</h3>
         <CategoryCollection
