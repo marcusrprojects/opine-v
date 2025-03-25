@@ -2,28 +2,37 @@ import PropTypes from "prop-types";
 import Card from "./Card";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import "../styles/CategoryCard.css";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useUserCache } from "../context/useUserCache";
 
 const CategoryCard = ({ category, onClick, onLike, liked }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [maxWidth, setMaxWidth] = useState(0);
+  const headerRef = useRef(null);
 
-  // Use our custom context/hook to get the username for the creator ID.
+  // Get the username from our cache.
   const { getUsername } = useUserCache();
   const creatorUsername = getUsername(category.createdBy) || "Unknown";
 
-  // Show tags normally.
+  // Prepare tag text.
   const tagText =
     category.tags?.length > 0 ? category.tags.join(", ") : "No tags";
+
+  // Measure the header’s width and ensure a minimum max-width of 180px.
+  useEffect(() => {
+    if (headerRef.current) {
+      const measuredWidth = Math.max(headerRef.current.offsetWidth, 180);
+      setMaxWidth(measuredWidth);
+    }
+  }, [category.name, category.tags]);
 
   return (
     <Card
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
-      // onMouseEnter={() => console.log("hey")}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="card-header">
+      <div className="cat-card-header" ref={headerRef}>
         <h4 className="card-title">{category.name}</h4>
         <span
           onClick={(e) => {
@@ -35,11 +44,14 @@ const CategoryCard = ({ category, onClick, onLike, liked }) => {
           {liked ? <FaHeart /> : <FaRegHeart />}
         </span>
       </div>
-      <div className="card-tags-container">
-        <span className={`card-tags ${isHovered ? "show-username" : ""}`}>
+      <div
+        className={`card-tags-container ${isHovered ? "hovered" : ""}`}
+        style={{ maxWidth: maxWidth }}
+      >
+        <div className="card-tags">
           <span className="tags-text">{tagText}</span>
           <span className="username-text">@{creatorUsername}</span>
-        </span>
+        </div>
       </div>
     </Card>
   );

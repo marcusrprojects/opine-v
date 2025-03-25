@@ -1,65 +1,68 @@
-.category-card .card-header {
+/* Header styling */
+.cat-card-header {
+  display: flex;
+  flex-direction: row;
   justify-content: space-between;
+  gap: var(--padding-sm);
 }
 
-.category-card .like-icon {
-  font-size: var(--font-medium);
+.like-icon {
+  /* font-size: var(--font-medium); */
   cursor: pointer;
+  margin: 0;
   transition: transform 0.3s ease, color 0.3s ease;
-  color: var(--middle-color);
 }
 
-.category-card .like-icon.liked {
+.like-icon.liked {
   color: var(--secondary-color);
 }
 
-.category-card .like-icon:hover {
+.like-icon:hover {
   transform: scale(1.1);
 }
 
-.category-card-content {
-  max-width: 11rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-  text-align: left;
-  font-size: var(--font-small);
-}
-
+/* Tags container: its max-width is set inline based on the header */
 .card-tags-container {
-  /* Reserve enough width for the longest content */
   position: relative;
   height: var(--padding-ml);
   font-size: var(--font-small);
+  overflow: hidden;
+  text-align: left;
 }
 
+/* The card-tags element wraps the two text spans */
 .card-tags {
-  display: flex;
-  position: relative;
+  display: block;
+  /* width: 100%; */
+  overflow: hidden;
+  /* line-height: var(--padding-ml); */
 }
 
+/* Both spans are block-level and use ellipsis */
 .tags-text,
 .username-text {
-  position: absolute;
-  width: 100%;
+  display: flex;
+  position: relative;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: left;
   transition: opacity 0.2s ease;
 }
 
+/* Initially, show tags-text and hide username-text */
 .tags-text {
   opacity: 1;
 }
 .username-text {
   opacity: 0;
+  /* Negative margin to overlap without affecting container height */
+  top: calc(-1 * var(--font-small) - var(--padding-sx));
 }
 
-.card-tags.show-username .tags-text {
+/* When hovered (via the "hovered" class), swap opacities */
+.card-tags-container.hovered .tags-text {
   opacity: 0;
 }
-.card-tags.show-username .username-text {
+.card-tags-container.hovered .username-text {
   opacity: 1;
 }
