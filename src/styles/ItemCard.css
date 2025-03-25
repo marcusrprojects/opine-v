@@ -1,19 +1,23 @@
 .rating {
   font-size: var(--font-sm);
-  font-weight: var(--fw-xlarge);
-  padding: var(--padding-xsmall);
-  border-radius: var(--padding-sm);
-  filter: brightness(92%);
-  color: transparent;
+  font-weight: var(--fw-medium);
+  /* filter: brightness(92%); */
+  color: var(--secondary-color);
 }
 
 .field-pair {
   /* padding: var(--padding-small); */
-  border-radius: var(--border-radius-medium);
   margin: 0;
   font-size: var(--font-small);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 11rem;
+  max-width: 12rem;
+}
+
+.item-card-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  gap: var(--padding-sm);
 }

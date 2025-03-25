@@ -14,7 +14,7 @@ const ItemCard = ({
 
   return (
     <Card onClick={onClick}>
-      <div className="card-header">
+      <div className="card-header item-card-header">
         <span className="rating" style={{ color: ratingColor }}>
           {parseFloat(rating || 0).toFixed(1)}
         </span>
