@@ -18,18 +18,48 @@
 }
 
 .category-card-content {
-    max-width: 11rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-  text-align: left;
-}
-
-.card-tags {
-  text-align: left;
+  max-width: 11rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 12rem;
+  display: block;
+  text-align: left;
+  font-size: var(--font-small);
+}
+
+.card-tags-container {
+  /* Reserve enough width for the longest content */
+  position: relative;
+  height: var(--padding-ml);
+  font-size: var(--font-small);
+}
+
+.card-tags {
+  display: flex;
+  position: relative;
+}
+
+.tags-text,
+.username-text {
+  position: absolute;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  transition: opacity 0.2s ease;
+}
+
+.tags-text {
+  opacity: 1;
+}
+.username-text {
+  opacity: 0;
+}
+
+.card-tags.show-username .tags-text {
+  opacity: 0;
+}
+.card-tags.show-username .username-text {
+  opacity: 1;
 }
