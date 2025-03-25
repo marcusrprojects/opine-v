@@ -19,6 +19,7 @@ import ForgotPassword from "./components/ForgotPassword";
 import FollowList from "./components/FollowList";
 import EditProfile from "./components/EditProfile";
 import { AuthFormMode, FollowListMode } from "./enums/ModeEnums";
+import CustomCursor from "./components/CustomCursor";
 
 // Context Providers
 import { LikedCategoriesProvider } from "./context/LikedCategoriesContext";
@@ -39,7 +40,9 @@ function App() {
     <div className="App">
       <LikedCategoriesProvider>
         <FollowProvider>
-          <Router>
+          <Router
+            future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+          >
             <div className="App-layout">
               {/* Sidebar */}
               <Sidebar
@@ -109,6 +112,7 @@ function App() {
                   />
                   <Route path="/profile/edit" element={<EditProfile />} />
                 </Routes>
+                <CustomCursor />
               </div>
             </div>
           </Router>
