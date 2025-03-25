@@ -112,8 +112,8 @@ h4 {
 }
 
 ::selection {
-  background-color: var(--secondary-color);
-  color: var(--primary-color);
+  background-color: var(--quaternary-color);
+  color: var(--secondary-color);
 }
 
 ::-moz-selection { /* For Firefox */
