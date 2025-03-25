@@ -19,7 +19,7 @@ const ItemCard = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const frontRef = useRef(null);
 
-  // Measure the front view once to fix container dimensions.
+  // Measure the front side once (or when primaryValue/secondaryValues change)
   useEffect(() => {
     if (frontRef.current) {
       const { offsetWidth, offsetHeight } = frontRef.current;
@@ -32,47 +32,53 @@ const ItemCard = ({
 
   // Only flip if notes are non-empty.
   const shouldFlip = notes && notes.trim().length > 0;
-
-  // Use parent's callbacks to control active state.
-  const handleMouseEnter = () => {
+  const handleEnter = () => {
     if (shouldFlip) onActivate();
   };
-
-  const handleMouseLeave = () => {
+  const handleLeave = () => {
     if (shouldFlip) onDeactivate();
   };
 
   return (
     <Card
       onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
     >
       <div
         className="itemcard-container"
         style={{
-          width: `${dimensions.width}px`,
+          maxWidth: `${dimensions.width}px`,
           height: `${dimensions.height}px`,
         }}
       >
-        {!active ? (
-          <div className="itemcard-front" ref={frontRef}>
-            <div className="card-header item-card-header">
-              <span className="rating" style={{ color: ratingColor }}>
-                {parseFloat(rating || 0).toFixed(1)}
-              </span>
-              <h4 className="card-title">{primaryValue}</h4>
-            </div>
-            <div className="card-fields-container">
-              {secondaryValues.map((value, index) => (
-                <p key={index} className="field-pair">
-                  <span>{value}</span>
-                </p>
-              ))}
-            </div>
+        {/* Front view: stays in normal flow */}
+        <div
+          className={`itemcard-front ${active ? "fade-out" : "fade-in"}`}
+          ref={frontRef}
+        >
+          <div className="card-header item-card-header">
+            <span className="rating" style={{ color: ratingColor }}>
+              {parseFloat(rating || 0).toFixed(1)}
+            </span>
+            <h4 className="card-title">{primaryValue}</h4>
           </div>
-        ) : (
-          <div className="itemcard-back">
+          <div className="card-fields-container">
+            {secondaryValues.map((value, index) => (
+              <p key={index} className="field-pair">
+                <span>{value}</span>
+              </p>
+            ))}
+          </div>
+        </div>
+        {/* Back view: rendered even when not active, but moved upward so it overlaps.
+            It uses a negative margin-top equal to container height.
+            Its opacity transitions from 0 (when not active) to 1 (when active). */}
+        {shouldFlip && (
+          <div
+            className={`itemcard-back ${active ? "fade-in" : "fade-out"}`}
+            style={{ marginTop: `-${dimensions.height}px` }}
+          >
             <p className="notes-text">{notes}</p>
           </div>
         )}

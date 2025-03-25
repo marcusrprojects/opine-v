@@ -1,9 +1,45 @@
-/* Header styling for the item card */
+/* Container: fixed dimensions as set inline */
+.itemcard-container {
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+}
+
+/* Front view: using relative positioning */
+.itemcard-front {
+  position: relative;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.itemcard-back {
+  position: absolute;
+  transition: opacity 0.2s ease-in-out;
+  /* pointer-events: none; */
+}
+
+/* Fade classes */
+.fade-in {
+  opacity: 1;
+  z-index: 3;
+}
+.fade-out {
+  opacity: 0;
+  z-index: 1;
+}
+
+/* Header styling */
 .item-card-header {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   gap: var(--padding-sm);
+}
+
+
+
+.itemcard-back.fade-in {
+  pointer-events: auto;
+  opacity: 1;
 }
 
 .rating {
@@ -12,14 +48,16 @@
   color: var(--secondary-color);
 }
 
-/* Container for front/back views: its dimensions are fixed inline */
-.itemcard-container {
-  position: relative;
+.card-title {
+  font-size: var(--font-sm);
+  font-weight: var(--fw-small);
+  white-space: nowrap;
   overflow: hidden;
-  text-align: left;
+  text-overflow: ellipsis;
+  max-width: 12rem;
 }
 
-/* Fields styling */
+/* Fields container (front view) */
 .card-fields-container {
   font-size: var(--font-small);
   font-weight: var(--fw-sx);
@@ -35,20 +73,15 @@
 }
 
 /* Back view: notes */
-.itemcard-back {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  /* Use multi-line ellipsis using -webkit-line-clamp */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  white-space: normal;
-  margin: 0;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-}
-
 .notes-text {
   margin: 0;
-  font-size: var(--font-small);
+  font-size: var(--font-xsmall);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  /* Clamp to a fixed number of lines; adjust as needed */
+  -webkit-line-clamp: 4;
 }
+
