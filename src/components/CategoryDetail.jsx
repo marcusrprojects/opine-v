@@ -33,6 +33,7 @@ const CategoryDetail = () => {
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
   const [orderedFields, setOrderedFields] = useState([]);
+  const [tiers, setTiers] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
   const UNKNOWN_USER = "Unknown User";
   const [creatorUsername, setCreatorUsername] = useState(UNKNOWN_USER);
@@ -79,6 +80,7 @@ const CategoryDetail = () => {
       const data = snapshot.data();
       setCategory(data);
       setOrderedFields(Array.isArray(data.fields) ? data.fields : []);
+      setTiers(data.tiers ?? []);
       setCreatorId(data.createdBy ?? "");
       setLikeCount(data.likeCount || 0);
       setLastEdited(data.updatedAt ? data.updatedAt.toDate() : null);
@@ -228,14 +230,16 @@ const CategoryDetail = () => {
       )}
       <div className="category-header">
         <h2>{category.name}</h2>
-        <p>{category.description || "No description available."}</p>
+        <p className="category-detail-info">
+          {category.description || "No description available."}
+        </p>
         <span
           className="clickable-username"
           onClick={() => navigate(`/profile/${creatorId}`)}
         >
           @{creatorUsername}
         </span>
-        <p>
+        <p className="category-detail-info">
           {likeCount} {likeCount === 1 ? "Like" : "Likes"}
         </p>
       </div>
@@ -251,9 +255,12 @@ const CategoryDetail = () => {
       <ItemList
         items={filteredItems}
         orderedFields={orderedFields}
+        tiers={tiers}
         onItemClick={handleItemClick}
       />
-      <p>Last Edited: {getRelativeTime(lastEdited)}</p>
+      <p className="category-detail-info">
+        Last Edited: {getRelativeTime(lastEdited)}
+      </p>
     </div>
   );
 };

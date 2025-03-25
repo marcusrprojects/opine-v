@@ -1,13 +1,13 @@
 .category-detail-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: var(--padding-ml);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--padding-sm);
 }
 
 .clickable-username {
-  font-weight: var(--fw-ml);
+  font-weight: var(--fw-sm);
 }
 
 .clickable-username:hover {
@@ -15,7 +15,11 @@
   cursor: pointer;
 }
 
-.category-header p {
+.category-header h2 {
+  font-weight: var(--fw-sm);
+}
+
+.category-detail-info {
   white-space: pre-line;
   /* max-width: 600px; */
   overflow: hidden;
@@ -24,6 +28,7 @@
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
+  font-weight: var(--fw-small);
 }
 
 .char-count {
