@@ -9,8 +9,9 @@ import {
 } from "firebase/firestore";
 
 /**
- * Uniformly recalculates ratings for items within the boundaries defined by the selected tier.
- * The lower bound is 0 or the previous tier's cutoff; the upper bound is the selected tier's cutoff.
+ * Uniformly recalculates ratings for items within the boundaries defined
+ * by the selected tier. The lower bound is either 0 or the cutoff of the previous tier,
+ * and the upper bound is the selected tier's cutoff.
  *
  * @param {Array} items - Items belonging to the selected tier.
  * @param {Object} selectedTier - The tier object selected by the user.
@@ -39,7 +40,8 @@ const recalcRatings = (items, selectedTier, allTiers) => {
 /**
  * Writes the given items (with recalculated ratings) to Firestore.
  * The items are assumed to belong to the selected tier.
- * The selectedTier object determines the boundaries.
+ * The selectedTier object determines the rating boundaries.
+ * Optionally updates the category's updatedAt timestamp.
  */
 export const writeItemsToFirestore = async (
   categoryId,
@@ -47,7 +49,7 @@ export const writeItemsToFirestore = async (
   selectedTier,
   updateCategoryTimestamp = true
 ) => {
-  // Fetch category document to get the full tiers array.
+  // Fetch the category document to get the full tiers array.
   const categoryDoc = await getDoc(doc(db, "categories", categoryId));
   let allTiers = [];
   if (categoryDoc.exists()) {
@@ -85,7 +87,7 @@ export const recalcRankingsForCategory = async (categoryId, selectedTier) => {
     id: doc.id,
     ...doc.data(),
   }));
-  // Filter for items that belong to the selected tier (by id) and have a numeric rating.
+  // Filter for items that belong to the selected tier (by unique id) and have a numeric rating.
   items = items.filter(
     (item) =>
       typeof item.rating === "number" && item.rankCategory === selectedTier.id
@@ -95,16 +97,24 @@ export const recalcRankingsForCategory = async (categoryId, selectedTier) => {
 };
 
 /**
- * Given an item's rating and the full tiers array, determine which tier the rating falls into,
- * compute its relative position within that tier, and return a shade of that tier’s base color.
+ * Given an item's rating and the full tiers array, determines which tier the rating falls into,
+ * computes its relative position within that tier, and returns a shade of that tier’s base color.
+ * If a storedTierId is provided, it will use that tier directly.
  */
-export const calculateCardColor = (rating, tiers) => {
+export const calculateCardColor = (rating, tiers, storedTierId) => {
   if (!tiers || tiers.length === 0) return "#fff";
   const sortedTiers = [...tiers].sort((a, b) => a.cutoff - b.cutoff);
-  let tierIndex = sortedTiers.findIndex((t) => rating <= t.cutoff);
-  if (tierIndex === -1) tierIndex = sortedTiers.length - 1;
-  const tier = sortedTiers[tierIndex];
-  const lowerBound = tierIndex === 0 ? 0 : sortedTiers[tierIndex - 1].cutoff;
+  let tier;
+  if (storedTierId) {
+    tier = sortedTiers.find((t) => t.id === storedTierId);
+  }
+  if (!tier) {
+    let tierIndex = sortedTiers.findIndex((t) => rating <= t.cutoff);
+    if (tierIndex === -1) tierIndex = sortedTiers.length - 1;
+    tier = sortedTiers[tierIndex];
+  }
+  const index = sortedTiers.findIndex((t) => t.id === tier.id);
+  const lowerBound = index === 0 ? 0 : sortedTiers[index - 1].cutoff;
   const upperBound = tier.cutoff;
   const clampedRating = Math.min(Math.max(rating, lowerBound), upperBound);
   const ratio = (clampedRating - lowerBound) / (upperBound - lowerBound || 1);
