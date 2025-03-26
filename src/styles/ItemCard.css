@@ -52,15 +52,6 @@
   color: var(--secondary-color);
 }
 
-.card-title {
-  font-size: var(--font-sm);
-  font-weight: var(--fw-small);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 12rem;
-}
-
 /* Fields container (front view) */
 .card-fields-container {
   font-size: var(--font-small);
