@@ -17,11 +17,12 @@ const ReRankFlow = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const existingItem = location.state?.existingItem || null;
-  const initialRankCategory = existingItem?.rankCategory || null;
+  const initialRankCategory = existingItem?.rankCategory || "";
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [rankCategory, setRankCategory] = useState(null);
+  const [rankCategory, setRankCategory] = useState("");
   const [fields, setFields] = useState([]);
+  const [tiers, setTiers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
   const [isRankingComplete, setIsRankingComplete] = useState(false);
@@ -41,6 +42,7 @@ const ReRankFlow = () => {
         if (categoryDoc.exists()) {
           const categoryData = categoryDoc.data();
           setFields(categoryData.fields ?? []);
+          setTiers(categoryData.tiers ?? []);
         }
       } catch (error) {
         console.error("Error fetching fields:", error);
@@ -51,7 +53,7 @@ const ReRankFlow = () => {
   }, [categoryId]);
 
   const handleNext = () => {
-    if (currentStep === 1 && rankCategory === null) {
+    if (currentStep === 1 && rankCategory === "") {
       alert("Please select a tier before proceeding.");
       return;
     }
@@ -65,7 +67,7 @@ const ReRankFlow = () => {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
-      setRankCategory(null);
+      setRankCategory("");
     } else {
       navigate(`/categories/${categoryId}/items/${existingItem.id}`);
     }
@@ -106,6 +108,7 @@ const ReRankFlow = () => {
             setRankCategory={setRankCategory}
             rankCategory={rankCategory}
             onNext={handleNext}
+            tiers={tiers}
           />
         )}
         {currentStep === 2 && (
