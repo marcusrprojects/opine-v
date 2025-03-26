@@ -23,11 +23,12 @@ const ComparisonStep = ({
       const itemsSnapshot = await getDocs(
         collection(db, `categories/${categoryId}/items`)
       );
+      // Filter items by comparing the stored tier name with the selected tier's name
       const itemsInRankCategory = itemsSnapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter(
           (item) =>
-            item.rankCategory === rankCategory && item.id !== itemData.id
+            item.rankCategory === rankCategory.name && item.id !== itemData.id
         )
         .sort((a, b) => a.rating - b.rating);
 
@@ -35,7 +36,7 @@ const ComparisonStep = ({
       setHi(itemsInRankCategory.length - 1);
 
       if (itemsInRankCategory.length === 0 && !hasSavedInitialItem.current) {
-        onSave([{ ...itemData, rankCategory }]);
+        onSave([{ ...itemData, rankCategory: rankCategory.name }]);
         hasSavedInitialItem.current = true;
         setIsRankingComplete(true);
       }
@@ -67,7 +68,11 @@ const ComparisonStep = ({
 
     if (currentLo > currentHi) {
       const updatedRankedItems = [...rankedItems];
-      updatedRankedItems.splice(currentLo, 0, { ...itemData, rankCategory });
+      // Insert the new item with the selected tier's name stored.
+      updatedRankedItems.splice(currentLo, 0, {
+        ...itemData,
+        rankCategory: rankCategory.name,
+      });
       setRankedItems(updatedRankedItems);
       onSave(updatedRankedItems);
       setIsRankingComplete(true);
@@ -98,7 +103,12 @@ ComparisonStep.propTypes = {
   fields: PropTypes.arrayOf(
     PropTypes.shape({ name: PropTypes.string.isRequired })
   ).isRequired,
-  rankCategory: PropTypes.number.isRequired,
+  // rankCategory is now an object representing a tier.
+  rankCategory: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    color: PropTypes.string.isRequired,
+    cutoff: PropTypes.number.isRequired,
+  }).isRequired,
   onSave: PropTypes.func.isRequired,
   setIsRankingComplete: PropTypes.func.isRequired,
 };
