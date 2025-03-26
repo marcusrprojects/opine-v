@@ -16,7 +16,7 @@
   transition: opacity 0.2s ease-in-out;
   word-break: break-word; /* allow wrapping */
   overflow-wrap: break-word; /* fallback for older browsers */
-  hyphens: auto; /* enable hyphenation */
+  hyphens: auto;
   -webkit-hyphens: auto; /* Safari */
   -ms-hyphens: auto; /* IE */
 }
