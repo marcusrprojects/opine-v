@@ -23,7 +23,7 @@ const RankSelectionStep = ({
       <div className="rating-buttons">
         {tiers.map((tier) => (
           <button
-            key={tier.name}
+            key={tier.id}
             onClick={() => handleRankingChoice(tier)}
             style={{ borderColor: tier.color }}
           >
@@ -38,6 +38,7 @@ const RankSelectionStep = ({
 RankSelectionStep.propTypes = {
   tiers: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
       color: PropTypes.string.isRequired,
       cutoff: PropTypes.number.isRequired,
