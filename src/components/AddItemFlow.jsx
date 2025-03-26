@@ -17,8 +17,9 @@ const AddItemFlow = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [itemData, setItemData] = useState({});
-  const [rankCategory, setRankCategory] = useState(null);
+  const [rankCategory, setRankCategory] = useState("");
   const [fields, setFields] = useState([]);
+  const [tiers, setTiers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
   const [isStepValid, setIsStepValid] = useState(false);
@@ -31,6 +32,7 @@ const AddItemFlow = () => {
       if (categoryDoc.exists()) {
         const categoryData = categoryDoc.data();
         setFields(categoryData.fields ?? []);
+        setTiers(categoryData.tiers ?? []);
       }
       setIsFieldsLoading(false);
     };
@@ -41,7 +43,7 @@ const AddItemFlow = () => {
     if (currentStep === 1 && !isStepValid) {
       return; // Prevent moving forward if validation fails
     }
-    if (currentStep === 2 && rankCategory === null) {
+    if (currentStep === 2 && rankCategory === "") {
       alert("Please select a tier before proceeding.");
       return;
     }
@@ -54,7 +56,7 @@ const AddItemFlow = () => {
 
   const handleBack = () => {
     if (currentStep === 3) {
-      setRankCategory(null);
+      setRankCategory("");
     }
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
@@ -105,6 +107,7 @@ const AddItemFlow = () => {
             setRankCategory={setRankCategory}
             rankCategory={rankCategory}
             onNext={handleNext}
+            tiers={tiers}
           />
         )}
 
