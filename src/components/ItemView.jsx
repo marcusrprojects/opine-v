@@ -41,19 +41,15 @@ const ItemView = () => {
           doc(db, `categories/${categoryId}/items`, itemId)
         );
         const categoryDoc = await getDoc(doc(db, "categories", categoryId));
-
         if (!categoryDoc.exists()) return navigate("/categories");
-
         const categoryData = categoryDoc.data();
         if (!canUserViewCategory(categoryData, user, following)) {
           navigate("/categories");
           return;
         }
-
         if (itemDoc.exists()) {
           setItemData(itemDoc.data());
         }
-
         setOrderedFields(categoryData.fields ?? []);
         setTiers(categoryData.tiers ?? []);
         setCreatorId(categoryData.createdBy);
@@ -62,13 +58,13 @@ const ItemView = () => {
         console.warn("Error fetching item or category:", error);
       }
     };
-
     fetchItem();
   }, [categoryId, itemId, following, navigate, user]);
 
-  const canEdit = useMemo(() => {
-    return user && user.uid === creatorId;
-  }, [user, creatorId]);
+  const canEdit = useMemo(
+    () => user && user.uid === creatorId,
+    [user, creatorId]
+  );
 
   const handleChange = (field, value) => {
     setItemData((prev) => ({ ...prev, [field]: value }));
@@ -87,13 +83,9 @@ const ItemView = () => {
     await canEditAction(async () => {
       const itemRef = doc(db, `categories/${categoryId}/items`, itemId);
       const categoryRef = doc(db, "categories", categoryId);
-
       const updatedValue = itemData[field]?.trim() || "";
       await updateDoc(itemRef, { [field]: updatedValue });
-      await updateDoc(categoryRef, {
-        updatedAt: Timestamp.now(),
-      });
-
+      await updateDoc(categoryRef, { updatedAt: Timestamp.now() });
       setEditingField(null);
     });
   };
@@ -105,8 +97,7 @@ const ItemView = () => {
         await updateDoc(doc(db, "categories", categoryId), {
           updatedAt: Timestamp.now(),
         });
-        // Recalculate rankings for the category after deletion.
-        await recalcRankingsForCategory(categoryId);
+        await recalcRankingsForCategory(categoryId); // Recalculate rankings after deletion.
         navigate(`/categories/${categoryId}`);
       }
     });
@@ -119,11 +110,11 @@ const ItemView = () => {
     });
   };
 
+  // Use updated calculateCardColor that accepts the stored tier id.
   const cardColor = useMemo(() => {
     const rating = itemData.rating || 0;
-    // Use the fetched tiers to determine the card color.
-    return calculateCardColor(rating, tiers);
-  }, [itemData.rating, tiers]);
+    return calculateCardColor(rating, tiers, itemData.rankCategory);
+  }, [itemData.rating, tiers, itemData.rankCategory]);
 
   if (loading) return <p>Loading...</p>;
 
@@ -134,11 +125,9 @@ const ItemView = () => {
         onDelete={handleDelete}
         canDelete={canEdit}
       />
-
       <h2 className="item-title">
         {itemData[orderedFields[0]?.name] || "Unnamed Item"}
       </h2>
-
       <div className="rating-container">
         <div
           id="rating-display"
@@ -149,7 +138,6 @@ const ItemView = () => {
           {parseFloat(itemData.rating || 0).toFixed(1)}
         </div>
       </div>
-
       {orderedFields.map(({ name: field }, index) => (
         <div
           key={index}
@@ -175,7 +163,6 @@ const ItemView = () => {
           </div>
         </div>
       ))}
-
       <div
         className={`item-field ${canEdit ? "editable" : "non-editable"}`}
         onClick={() => setEditingField("notes")}
