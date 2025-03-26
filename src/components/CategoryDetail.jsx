@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
 import {
@@ -53,7 +53,6 @@ const CategoryDetail = () => {
       setCreatorUsername(UNKNOWN_USER);
       return;
     }
-
     const fetchCreatorData = async () => {
       try {
         const userDocRef = doc(db, "users", creatorId);
@@ -66,14 +65,12 @@ const CategoryDetail = () => {
         console.error("Error fetching creator info:", error);
       }
     };
-
     fetchCreatorData();
   }, [creatorId]);
 
   useEffect(() => {
     if (!categoryId) return;
     if (categoryUnsubscribeRef.current) categoryUnsubscribeRef.current();
-
     const categoryRef = doc(db, "categories", categoryId);
     categoryUnsubscribeRef.current = onSnapshot(categoryRef, (snapshot) => {
       if (!snapshot.exists()) return navigate("/categories");
@@ -85,7 +82,6 @@ const CategoryDetail = () => {
       setLikeCount(data.likeCount || 0);
       setLastEdited(data.updatedAt ? data.updatedAt.toDate() : null);
     });
-
     return () => {
       if (categoryUnsubscribeRef.current) categoryUnsubscribeRef.current();
     };
@@ -94,10 +90,8 @@ const CategoryDetail = () => {
   useEffect(() => {
     if (!categoryId) return;
     if (itemsUnsubscribeRef.current) itemsUnsubscribeRef.current();
-
     const itemsCollectionRef = collection(db, `categories/${categoryId}/items`);
     const q = query(itemsCollectionRef, orderBy("rating", "desc"));
-
     itemsUnsubscribeRef.current = onSnapshot(q, (snapshot) => {
       const itemList = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -105,7 +99,6 @@ const CategoryDetail = () => {
       }));
       setItems(itemList);
     });
-
     return () => {
       if (itemsUnsubscribeRef.current) itemsUnsubscribeRef.current();
     };
@@ -143,9 +136,7 @@ const CategoryDetail = () => {
   const handleItemClick = (itemId) => navigate(`./items/${itemId}`);
   const handleAddItem = () => navigate(`/categories/${categoryId}/add-item`);
   const handleEditCategory = () =>
-    navigate(`/categories/${categoryId}/edit`, {
-      state: { category },
-    });
+    navigate(`/categories/${categoryId}/edit`, { state: { category } });
 
   const handleDeleteCategory = async () => {
     if (!window.confirm("Are you sure you want to delete this category?"))
