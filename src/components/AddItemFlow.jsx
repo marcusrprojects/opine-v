@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ItemDetailsStep from "./ItemDetailsStep";
+import RankSelectionStep from "./RankSelectionStep";
 import ComparisonStep from "./ComparisonStep";
 import LoadingComponent from "./LoadingComponent";
 import { writeItemsToFirestore } from "../utils/ranking";
@@ -16,6 +17,7 @@ const AddItemFlow = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [itemData, setItemData] = useState({});
+  const [rankCategory, setRankCategory] = useState(null);
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
@@ -37,9 +39,13 @@ const AddItemFlow = () => {
 
   const handleNext = () => {
     if (currentStep === 1 && !isStepValid) {
-      return; // Prevent navigating if validation fails
+      return; // Prevent moving forward if validation fails
     }
-    if (currentStep === 2 && !isRankingComplete) {
+    if (currentStep === 2 && rankCategory === null) {
+      alert("Please select a tier before proceeding.");
+      return;
+    }
+    if (currentStep === 3 && !isRankingComplete) {
       alert("Please complete the comparisons.");
       return;
     }
@@ -47,6 +53,9 @@ const AddItemFlow = () => {
   };
 
   const handleBack = () => {
+    if (currentStep === 3) {
+      setRankCategory(null);
+    }
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
     } else {
@@ -56,8 +65,8 @@ const AddItemFlow = () => {
 
   const handleSave = async (updatedRankedItems) => {
     await withLoading(setLoading, async () => {
-      // Write the items with their new ratings.
-      await writeItemsToFirestore(categoryId, updatedRankedItems);
+      // Pass the selected tier (explicit label) to writeItemsToFirestore.
+      await writeItemsToFirestore(categoryId, updatedRankedItems, rankCategory);
       navigate(`/categories/${categoryId}`);
     });
   };
@@ -78,7 +87,7 @@ const AddItemFlow = () => {
         isBackDisabled={false}
         isNextDisabled={!(currentStep === 1 && isStepValid)}
         currentStep={currentStep}
-        totalSteps={2}
+        totalSteps={3}
       />
 
       <div className="add-item-container">
@@ -92,10 +101,19 @@ const AddItemFlow = () => {
         )}
 
         {currentStep === 2 && (
+          <RankSelectionStep
+            setRankCategory={setRankCategory}
+            rankCategory={rankCategory}
+            onNext={handleNext}
+          />
+        )}
+
+        {currentStep === 3 && (
           <ComparisonStep
             categoryId={categoryId}
             itemData={itemData}
             fields={fields}
+            rankCategory={rankCategory}
             onSave={handleSave}
             setIsRankingComplete={setIsRankingComplete}
           />

@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
+import RankSelectionStep from "./RankSelectionStep";
 import ComparisonStep from "./ComparisonStep";
 import LoadingComponent from "./LoadingComponent";
-import { writeItemsToFirestore } from "../utils/ranking";
+import {
+  writeItemsToFirestore,
+  recalcRankingsForCategory,
+} from "../utils/ranking";
 import { db } from "../firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -13,8 +17,10 @@ const ReRankFlow = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const existingItem = location.state?.existingItem || null;
+  const initialRankCategory = existingItem?.rankCategory || null;
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [rankCategory, setRankCategory] = useState(null);
   const [fields, setFields] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isFieldsLoading, setIsFieldsLoading] = useState(true);
@@ -41,12 +47,15 @@ const ReRankFlow = () => {
       }
       setIsFieldsLoading(false);
     };
-
     fetchFields();
   }, [categoryId]);
 
   const handleNext = () => {
-    if (!isRankingComplete) {
+    if (currentStep === 1 && rankCategory === null) {
+      alert("Please select a tier before proceeding.");
+      return;
+    }
+    if (currentStep === 2 && !isRankingComplete) {
       alert("Please complete the comparisons.");
       return;
     }
@@ -56,6 +65,7 @@ const ReRankFlow = () => {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
+      setRankCategory(null);
     } else {
       navigate(`/categories/${categoryId}/items/${existingItem.id}`);
     }
@@ -64,7 +74,10 @@ const ReRankFlow = () => {
   const handleSave = async (updatedRankedItems) => {
     setLoading(true);
     try {
-      await writeItemsToFirestore(categoryId, updatedRankedItems);
+      await writeItemsToFirestore(categoryId, updatedRankedItems, rankCategory);
+      if (initialRankCategory !== rankCategory) {
+        await recalcRankingsForCategory(categoryId, initialRankCategory);
+      }
       navigate(`/categories/${categoryId}`);
     } catch (error) {
       console.error("Error saving re-ranked item:", error);
@@ -85,15 +98,22 @@ const ReRankFlow = () => {
         isBackDisabled={false}
         isNextDisabled={true}
         currentStep={currentStep}
-        totalSteps={1}
+        totalSteps={2}
       />
-
       <div className="add-item-container">
         {currentStep === 1 && (
+          <RankSelectionStep
+            setRankCategory={setRankCategory}
+            rankCategory={rankCategory}
+            onNext={handleNext}
+          />
+        )}
+        {currentStep === 2 && (
           <ComparisonStep
             categoryId={categoryId}
             itemData={existingItem}
             fields={fields}
+            rankCategory={rankCategory}
             onSave={handleSave}
             setIsRankingComplete={setIsRankingComplete}
           />
