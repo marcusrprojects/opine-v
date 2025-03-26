@@ -35,7 +35,7 @@ const ItemList = ({ items, orderedFields, tiers, onItemClick }) => {
           active={activeCardId === item.id}
           onActivate={() => setActiveCardId(item.id)}
           onDeactivate={() => setActiveCardId(null)}
-          rankCategory={item.rankCategory || ""} // pass the unique tier id stored in the item
+          rankCategory={item.rankCategory || ""}
         />
       )}
     />
