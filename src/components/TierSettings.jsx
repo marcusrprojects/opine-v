@@ -12,7 +12,7 @@ const TierSettings = ({ tiers, setTiers }) => {
   const [presetId, setPresetId] = useState("good-ok-bad");
   const [customState, setCustomState] = useState({ tiers: [] });
 
-  // Ensure each tier has a cutoff, spacing them evenly
+  // Ensure each tier has a cutoff, spacing them evenly.
   const attachCutoffsToTiers = (tierArray) => {
     const spacing = 10 / tierArray.length;
     return tierArray.map((tier, i) => ({
@@ -46,11 +46,15 @@ const TierSettings = ({ tiers, setTiers }) => {
     }
   }, [presetId, customState, setTiers]);
 
-  // Updates tiers with evenly recalculated cutoffs and switches to custom
+  // Update tiers, ensuring each tier gets a unique id if it doesn't have one.
   const updateAndSwitchToCustom = (newTiers) => {
+    // Build a list of used ids from newTiers.
+    const usedIds = newTiers.filter((t) => t.id).map((t) => t.id);
     const updated = newTiers.map((tier) => {
       if (!tier.id) {
-        return { ...tier, id: generateUniqueTierId(newTiers) };
+        const newId = generateUniqueTierId(usedIds);
+        usedIds.push(newId);
+        return { ...tier, id: newId };
       }
       return tier;
     });
@@ -65,7 +69,6 @@ const TierSettings = ({ tiers, setTiers }) => {
     updateAndSwitchToCustom(updated);
   };
 
-  // Now accepts an updated tiers array (which has new cutoff values)
   const handleCutoffChange = (updatedTiers) => {
     setCustomState({ tiers: [...updatedTiers] });
     setPresetId("custom");
@@ -102,7 +105,7 @@ const TierSettings = ({ tiers, setTiers }) => {
 
       <div className="tier-list">
         {tiers.map((tier, i) => (
-          <div className="tier-row" key={i}>
+          <div className="tier-row" key={tier.id || i}>
             <TextInput
               value={tier.name}
               onChange={(e) => handleTierChange(i, "name", e.target.value)}
@@ -138,6 +141,7 @@ TierSettings.propTypes = {
       name: PropTypes.string.isRequired,
       color: PropTypes.string.isRequired,
       cutoff: PropTypes.number,
+      id: PropTypes.string,
     })
   ).isRequired,
   setTiers: PropTypes.func.isRequired,
