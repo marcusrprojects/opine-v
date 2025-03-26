@@ -19,16 +19,20 @@ const ItemCard = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const frontRef = useRef(null);
 
-  // Measure the front side once (or when primaryValue/secondaryValues change)
+  // Measure the front side (which will govern container dimensions)
   useEffect(() => {
     if (frontRef.current) {
       const { offsetWidth, offsetHeight } = frontRef.current;
       setDimensions({
-        width: Math.max(offsetWidth, 180), // Ensure a minimum width (e.g., 220px)
+        width: Math.max(offsetWidth, 180), // Minimum width of 180px
         height: offsetHeight,
       });
     }
   }, [primaryValue, secondaryValues]);
+
+  // Compute the number of lines that can fit in the back view.
+  const numLines =
+    dimensions.height > 0 ? Math.floor((dimensions.height + 4) / 14.4) : 1;
 
   // Only flip if notes are non-empty.
   const shouldFlip = notes && notes.trim().length > 0;
@@ -52,7 +56,7 @@ const ItemCard = ({
           height: `${dimensions.height}px`,
         }}
       >
-        {/* Front view: stays in normal flow */}
+        {/* Front view is always rendered for measurement and fixed sizing */}
         <div
           className={`itemcard-front ${active ? "fade-out" : "fade-in"}`}
           ref={frontRef}
@@ -71,15 +75,21 @@ const ItemCard = ({
             ))}
           </div>
         </div>
-        {/* Back view: rendered even when not active, but moved upward so it overlaps.
-            It uses a negative margin-top equal to container height.
-            Its opacity transitions from 0 (when not active) to 1 (when active). */}
+        {/* Back view: notes, overlaid using a negative margin */}
         {shouldFlip && (
           <div
             className={`itemcard-back ${active ? "fade-in" : "fade-out"}`}
             style={{ marginTop: `-${dimensions.height}px` }}
+            lang="en"
           >
-            <p className="notes-text">{notes}</p>
+            <p
+              className="notes-text"
+              style={{
+                WebkitLineClamp: numLines,
+              }}
+            >
+              {notes}
+            </p>
           </div>
         )}
       </div>
