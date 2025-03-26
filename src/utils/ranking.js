@@ -10,28 +10,40 @@ import {
 
 /**
  * Uniformly recalculates ratings for items within the boundaries defined
- * by the selected tier. The lower bound is either 0 or the cutoff of the previous tier,
- * and the upper bound is the selected tier's cutoff.
+ * by the selected tier. The lower bound is treated as exclusive and the upper bound as inclusive.
+ * For N items:
+ *   - If N === 1, the rating is set to the upper bound.
+ *   - Otherwise, dynamicOffset = (upperBound - lowerBound) / N, and for each item i (0-indexed):
+ *       rating = lowerBound + (i + 1) * dynamicOffset.
  *
  * @param {Array} items - Items belonging to the selected tier.
- * @param {Object} selectedTier - The tier object selected by the user.
+ * @param {string} selectedTierId - The unique id of the tier selected by the user.
  * @param {Array} allTiers - The full tiers array from the category, sorted ascending by cutoff.
  * @returns {Array} items with recalculated ratings.
  */
-const recalcRatings = (items, selectedTier, allTiers) => {
+const recalcRatings = (items, selectedTierId, allTiers) => {
   const sortedTiers = [...allTiers].sort((a, b) => a.cutoff - b.cutoff);
-  const index = sortedTiers.findIndex((t) => t.id === selectedTier.id);
+  const index = sortedTiers.findIndex((t) => t.id === selectedTierId);
+  if (index === -1) {
+    console.warn("Selected tier id not found:", selectedTierId);
+    return items;
+  }
+  const tierObj = sortedTiers[index];
+  // Lower bound is the previous tier's cutoff (if exists); otherwise 0.
   const lowerBound = index > 0 ? sortedTiers[index - 1].cutoff : 0;
-  const upperBound = selectedTier.cutoff;
+  // Upper bound is the selected tier's cutoff.
+  const upperBound = tierObj.cutoff;
   const n = items.length;
   if (n === 0) return items;
   const range = upperBound - lowerBound;
   if (n === 1) {
-    items[0].rating = lowerBound + range / 2;
+    // For one item, assign the upper bound.
+    items[0].rating = upperBound;
   } else {
-    const dynamicOffset = range / (n - 1);
+    const dynamicOffset = range / n;
     items.forEach((item, i) => {
-      item.rating = lowerBound + i * dynamicOffset;
+      // Use (i+1) so that the lowest rating is greater than lowerBound and the highest equals upperBound.
+      item.rating = lowerBound + (i + 1) * dynamicOffset;
     });
   }
   return items;
@@ -40,13 +52,13 @@ const recalcRatings = (items, selectedTier, allTiers) => {
 /**
  * Writes the given items (with recalculated ratings) to Firestore.
  * The items are assumed to belong to the selected tier.
- * The selectedTier object determines the rating boundaries.
+ * The selectedTierId (a string) is used to determine the rating boundaries.
  * Optionally updates the category's updatedAt timestamp.
  */
 export const writeItemsToFirestore = async (
   categoryId,
   items,
-  selectedTier,
+  selectedTierId,
   updateCategoryTimestamp = true
 ) => {
   // Fetch the category document to get the full tiers array.
@@ -56,7 +68,7 @@ export const writeItemsToFirestore = async (
     const data = categoryDoc.data();
     allTiers = data.tiers ?? [];
   }
-  const updatedItems = recalcRatings(items, selectedTier, allTiers);
+  const updatedItems = recalcRatings(items, selectedTierId, allTiers);
   const batch = writeBatch(db);
   updatedItems.forEach((item) => {
     const itemRef = item.id
@@ -66,7 +78,7 @@ export const writeItemsToFirestore = async (
       item.id = itemRef.id;
     }
     // Store only the unique tier id.
-    item.rankCategory = selectedTier.id;
+    item.rankCategory = selectedTierId;
     batch.set(itemRef, item, { merge: true });
   });
   if (updateCategoryTimestamp) {
@@ -79,7 +91,7 @@ export const writeItemsToFirestore = async (
 /**
  * Recalculates ratings for all items in a category that belong to a specific tier.
  */
-export const recalcRankingsForCategory = async (categoryId, selectedTier) => {
+export const recalcRankingsForCategory = async (categoryId, selectedTierId) => {
   const itemsSnapshot = await getDocs(
     collection(db, `categories/${categoryId}/items`)
   );
@@ -90,10 +102,10 @@ export const recalcRankingsForCategory = async (categoryId, selectedTier) => {
   // Filter for items that belong to the selected tier (by unique id) and have a numeric rating.
   items = items.filter(
     (item) =>
-      typeof item.rating === "number" && item.rankCategory === selectedTier.id
+      typeof item.rating === "number" && item.rankCategory === selectedTierId
   );
   if (items.length === 0) return;
-  await writeItemsToFirestore(categoryId, items, selectedTier);
+  await writeItemsToFirestore(categoryId, items, selectedTierId);
 };
 
 /**
