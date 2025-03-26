@@ -1,10 +1,14 @@
 import PropTypes from "prop-types";
 import { useEffect } from "react";
-import RankCategory from "../archives/RankCategory";
 
-const RankSelectionStep = ({ setRankCategory, rankCategory, onNext }) => {
-  const handleRankingChoice = (rank) => {
-    setRankCategory(rank);
+const RankSelectionStep = ({
+  tiers,
+  setRankCategory,
+  rankCategory,
+  onNext,
+}) => {
+  const handleRankingChoice = (tier) => {
+    setRankCategory(tier);
   };
 
   useEffect(() => {
@@ -17,35 +21,31 @@ const RankSelectionStep = ({ setRankCategory, rankCategory, onNext }) => {
     <div className="rank-container">
       <h2>How would you rate this item?</h2>
       <div className="rating-buttons">
-        <button
-          onClick={() => handleRankingChoice(RankCategory.GOOD)}
-          style={{ borderColor: `hsl(120, 40%, 60%)` }}
-        >
-          Good
-        </button>
-        <button
-          onClick={() => handleRankingChoice(RankCategory.OKAY)}
-          style={{ borderColor: `hsl(60, 40%, 60%)` }}
-        >
-          Okay
-        </button>
-        <button
-          onClick={() => handleRankingChoice(RankCategory.BAD)}
-          style={{ borderColor: `hsl(0, 40%, 60%)` }}
-        >
-          Bad
-        </button>
+        {tiers.map((tier) => (
+          <button
+            key={tier.name}
+            onClick={() => handleRankingChoice(tier)}
+            style={{ borderColor: tier.color }}
+          >
+            {tier.name}
+          </button>
+        ))}
       </div>
     </div>
   );
 };
 
-// PropTypes for validation
 RankSelectionStep.propTypes = {
+  tiers: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      color: PropTypes.string.isRequired,
+      cutoff: PropTypes.number.isRequired,
+    })
+  ).isRequired,
   setRankCategory: PropTypes.func.isRequired,
-  rankCategory: PropTypes.number,
+  rankCategory: PropTypes.object,
   onNext: PropTypes.func.isRequired,
-  // onBack: PropTypes.func.isRequired,
 };
 
 export default RankSelectionStep;
