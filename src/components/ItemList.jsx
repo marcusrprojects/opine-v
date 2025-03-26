@@ -9,19 +9,15 @@ const ItemList = ({ items, orderedFields, tiers, onItemClick }) => {
   const primaryField = primaryFieldObj?.name;
   const secondaryFields = secondaryFieldObjs.map((f) => f.name);
 
-  // Clear the active card when the mouse leaves the document
+  // Clear active card when mouse leaves document.
   useEffect(() => {
     const handleMouseOut = (event) => {
-      // If the pointer leaves the document (relatedTarget is null), clear active card.
       if (!event.relatedTarget && !event.toElement) {
         setActiveCardId(null);
       }
     };
-
     document.addEventListener("mouseout", handleMouseOut);
-    return () => {
-      document.removeEventListener("mouseout", handleMouseOut);
-    };
+    return () => document.removeEventListener("mouseout", handleMouseOut);
   }, []);
 
   return (
@@ -39,6 +35,7 @@ const ItemList = ({ items, orderedFields, tiers, onItemClick }) => {
           active={activeCardId === item.id}
           onActivate={() => setActiveCardId(item.id)}
           onDeactivate={() => setActiveCardId(null)}
+          rankCategory={item.rankCategory || ""} // pass the unique tier id stored in the item
         />
       )}
     />
@@ -52,6 +49,7 @@ ItemList.propTypes = {
   ).isRequired,
   tiers: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.string, // if needed
       name: PropTypes.string.isRequired,
       color: PropTypes.string.isRequired,
       cutoff: PropTypes.number.isRequired,

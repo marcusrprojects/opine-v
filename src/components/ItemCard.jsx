@@ -14,27 +14,27 @@ const ItemCard = ({
   active,
   onActivate,
   onDeactivate,
+  rankCategory,
 }) => {
-  const ratingColor = calculateCardColor(rating, tiers);
+  const ratingColor = calculateCardColor(rating, tiers, rankCategory);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const frontRef = useRef(null);
 
-  // Measure the front side (which will govern container dimensions)
+  // Measure the front view, which determines container dimensions.
   useEffect(() => {
     if (frontRef.current) {
       const { offsetWidth, offsetHeight } = frontRef.current;
       setDimensions({
-        width: Math.max(offsetWidth, 180), // Minimum width of 180px
+        width: Math.max(offsetWidth, 180),
         height: offsetHeight,
       });
     }
   }, [primaryValue, secondaryValues]);
 
-  // Compute the number of lines that can fit in the back view.
+  // Compute number of lines for notes clamping (if used).
   const numLines =
     dimensions.height > 0 ? Math.floor((dimensions.height + 4) / 14.4) : 1;
 
-  // Only flip if notes are non-empty.
   const shouldFlip = notes && notes.trim().length > 0;
   const handleEnter = () => {
     if (shouldFlip) onActivate();
@@ -56,7 +56,7 @@ const ItemCard = ({
           height: `${dimensions.height}px`,
         }}
       >
-        {/* Front view is always rendered for measurement and fixed sizing */}
+        {/* Front view is always rendered */}
         <div
           className={`itemcard-front ${active ? "fade-out" : "fade-in"}`}
           ref={frontRef}
@@ -75,19 +75,12 @@ const ItemCard = ({
             ))}
           </div>
         </div>
-        {/* Back view: notes, overlaid using a negative margin */}
         {shouldFlip && (
           <div
             className={`itemcard-back ${active ? "fade-in" : "fade-out"}`}
             style={{ marginTop: `-${dimensions.height}px` }}
-            lang="en"
           >
-            <p
-              className="notes-text"
-              style={{
-                WebkitLineClamp: numLines,
-              }}
-            >
+            <p className="notes-text" style={{ WebkitLineClamp: numLines }}>
               {notes}
             </p>
           </div>
@@ -103,6 +96,7 @@ ItemCard.propTypes = {
   rating: PropTypes.number.isRequired,
   tiers: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.string,
       name: PropTypes.string.isRequired,
       color: PropTypes.string.isRequired,
       cutoff: PropTypes.number.isRequired,
@@ -113,6 +107,7 @@ ItemCard.propTypes = {
   active: PropTypes.bool.isRequired,
   onActivate: PropTypes.func.isRequired,
   onDeactivate: PropTypes.func.isRequired,
+  rankCategory: PropTypes.string.isRequired,
 };
 
 export default ItemCard;
