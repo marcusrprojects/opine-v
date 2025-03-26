@@ -9,9 +9,8 @@ import {
 } from "firebase/firestore";
 
 /**
- * Uniformly recalculates ratings for the items array within the boundaries defined
- * by the selected tier. The lower bound is either 0 or the cutoff of the previous tier,
- * and the upper bound is the selected tier's cutoff.
+ * Uniformly recalculates ratings for items within the boundaries defined by the selected tier.
+ * The lower bound is 0 or the previous tier's cutoff; the upper bound is the selected tier's cutoff.
  *
  * @param {Array} items - Items belonging to the selected tier.
  * @param {Object} selectedTier - The tier object selected by the user.
@@ -20,7 +19,7 @@ import {
  */
 const recalcRatings = (items, selectedTier, allTiers) => {
   const sortedTiers = [...allTiers].sort((a, b) => a.cutoff - b.cutoff);
-  const index = sortedTiers.findIndex((t) => t.name === selectedTier.name);
+  const index = sortedTiers.findIndex((t) => t.id === selectedTier.id);
   const lowerBound = index > 0 ? sortedTiers[index - 1].cutoff : 0;
   const upperBound = selectedTier.cutoff;
   const n = items.length;
@@ -40,8 +39,7 @@ const recalcRatings = (items, selectedTier, allTiers) => {
 /**
  * Writes the given items (with recalculated ratings) to Firestore.
  * The items are assumed to belong to the selected tier.
- * The selectedTier object is used to determine the rating boundaries.
- * Optionally updates the category's updatedAt timestamp.
+ * The selectedTier object determines the boundaries.
  */
 export const writeItemsToFirestore = async (
   categoryId,
@@ -49,7 +47,7 @@ export const writeItemsToFirestore = async (
   selectedTier,
   updateCategoryTimestamp = true
 ) => {
-  // Fetch the category document to get the full tiers array.
+  // Fetch category document to get the full tiers array.
   const categoryDoc = await getDoc(doc(db, "categories", categoryId));
   let allTiers = [];
   if (categoryDoc.exists()) {
@@ -57,7 +55,6 @@ export const writeItemsToFirestore = async (
     allTiers = data.tiers ?? [];
   }
   const updatedItems = recalcRatings(items, selectedTier, allTiers);
-
   const batch = writeBatch(db);
   updatedItems.forEach((item) => {
     const itemRef = item.id
@@ -66,11 +63,10 @@ export const writeItemsToFirestore = async (
     if (!item.id) {
       item.id = itemRef.id;
     }
-    // Store the tier label (name) for the item.
-    item.rankCategory = selectedTier.name;
+    // Store only the unique tier id.
+    item.rankCategory = selectedTier.id;
     batch.set(itemRef, item, { merge: true });
   });
-
   if (updateCategoryTimestamp) {
     const categoryRef = doc(db, "categories", categoryId);
     batch.update(categoryRef, { updatedAt: Timestamp.now() });
@@ -89,17 +85,18 @@ export const recalcRankingsForCategory = async (categoryId, selectedTier) => {
     id: doc.id,
     ...doc.data(),
   }));
+  // Filter for items that belong to the selected tier (by id) and have a numeric rating.
   items = items.filter(
     (item) =>
-      typeof item.rating === "number" && item.rankCategory === selectedTier.name
+      typeof item.rating === "number" && item.rankCategory === selectedTier.id
   );
   if (items.length === 0) return;
   await writeItemsToFirestore(categoryId, items, selectedTier);
 };
 
 /**
- * Given an item's rating and the full tiers array, determines which tier the rating falls into,
- * computes its relative position within that tier, and returns a shade of that tier’s base color.
+ * Given an item's rating and the full tiers array, determine which tier the rating falls into,
+ * compute its relative position within that tier, and return a shade of that tier’s base color.
  */
 export const calculateCardColor = (rating, tiers) => {
   if (!tiers || tiers.length === 0) return "#fff";
