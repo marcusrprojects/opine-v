@@ -15,6 +15,7 @@ import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 import { canUserViewCategory } from "../utils/privacyUtils";
 import { useAuth } from "../context/useAuth";
 import { useFollow } from "../context/useFollow";
+import TierSettings from "./TierSettings";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -26,7 +27,7 @@ const EditCategory = () => {
   // Extract category from state (or default to empty object)
   const category = location.state?.category ?? {};
 
-  // Local state
+  // Local state initialization
   const [categoryName, setCategoryName] = useState(category.name ?? "");
   const [description, setDescription] = useState(category.description ?? "");
   const [fields, setFields] = useState(
@@ -35,6 +36,9 @@ const EditCategory = () => {
   const [tags, setTags] = useState(category.tags ?? []);
   const [categoryPrivacy, setCategoryPrivacy] = useState(
     category.categoryPrivacy ?? CategoryPrivacy.DEFAULT
+  );
+  const [tiers, setTiers] = useState(
+    Array.isArray(category.tiers) ? category.tiers : []
   );
   const [loading, setLoading] = useState(Object.keys(category).length === 0);
 
@@ -57,6 +61,7 @@ const EditCategory = () => {
             setFields(Array.isArray(data.fields) ? data.fields : []);
             setTags(data.tags ?? []);
             setCategoryPrivacy(data.categoryPrivacy || CategoryPrivacy.DEFAULT);
+            setTiers(data.tiers ?? []);
             setLoading(false);
           }
         } catch (error) {
@@ -68,7 +73,7 @@ const EditCategory = () => {
     }
   }, [categoryId, location.state, following, navigate, user]);
 
-  // Save changes to Firestore
+  // Save changes to Firestore including tiers.
   const handleSave = async () => {
     if (!categoryName.trim()) {
       alert("Category name is required.");
@@ -87,6 +92,7 @@ const EditCategory = () => {
         fields,
         tags,
         categoryPrivacy,
+        tiers,
         updatedAt: Timestamp.now(),
       });
 
@@ -137,7 +143,7 @@ const EditCategory = () => {
         />
       </div>
 
-      {/* Fields Management Using FieldManager */}
+      {/* Fields Management */}
       <FieldManager fields={fields} setFields={setFields} />
 
       {/* Tag Selector */}
@@ -145,6 +151,10 @@ const EditCategory = () => {
         <label className="edit-label">Tags</label>
         <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
       </div>
+
+      {/* Tier Settings */}
+      <label className="edit-label">Tier Settings</label>
+      <TierSettings tiers={tiers} setTiers={setTiers} />
 
       <label className="edit-label">&quot;Only Me&quot;</label>
       <PrivacySelector
@@ -167,6 +177,13 @@ EditCategory.propTypes = {
     ),
     tags: PropTypes.arrayOf(PropTypes.string),
     categoryPrivacy: PropTypes.string,
+    tiers: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        color: PropTypes.string.isRequired,
+        cutoff: PropTypes.number.isRequired,
+      })
+    ),
   }),
 };
 
