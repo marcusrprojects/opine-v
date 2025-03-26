@@ -6,6 +6,7 @@ import TextInput from "./TextInput";
 import { DEFAULT_TIER_PRESETS } from "../constants/TierTemplates";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import "../styles/TierSettings.css";
+import { generateUniqueTierId } from "../utils/tierUtils";
 
 const TierSettings = ({ tiers, setTiers }) => {
   const [presetId, setPresetId] = useState("good-ok-bad");
@@ -47,7 +48,12 @@ const TierSettings = ({ tiers, setTiers }) => {
 
   // Updates tiers with evenly recalculated cutoffs and switches to custom
   const updateAndSwitchToCustom = (newTiers) => {
-    const updated = attachCutoffsToTiers(newTiers);
+    const updated = newTiers.map((tier) => {
+      if (!tier.id) {
+        return { ...tier, id: generateUniqueTierId(newTiers) };
+      }
+      return tier;
+    });
     setCustomState({ tiers: [...updated] });
     setPresetId("custom");
     setTiers(updated);
