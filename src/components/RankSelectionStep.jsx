@@ -8,11 +8,11 @@ const RankSelectionStep = ({
   onNext,
 }) => {
   const handleRankingChoice = (tier) => {
-    setRankCategory(tier);
+    setRankCategory(tier.id);
   };
 
   useEffect(() => {
-    if (rankCategory !== null) {
+    if (rankCategory !== "") {
       onNext();
     }
   }, [rankCategory, onNext]);
@@ -45,7 +45,7 @@ RankSelectionStep.propTypes = {
     })
   ).isRequired,
   setRankCategory: PropTypes.func.isRequired,
-  rankCategory: PropTypes.object,
+  rankCategory: PropTypes.string,
   onNext: PropTypes.func.isRequired,
 };
 
