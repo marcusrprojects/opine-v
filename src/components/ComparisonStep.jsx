@@ -2,12 +2,15 @@ import PropTypes from "prop-types";
 import { useEffect, useState, useRef } from "react";
 import { db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
+import ItemCard from "./ItemCard";
+import "../styles/ComparisonStep.css";
 
 const ComparisonStep = ({
   categoryId,
   itemData,
   fields,
   rankCategory,
+  tiers,
   onSave,
   setIsRankingComplete,
 }) => {
@@ -23,20 +26,19 @@ const ComparisonStep = ({
       const itemsSnapshot = await getDocs(
         collection(db, `categories/${categoryId}/items`)
       );
-      // Filter items by comparing the stored tier name with the selected tier's name
-      const itemsInRankCategory = itemsSnapshot.docs
+      // Filter items whose rankCategory (unique id) matches the selected tier and exclude the new item.
+      const itemsInTier = itemsSnapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter(
           (item) =>
             item.rankCategory === rankCategory && item.id !== itemData.id
         )
         .sort((a, b) => a.rating - b.rating);
-
-      setRankedItems(itemsInRankCategory);
-      setHi(itemsInRankCategory.length - 1);
-
-      if (itemsInRankCategory.length === 0 && !hasSavedInitialItem.current) {
-        onSave([{ ...itemData, rankCategory: rankCategory }]);
+      setRankedItems(itemsInTier);
+      setHi(itemsInTier.length - 1);
+      if (itemsInTier.length === 0 && !hasSavedInitialItem.current) {
+        // If no items exist, insert the new item directly.
+        onSave([{ ...itemData, rankCategory }]);
         hasSavedInitialItem.current = true;
         setIsRankingComplete(true);
       }
@@ -52,27 +54,25 @@ const ComparisonStep = ({
     }
   }, [lo, hi, rankedItems]);
 
-  const onComparisonChoice = (isBetter) => {
+  // When a card is clicked, adjust the binary search range.
+  const onComparisonChoice = (isCurrentPreferred) => {
     let currentLo = lo;
     let currentHi = hi;
     let middleIndex = Math.floor((currentLo + currentHi) / 2);
-
-    if (isBetter) {
+    if (isCurrentPreferred) {
+      // The current item is preferred, so shift the lower bound upward.
       currentLo = middleIndex + 1;
     } else {
+      // The comparison item is preferred, so shift the upper bound downward.
       currentHi = middleIndex - 1;
     }
-
     setLo(currentLo);
     setHi(currentHi);
 
     if (currentLo > currentHi) {
+      // The binary search is done. Insert the new item at index currentLo.
       const updatedRankedItems = [...rankedItems];
-      // Insert the new item with the selected tier's name stored.
-      updatedRankedItems.splice(currentLo, 0, {
-        ...itemData,
-        rankCategory: rankCategory,
-      });
+      updatedRankedItems.splice(currentLo, 0, { ...itemData, rankCategory });
       setRankedItems(updatedRankedItems);
       onSave(updatedRankedItems);
       setIsRankingComplete(true);
@@ -82,19 +82,46 @@ const ComparisonStep = ({
     }
   };
 
-  return rankedItems.length > 0 ? (
+  if (!comparisonItem) return null;
+
+  return (
     <div className="comparison-container">
       <h2>Which item do you prefer?</h2>
-      <div className="comparison-buttons">
-        <button onClick={() => onComparisonChoice(true)}>
-          {itemData[primaryField] ?? "Current Item"}
-        </button>
-        <button onClick={() => onComparisonChoice(false)}>
-          {comparisonItem?.[primaryField] ?? "Comparison Item"}
-        </button>
+      <div className="comparison-cards">
+        <div onClick={() => onComparisonChoice(true)}>
+          <ItemCard
+            primaryValue={itemData[primaryField] || "Current Item"}
+            secondaryValues={fields.map((f) => itemData[f.name] || "")}
+            rating={itemData.rating || 0}
+            tiers={tiers}
+            notes={itemData.notes || ""}
+            // Disable flipping behavior for comparison (or adjust as needed).
+            active={false}
+            onClick={() => {}}
+            onActivate={() => {}}
+            onDeactivate={() => {}}
+            rankCategory={rankCategory}
+            className={`comparison-item-card`}
+          />
+        </div>
+        <div onClick={() => onComparisonChoice(false)}>
+          <ItemCard
+            primaryValue={comparisonItem[primaryField] || "Comparison Item"}
+            secondaryValues={fields.map((f) => comparisonItem[f.name] || "")}
+            rating={comparisonItem.rating || 0}
+            tiers={tiers}
+            notes={comparisonItem.notes || ""}
+            active={false}
+            onClick={() => {}}
+            onActivate={() => {}}
+            onDeactivate={() => {}}
+            rankCategory={comparisonItem.rankCategory || rankCategory}
+            className={`comparison-item-card`}
+          />
+        </div>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 ComparisonStep.propTypes = {
@@ -104,6 +131,14 @@ ComparisonStep.propTypes = {
     PropTypes.shape({ name: PropTypes.string.isRequired })
   ).isRequired,
   rankCategory: PropTypes.string.isRequired,
+  tiers: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      color: PropTypes.string.isRequired,
+      cutoff: PropTypes.number.isRequired,
+    })
+  ).isRequired,
   onSave: PropTypes.func.isRequired,
   setIsRankingComplete: PropTypes.func.isRequired,
 };
