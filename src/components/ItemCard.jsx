@@ -3,6 +3,7 @@ import Card from "./Card";
 import "../styles/ItemCard.css";
 import { calculateCardColor } from "../utils/ranking";
 import { useState, useRef, useEffect } from "react";
+import { FaQuestionCircle } from "react-icons/fa";
 
 const ItemCard = ({
   primaryValue,
@@ -15,6 +16,8 @@ const ItemCard = ({
   onActivate,
   onDeactivate,
   rankCategory,
+  className = "",
+  hideRating = false,
 }) => {
   const ratingColor = calculateCardColor(rating, tiers, rankCategory);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -33,7 +36,7 @@ const ItemCard = ({
 
   // Compute number of lines for notes clamping (if used).
   const numLines =
-    dimensions.height > 0 ? Math.floor((dimensions.height + 4) / 14.4) : 1;
+    dimensions.height > 0 ? Math.floor(dimensions.height / 14.4) : 1;
 
   const shouldFlip = notes && notes.trim().length > 0;
   const handleEnter = () => {
@@ -48,6 +51,7 @@ const ItemCard = ({
       onClick={onClick}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
+      className={className}
     >
       <div
         className="itemcard-container"
@@ -63,8 +67,15 @@ const ItemCard = ({
         >
           <div className="card-header item-card-header">
             <span className="rating" style={{ color: ratingColor }}>
-              {parseFloat(rating || 0).toFixed(1)}
+              {!hideRating ? (
+                parseFloat(rating || 0).toFixed(1)
+              ) : (
+                <FaQuestionCircle
+                  style={{ margin: "0 var(--padding-xsmall)" }}
+                />
+              )}
             </span>
+
             <h4 className="card-title">{primaryValue}</h4>
           </div>
           <div className="card-fields-container">
