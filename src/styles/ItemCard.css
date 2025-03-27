@@ -36,6 +36,7 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  align-items: center;
   gap: var(--padding-sm);
 }
 
@@ -50,6 +51,8 @@
   font-size: var(--font-sm);
   font-weight: var(--fw-medium);
   color: var(--secondary-color);
+  display: flex;
+  align-items: center;
 }
 
 /* Fields container (front view) */
