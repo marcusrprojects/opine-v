@@ -18,6 +18,7 @@ const ComparisonStep = ({
   const [comparisonItem, setComparisonItem] = useState(null);
   const [lo, setLo] = useState(0);
   const [hi, setHi] = useState(0);
+  const [activeCard, setActiveCard] = useState(null);
   const hasSavedInitialItem = useRef(false);
   const primaryField = fields[0]?.name;
 
@@ -26,7 +27,7 @@ const ComparisonStep = ({
       const itemsSnapshot = await getDocs(
         collection(db, `categories/${categoryId}/items`)
       );
-      // Filter items whose rankCategory (unique id) matches the selected tier and exclude the new item.
+      // Filter items by matching the stored tier id with the selected tier id and exclude the new item.
       const itemsInTier = itemsSnapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter(
@@ -37,7 +38,7 @@ const ComparisonStep = ({
       setRankedItems(itemsInTier);
       setHi(itemsInTier.length - 1);
       if (itemsInTier.length === 0 && !hasSavedInitialItem.current) {
-        // If no items exist, insert the new item directly.
+        // If no items exist in the tier, save the new item directly.
         onSave([{ ...itemData, rankCategory }]);
         hasSavedInitialItem.current = true;
         setIsRankingComplete(true);
@@ -54,23 +55,27 @@ const ComparisonStep = ({
     }
   }, [lo, hi, rankedItems]);
 
+  // Handlers for flip activation via hover.
+  const handleActivateCurrent = () => setActiveCard("current");
+  const handleActivateComparison = () => setActiveCard("comparison");
+  const handleDeactivate = () => setActiveCard(null);
+
   // When a card is clicked, adjust the binary search range.
   const onComparisonChoice = (isCurrentPreferred) => {
     let currentLo = lo;
     let currentHi = hi;
     let middleIndex = Math.floor((currentLo + currentHi) / 2);
     if (isCurrentPreferred) {
-      // The current item is preferred, so shift the lower bound upward.
+      // New item is preferred, so shift the lower bound upward.
       currentLo = middleIndex + 1;
     } else {
-      // The comparison item is preferred, so shift the upper bound downward.
+      // Comparison item is preferred, so shift the upper bound downward.
       currentHi = middleIndex - 1;
     }
     setLo(currentLo);
     setHi(currentHi);
 
     if (currentLo > currentHi) {
-      // The binary search is done. Insert the new item at index currentLo.
       const updatedRankedItems = [...rankedItems];
       updatedRankedItems.splice(currentLo, 0, { ...itemData, rankCategory });
       setRankedItems(updatedRankedItems);
@@ -95,13 +100,13 @@ const ComparisonStep = ({
             rating={itemData.rating || 0}
             tiers={tiers}
             notes={itemData.notes || ""}
-            // Disable flipping behavior for comparison (or adjust as needed).
-            active={false}
             onClick={() => {}}
-            onActivate={() => {}}
-            onDeactivate={() => {}}
+            active={activeCard === "current"}
+            onActivate={handleActivateCurrent}
+            onDeactivate={handleDeactivate}
             rankCategory={rankCategory}
-            className={`comparison-item-card`}
+            className="comparison-item-card"
+            hideRating={true}
           />
         </div>
         <div onClick={() => onComparisonChoice(false)}>
@@ -111,12 +116,12 @@ const ComparisonStep = ({
             rating={comparisonItem.rating || 0}
             tiers={tiers}
             notes={comparisonItem.notes || ""}
-            active={false}
             onClick={() => {}}
-            onActivate={() => {}}
-            onDeactivate={() => {}}
+            active={activeCard === "comparison"}
+            onActivate={handleActivateComparison}
+            onDeactivate={handleDeactivate}
             rankCategory={comparisonItem.rankCategory || rankCategory}
-            className={`comparison-item-card`}
+            className="comparison-item-card"
           />
         </div>
       </div>
