@@ -119,6 +119,7 @@ const ReRankFlow = () => {
             rankCategory={rankCategory}
             onSave={handleSave}
             setIsRankingComplete={setIsRankingComplete}
+            tiers={tiers}
           />
         )}
       </div>

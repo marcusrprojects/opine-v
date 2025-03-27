@@ -119,6 +119,7 @@ const AddItemFlow = () => {
             rankCategory={rankCategory}
             onSave={handleSave}
             setIsRankingComplete={setIsRankingComplete}
+            tiers={tiers}
           />
         )}
       </div>
