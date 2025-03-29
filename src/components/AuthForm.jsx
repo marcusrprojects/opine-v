@@ -27,7 +27,6 @@ const AuthForm = ({ mode }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // ✅ Store auth mode using useMemo
   const isSignup = useMemo(() => mode === AuthFormMode.SIGNUP, [mode]);
 
   const [email, setEmail] = useState("");
