@@ -9,15 +9,12 @@ import {
 } from "firebase/firestore";
 
 /**
- * Uniformly recalculates ratings for items within the boundaries defined
- * by the selected tier. The lower bound is treated as exclusive and the upper bound as inclusive.
- * For N items:
- *   - If N === 1, the rating is set to the upper bound.
- *   - Otherwise, dynamicOffset = (upperBound - lowerBound) / N, and for each item i (0-indexed):
- *       rating = lowerBound + (i + 1) * dynamicOffset.
+ * Recalculates ratings for items belonging to a specific tier.
+ * It looks up the tier boundaries using the full tiers array and then delegates
+ * the rating recalculation to recalcRatingsForGroup.
  *
  * @param {Array} items - Items belonging to the selected tier.
- * @param {string} selectedTierId - The unique id of the tier selected by the user.
+ * @param {string} selectedTierId - The unique id of the tier selected.
  * @param {Array} allTiers - The full tiers array from the category, sorted ascending by cutoff.
  * @returns {Array} items with recalculated ratings.
  */
@@ -28,30 +25,20 @@ const recalcRatings = (items, selectedTierId, allTiers) => {
     console.warn("Selected tier id not found:", selectedTierId);
     return items;
   }
-  const tierObj = sortedTiers[index];
-  // Lower bound is the previous tier's cutoff (if exists); otherwise 0.
   const lowerBound = index > 0 ? sortedTiers[index - 1].cutoff : 0;
-  // Upper bound is the selected tier's cutoff.
-  const upperBound = tierObj.cutoff;
-  const n = items.length;
-  if (n === 0) return items;
-  const range = upperBound - lowerBound;
-  if (n === 1) {
-    // For one item, assign the upper bound.
-    items[0].rating = upperBound;
-  } else {
-    const dynamicOffset = range / n;
-    items.forEach((item, i) => {
-      // Use (i+1) so that the lowest rating is greater than lowerBound and the highest equals upperBound.
-      item.rating = lowerBound + (i + 1) * dynamicOffset;
-    });
-  }
+  const upperBound = sortedTiers[index].cutoff;
+  recalcRatingsForGroup(items, lowerBound, upperBound);
   return items;
 };
 
 /**
- * Recalculate ratings for items in a given group using uniform spacing within the tier's boundaries.
- * @param {Array} group - Array of items (each with an old rating).
+ * Uniformly recalculates ratings for items within the boundaries defined
+ * by lowerBound and upperBound. For N items:
+ *   - If N === 1, the rating is set to the upper bound.
+ *   - Otherwise, dynamicOffset = (upperBound - lowerBound) / N, and for each item i (0-indexed):
+ *       rating = lowerBound + (i + 1) * dynamicOffset.
+ *
+ * @param {Array} group - Array of items to update.
  * @param {number} lowerBound - Lower bound for the tier.
  * @param {number} upperBound - Upper bound for the tier.
  */
@@ -62,9 +49,10 @@ const recalcRatingsForGroup = (group, lowerBound, upperBound) => {
     group[0].rating = upperBound;
   } else {
     const dynamicOffset = (upperBound - lowerBound) / n;
-    // Assume group is already sorted descending by old rating.
+    // Update each item in the group.
     group.forEach((item, index) => {
-      // (index+1) so that the highest rated in the group gets rating near upperBound.
+      // (index+1) ensures the lowest item gets a value above lowerBound
+      // and the highest equals upperBound.
       item.rating = lowerBound + (index + 1) * dynamicOffset;
     });
   }
