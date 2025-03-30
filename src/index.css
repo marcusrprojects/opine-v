@@ -14,7 +14,8 @@
 
   display: flex;
   flex-direction: column;
-  /* margin-top: var(--padding-sm); */
+  /* margin-top: var(--padding-ml); */
+  margin-top: 2.25vh;
 }
 
 a {
