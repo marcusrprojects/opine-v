@@ -8,10 +8,16 @@ import { FaPlus, FaMinus } from "react-icons/fa";
 import "../styles/TierSettings.css";
 import { generateUniqueTierId } from "../utils/tierUtils";
 
+// Default one-tier configuration for custom mode.
+const DEFAULT_ONE_TIER = [
+  { name: "Custom Tier", color: "#CCCCCC", cutoff: 10 },
+];
+
 const TierSettings = ({ tiers, setTiers }) => {
-  // If tiers are provided (non-empty), default to "custom".
+  // If tiers exist, default to "custom"; otherwise, default to the preset "good-ok-bad".
   const initialPresetId = tiers && tiers.length > 0 ? "custom" : "good-ok-bad";
   const [presetId, setPresetId] = useState(initialPresetId);
+  // Initialize custom state with existing tiers (or empty array).
   const [customState, setCustomState] = useState({ tiers: tiers || [] });
 
   // Helper: space tiers evenly by assigning cutoffs.
@@ -25,6 +31,7 @@ const TierSettings = ({ tiers, setTiers }) => {
 
   const handleTemplateSelect = useCallback(
     (preset) => {
+      // When a preset is selected, apply its tiers.
       const tiersWithCutoffs = attachCutoffsToTiers(
         preset.tiers.map((t) => ({ ...t }))
       );
@@ -36,7 +43,9 @@ const TierSettings = ({ tiers, setTiers }) => {
 
   useEffect(() => {
     if (presetId === "custom") {
-      setTiers(customState.tiers);
+      setTiers(
+        customState.tiers.length > 0 ? customState.tiers : DEFAULT_ONE_TIER
+      );
     } else {
       const preset = DEFAULT_TIER_PRESETS.find((p) => p.id === presetId);
       if (preset) {
@@ -48,6 +57,7 @@ const TierSettings = ({ tiers, setTiers }) => {
     }
   }, [presetId, customState, setTiers, attachCutoffsToTiers]);
 
+  // Update tiers and switch to custom mode.
   const updateAndSwitchToCustom = (newTiers) => {
     const usedIds = newTiers.filter((t) => t.id).map((t) => t.id);
     const updated = newTiers.map((tier) => {
@@ -58,6 +68,8 @@ const TierSettings = ({ tiers, setTiers }) => {
       }
       return tier;
     });
+    // Force the highest-tier's cutoff to 10 (whether there's one tier or more).
+    updated[updated.length - 1].cutoff = 10;
     setCustomState({ tiers: [...updated] });
     setPresetId("custom");
     setTiers(updated);
@@ -68,13 +80,6 @@ const TierSettings = ({ tiers, setTiers }) => {
     updated[index] = { ...updated[index], [field]: value };
     updateAndSwitchToCustom(updated);
   };
-
-  const handleCutoffChange = (updatedTiers) => {
-    setCustomState({ tiers: [...updatedTiers] });
-    setPresetId("custom");
-    setTiers(updatedTiers);
-  };
-
   const handleColorChange = (index, newColor) => {
     const updated = [...tiers];
     updated[index] = { ...updated[index], color: newColor };
@@ -90,6 +95,7 @@ const TierSettings = ({ tiers, setTiers }) => {
   };
 
   const handleRemoveTier = (index) => {
+    // Allow removal until at least one tier remains.
     if (tiers.length <= 1) return;
     const updatedTiers = tiers.filter((_, i) => i !== index);
     updateAndSwitchToCustom(updatedTiers);
@@ -131,7 +137,7 @@ const TierSettings = ({ tiers, setTiers }) => {
 
       <MultiThumbSlider
         tiers={tiers}
-        onChange={handleCutoffChange}
+        onChange={updateAndSwitchToCustom}
         onColorChange={handleColorChange}
       />
     </div>
