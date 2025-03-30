@@ -132,7 +132,7 @@ const Profile = () => {
 
       <div className="profile-categories-section">
         <CategoryCollection mode={CategoryCollectionMode.USER} userId={uid} />
-        <h3>Liked Categories</h3>
+        <h3 className="category-section-header">Liked</h3>
         <CategoryCollection
           mode={CategoryCollectionMode.LIKED_BY_USER}
           userId={uid}
