@@ -14,12 +14,11 @@ import PropTypes from "prop-types";
 import { fetchTagsSet } from "../utils/tagUtils";
 import CategoryList from "./CategoryList";
 import { useAuth } from "../context/useAuth";
-import { useFollow } from "../context/useFollow";
-import { useLikedCategories } from "../context/useLikedCategories";
+import { useUserData } from "../context/useUserData";
 import { useNavigate } from "react-router-dom";
 import { UserPrivacy, CategoryPrivacy } from "../enums/PrivacyEnums";
 import "../styles/CategoryCollection.css";
-import { getVisibleCategoriesForUser } from "../utils/privacyUtils"; // our helper function
+import { getVisibleCategoriesForUser } from "../utils/privacyUtils";
 import SortOptions from "../enums/SortOptions";
 import { CategoryCollectionMode } from "../enums/ModeEnums";
 
@@ -30,8 +29,9 @@ const CategoryCollection = ({
   sortOption = SortOptions.UPDATED_DESC,
 }) => {
   const { user } = useAuth();
-  const { following } = useFollow();
-  const { likedCategories = [], toggleLikeCategory } = useLikedCategories();
+  const { userData, isFollowing, toggleLikeCategory } = useUserData();
+
+  const { following, likedCategories } = userData || {};
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [availableTags, setAvailableTags] = useState(new Set());
@@ -57,7 +57,7 @@ const CategoryCollection = ({
         ((mode === CategoryCollectionMode.LIKED ||
           mode === CategoryCollectionMode.RECOMMENDED) &&
           likedCategories.length === 0) ||
-        (mode === CategoryCollectionMode.FOLLOWING && following.size === 0) ||
+        (mode === CategoryCollectionMode.FOLLOWING && following.length === 0) ||
         (!userId &&
           (mode === CategoryCollectionMode.USER ||
             mode === CategoryCollectionMode.LIKED_BY_USER))
@@ -183,7 +183,7 @@ const CategoryCollection = ({
           user?.uid === category.createdBy ||
           ((category.creatorPrivacy === UserPrivacy.PUBLIC ||
             (category.creatorPrivacy === UserPrivacy.PRIVATE &&
-              following.has(category.createdBy))) &&
+              isFollowing(category.createdBy))) &&
             category.categoryPrivacy !== CategoryPrivacy.ONLY_ME)
       );
 
@@ -191,7 +191,15 @@ const CategoryCollection = ({
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
-  }, [availableTags, mode, likedCategories, user, userId, following]);
+  }, [
+    availableTags,
+    mode,
+    likedCategories,
+    user,
+    userId,
+    following,
+    isFollowing,
+  ]);
 
   // Fetch categories on dependency changes
   useEffect(() => {
