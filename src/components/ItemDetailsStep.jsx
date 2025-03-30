@@ -17,7 +17,7 @@ const ItemDetailsStep = ({
   const validateField = useCallback(
     (fieldName, value) => {
       if (fieldName === "link") {
-        if (!value.trim()) return null; // optional field
+        if (!value.trim()) return null;
         if (!isValidUrl(value.trim())) {
           return "Please enter a valid URL.";
         }
@@ -35,22 +35,22 @@ const ItemDetailsStep = ({
   );
 
   const handleInputChange = (fieldName, value) => {
-    if (fieldName === "link") {
-      updateItemData({ ...itemData, [fieldName]: value });
-      return;
+    if (fieldName !== "link") {
+      const errorMessage = validateField(fieldName, value);
+      setError((prev) => ({
+        ...prev,
+        [fieldName]: errorMessage,
+      }));
     }
-    const errorMessage = validateField(fieldName, value);
-    setError((prev) => ({
-      ...prev,
-      [fieldName]: errorMessage,
-    }));
+    updateItemData({ ...itemData, [fieldName]: value });
+    // Recheck overall validity for required fields.
     const allFieldsValid = fields.every(
       ({ name }) => !validateField(name, itemData[name] || "")
     );
     onValidationChange(allFieldsValid);
-    updateItemData({ ...itemData, [fieldName]: value });
   };
 
+  // On blur, validate only the "link" field.
   const handleBlur = (fieldName) => {
     if (fieldName === "link") {
       const currentValue = itemData[fieldName] || "";
@@ -60,8 +60,6 @@ const ItemDetailsStep = ({
       }
       return;
     }
-    const errorMessage = validateField(fieldName, itemData[fieldName] || "");
-    setError((prev) => ({ ...prev, [fieldName]: errorMessage }));
   };
 
   useEffect(() => {
@@ -71,7 +69,7 @@ const ItemDetailsStep = ({
     onValidationChange(allFieldsValid);
   }, [itemData, fields, onValidationChange, validateField]);
 
-  // Compute the reference link for the primary field (always using Wikipedia).
+  // Compute the reference link for the primary field using Wikipedia.
   const primaryFieldName = fields[0].name;
   const primaryValue = itemData[primaryFieldName] || "";
   const referenceLink = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
@@ -116,6 +114,7 @@ const ItemDetailsStep = ({
         className="text-input notes-field"
       />
 
+      {/* Optional Reference Link input */}
       <div>
         <TextInput
           value={itemData.link || ""}
