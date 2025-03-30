@@ -6,17 +6,21 @@ import { doc, getDoc } from "firebase/firestore";
 const UserCacheContext = createContext();
 
 export const UserCacheProvider = ({ children }) => {
-  // A simple object mapping user IDs to user data.
+  // A simple object mapping user IDs to basic user info (username and name).
   const [userCache, setUserCache] = useState({});
 
-  // Asynchronously fetch and cache a user's data.
+  // Asynchronously fetch and cache a user's basic info.
   const fetchAndCacheUser = async (userId) => {
     try {
       const userDocRef = doc(db, "users", userId);
       const userSnapshot = await getDoc(userDocRef);
       if (userSnapshot.exists()) {
         const data = userSnapshot.data();
-        setUserCache((prev) => ({ ...prev, [userId]: data }));
+        const userInfo = {
+          username: data.username || "unknown",
+          name: data.name || "Anonymous",
+        };
+        setUserCache((prev) => ({ ...prev, [userId]: userInfo }));
       }
     } catch (error) {
       console.error("Error fetching user", userId, error);
@@ -24,14 +28,13 @@ export const UserCacheProvider = ({ children }) => {
   };
 
   /**
-   * getUsername synchronously returns a cached username if available.
-   * If not, it triggers an async fetch (whose result will update the cache)
-   * and returns null.
+   * getUserInfo synchronously returns a cached object with the username and name for a given userId.
+   * If not yet cached, it triggers an async fetch and returns null.
    */
-  const getUsername = (userId) => {
+  const getUserInfo = (userId) => {
     if (!userId) return null;
     if (userCache[userId] && userCache[userId].username) {
-      return userCache[userId].username;
+      return userCache[userId];
     } else {
       // Trigger an asynchronous fetch; the state update will cause re-render.
       fetchAndCacheUser(userId);
@@ -40,7 +43,7 @@ export const UserCacheProvider = ({ children }) => {
   };
 
   return (
-    <UserCacheContext.Provider value={{ getUsername, userCache }}>
+    <UserCacheContext.Provider value={{ getUserInfo, userCache }}>
       {children}
     </UserCacheContext.Provider>
   );
