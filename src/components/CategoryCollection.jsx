@@ -36,7 +36,7 @@ const CategoryCollection = ({
   const [categories, setCategories] = useState([]);
   const [availableTags, setAvailableTags] = useState(new Set());
 
-  // Fetch tags once on mount
+  // Fetch tags once on mount.
   useEffect(() => {
     const loadTags = async () => {
       try {
@@ -49,10 +49,10 @@ const CategoryCollection = ({
     loadTags();
   }, []);
 
-  // Refactored function for fetching categories based on privacy
+  // Refactored function for fetching categories based on privacy.
   const fetchCategories = useCallback(async () => {
     try {
-      // ✅ Handle early exits efficiently.
+      // Early exit: use .length for arrays.
       if (
         ((mode === CategoryCollectionMode.LIKED ||
           mode === CategoryCollectionMode.RECOMMENDED) &&
@@ -66,7 +66,7 @@ const CategoryCollection = ({
         return;
       }
 
-      // ✅ Handle direct user-based modes
+      // Handle direct user-based modes.
       if (mode === CategoryCollectionMode.OWN) {
         setCategories(await getVisibleCategoriesForUser(user.uid, user.uid));
         return;
@@ -78,7 +78,7 @@ const CategoryCollection = ({
         return;
       }
 
-      // ✅ Construct Firestore Query
+      // Construct Firestore Query.
       let categoryQuery = collection(db, "categories");
 
       if (mode === CategoryCollectionMode.LIKED) {
@@ -101,13 +101,14 @@ const CategoryCollection = ({
           where("__name__", "in", likedCategoryIds)
         );
       } else if (mode === CategoryCollectionMode.FOLLOWING) {
+        // following is an array now, so spread it.
         categoryQuery = query(
           categoryQuery,
           where("createdBy", "in", [...following])
         );
       } else if (mode === CategoryCollectionMode.RECOMMENDED) {
-        // Pick random liked categories
-        const randomLiked = likedCategories
+        // Pick random liked categories.
+        const randomLiked = [...likedCategories]
           .sort(() => 0.5 - Math.random())
           .slice(0, 10);
         const likedSnapshot = await getDocs(
@@ -145,18 +146,18 @@ const CategoryCollection = ({
           limit(5)
         );
       } else {
-        // Default sorting for "all" and fallback cases
+        // Default sorting for "all" and fallback cases.
         categoryQuery = query(categoryQuery, orderBy("updatedAt", "desc"));
       }
 
-      // ✅ Execute Firestore query
+      // Execute Firestore query.
       const snapshot = await getDocs(categoryQuery);
       let categoryList = snapshot.docs.map((docSnap) => ({
         id: docSnap.id,
         ...docSnap.data(),
       }));
 
-      // Fallback for recommended mode if no categories found
+      // Fallback for recommended mode if no categories found.
       if (
         mode === CategoryCollectionMode.RECOMMENDED &&
         categoryList.length === 0
@@ -177,7 +178,7 @@ const CategoryCollection = ({
         }));
       }
 
-      // ✅ Apply privacy filters concisely
+      // Apply privacy filters concisely.
       const filteredCategories = categoryList.filter(
         (category) =>
           user?.uid === category.createdBy ||
@@ -201,12 +202,12 @@ const CategoryCollection = ({
     isFollowing,
   ]);
 
-  // Fetch categories on dependency changes
+  // Fetch categories on dependency changes.
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  // Search optimization using useMemo
+  // Search optimization using useMemo.
   const filteredCategories = useMemo(() => {
     if (!searchTerm.trim()) return categories;
     const searchLower = searchTerm.toLowerCase();
