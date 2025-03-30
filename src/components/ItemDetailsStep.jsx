@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useState, useEffect, useCallback } from "react";
 import "../styles/ItemDetailsStep.css";
 import TextInput from "./TextInput";
-import { FaWikipediaW, FaGlobe } from "react-icons/fa";
+import LinkHeader from "./LinkHeader";
 import { isValidUrl } from "../utils/validationUtils";
 
 const ItemDetailsStep = ({
@@ -50,7 +50,6 @@ const ItemDetailsStep = ({
     onValidationChange(allFieldsValid);
   };
 
-  // On blur, validate only the "link" field.
   const handleBlur = (fieldName) => {
     if (fieldName === "link") {
       const currentValue = itemData[fieldName] || "";
@@ -72,7 +71,7 @@ const ItemDetailsStep = ({
   const primaryFieldName = fields[0].name;
   const primaryValue = itemData[primaryFieldName] || "";
 
-  // If a valid link exists, use it; otherwise, fallback to a Wikipedia search link.
+  // Determine approved link: if a valid link is provided, use it; otherwise, fallback to Wikipedia search.
   const approvedLink =
     itemData.link && isValidUrl(itemData.link.trim())
       ? itemData.link
@@ -80,31 +79,13 @@ const ItemDetailsStep = ({
           primaryValue
         )}`;
 
-  // Determine which icon to display.
-  const validLink = itemData.link && isValidUrl(itemData.link.trim());
-  const IconComponent =
-    validLink && itemData.link.toLowerCase().includes("wikipedia.org")
-      ? FaWikipediaW
-      : validLink
-      ? FaGlobe
-      : FaWikipediaW;
-
   return (
     <div className="item-details-container">
-      <div className="item-details-header">
-        <h2>Item Details</h2>
-        {(primaryValue || itemData.link) && (
-          <a
-            href={approvedLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Reference Link"
-            className="wiki-link"
-          >
-            <IconComponent className="link-icon" />
-          </a>
-        )}
-      </div>
+      <LinkHeader
+        title="Item Details"
+        link={approvedLink}
+        iconVisible={Boolean(primaryValue || itemData.link)}
+      />
 
       {fields.map(({ name }, index) => (
         <div key={index}>

@@ -17,7 +17,7 @@ import { useAuth } from "../context/useAuth";
 import BackDeletePanel from "./Navigation/BackDeletePanel";
 import { canUserViewCategory } from "../utils/privacyUtils";
 import { useUserData } from "../context/useUserData";
-import { FaGlobe, FaWikipediaW } from "react-icons/fa";
+import LinkHeader from "./LinkHeader";
 import { isValidUrl } from "../utils/validationUtils";
 
 const ItemView = () => {
@@ -94,7 +94,6 @@ const ItemView = () => {
       const categoryRef = doc(db, "categories", categoryId);
       let updatedValue = itemData[field]?.trim() || "";
 
-      // Validate the URL only for the "link" field.
       if (
         field === "link" &&
         updatedValue !== "" &&
@@ -102,7 +101,6 @@ const ItemView = () => {
       ) {
         alert("Please enter a valid URL.");
         updatedValue = "";
-        // Update state immediately so the input field is cleared.
         setItemData((prev) => ({ ...prev, link: updatedValue }));
       }
 
@@ -119,7 +117,7 @@ const ItemView = () => {
         await updateDoc(doc(db, "categories", categoryId), {
           updatedAt: Timestamp.now(),
         });
-        await recalcRankingsForCategory(categoryId); // Recalculate rankings after deletion.
+        await recalcRankingsForCategory(categoryId);
         navigate(`/categories/${categoryId}`);
       }
     });
@@ -132,7 +130,6 @@ const ItemView = () => {
     });
   };
 
-  // Use updated calculateCardColor that accepts the stored tier id.
   const cardColor = useMemo(() => {
     const rating = itemData.rating || 0;
     return calculateCardColor(rating, tiers, itemData.rankCategory);
@@ -144,12 +141,6 @@ const ItemView = () => {
       itemData[orderedFields[0]?.name]
     )}`;
 
-  // Determine which icon to show based on whether the link is a Wikipedia URL.
-  const linkLower = externalLink.toLowerCase();
-  const IconComponent = linkLower.includes("wikipedia.org")
-    ? FaWikipediaW
-    : FaGlobe;
-
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -159,17 +150,10 @@ const ItemView = () => {
         onDelete={handleDelete}
         canDelete={canEdit}
       />
-      <div className="item-title">
-        <h2>{itemData[orderedFields[0]?.name] || "Unnamed Item"}</h2>
-        <a
-          href={externalLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Open reference link"
-        >
-          <IconComponent className="link-icon" />
-        </a>
-      </div>
+      <LinkHeader
+        title={itemData[orderedFields[0]?.name] || "Unnamed Item"}
+        link={externalLink}
+      />
       <div className="rating-container">
         <div
           id="rating-display"
