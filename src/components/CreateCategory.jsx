@@ -9,7 +9,6 @@ import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
 import { CategoryPrivacy, UserPrivacy } from "../enums/PrivacyEnums";
 import FieldManager from "./FieldManager";
-import PrivacySelector from "./PrivacySelector";
 import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 import TierSettings from "./TierSettings";
 import { useUserData } from "../context/useUserData";
@@ -34,6 +33,15 @@ const CreateCategory = () => {
       navigate("/login");
     }
   }, [user, navigate]);
+
+  // Toggle category privacy: if "only-me" then unlock (set to default); otherwise lock (set to only-me)
+  const handleTogglePrivacy = () => {
+    setCategoryPrivacy((prev) =>
+      prev === CategoryPrivacy.ONLY_ME
+        ? CategoryPrivacy.DEFAULT
+        : CategoryPrivacy.ONLY_ME
+    );
+  };
 
   const isConfirmDisabled =
     !categoryName.trim() ||
@@ -75,6 +83,8 @@ const CreateCategory = () => {
         onCancel={() => navigate("/categories")}
         onConfirm={handleSubmit}
         isConfirmDisabled={isConfirmDisabled}
+        onTogglePrivacy={handleTogglePrivacy}
+        privacy={categoryPrivacy}
       />
 
       <h2>Create a Category</h2>
@@ -112,13 +122,6 @@ const CreateCategory = () => {
 
         <label className="edit-label">Tier Settings</label>
         <TierSettings tiers={tiers} setTiers={setTiers} />
-
-        <label className="edit-label">&quot;Only Me&quot;</label>
-        <PrivacySelector
-          privacy={categoryPrivacy}
-          setPrivacy={setCategoryPrivacy}
-          type="category"
-        />
       </form>
     </div>
   );
