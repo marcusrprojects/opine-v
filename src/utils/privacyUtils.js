@@ -83,9 +83,8 @@ export const updateUserCategoriesPrivacy = async (userId, newPrivacy) => {
 };
 
 // must be called only if (!category || !user) return; check isn't returned from.
-export const canUserViewCategory = (category, user, following) => {
+export const canUserViewCategory = (category, user, isFollowing) => {
   const isCreator = user.uid === category.createdBy;
-  const isFollower = following.has(category.createdBy);
 
   const categoryIsPublic = category.categoryPrivacy === CategoryPrivacy.DEFAULT;
   const userIsPublic = category.creatorPrivacy === UserPrivacy.PUBLIC;
@@ -93,6 +92,6 @@ export const canUserViewCategory = (category, user, following) => {
   return (
     isCreator ||
     (userIsPublic && categoryIsPublic) ||
-    (isFollower && categoryIsPublic)
+    (isFollowing && categoryIsPublic)
   );
 };
