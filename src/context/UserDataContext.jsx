@@ -121,7 +121,6 @@ export const UserDataProvider = ({ children }) => {
             await updateDoc(targetUserDocRef, {
               followRequests: arrayUnion(user.uid),
             });
-            alert("Follow request sent.");
           } else {
             await updateDoc(currentUserDocRef, {
               following: arrayUnion(targetUserId),
@@ -139,7 +138,7 @@ export const UserDataProvider = ({ children }) => {
   );
 
   // Toggle like/unlike for a category.
-  const toggleLikedCategory = useCallback(
+  const toggleLikeCategory = useCallback(
     async (categoryId) => {
       if (!user || !userData) {
         alert("Log in to like categories.");
@@ -172,7 +171,7 @@ export const UserDataProvider = ({ children }) => {
       hasRequestedFollow,
       hasLikedCategory,
       toggleFollow,
-      toggleLikedCategory,
+      toggleLikeCategory,
     }),
     [
       hasLikedCategory,
@@ -180,7 +179,7 @@ export const UserDataProvider = ({ children }) => {
       isFollowing,
       isPending,
       toggleFollow,
-      toggleLikedCategory,
+      toggleLikeCategory,
       userData,
     ]
   );
