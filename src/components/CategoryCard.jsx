@@ -10,15 +10,16 @@ const CategoryCard = ({ category, onClick, onLike, liked }) => {
   const [maxWidth, setMaxWidth] = useState(0);
   const headerRef = useRef(null);
 
-  // Get the username from our cache.
-  const { getUsername } = useUserCache();
-  const creatorUsername = getUsername(category.createdBy) || "Unknown";
+  // Get the cached user info for the category's creator.
+  const { getUserInfo } = useUserCache();
+  const creatorInfo = getUserInfo(category.createdBy);
+  const creatorUsername = creatorInfo ? creatorInfo.username : "Unknown";
 
   // Prepare tag text.
   const tagText =
     category.tags?.length > 0 ? category.tags.join(", ") : "No tags";
 
-  // Measure the header’s width and ensure a minimum max-width of 180px.
+  // Measure header width and ensure a minimum width of 180px.
   useEffect(() => {
     if (headerRef.current) {
       const measuredWidth = Math.max(headerRef.current.offsetWidth, 180);
@@ -46,7 +47,7 @@ const CategoryCard = ({ category, onClick, onLike, liked }) => {
       </div>
       <div
         className={`card-tags-container ${isHovered ? "hovered" : ""}`}
-        style={{ maxWidth: maxWidth }}
+        style={{ maxWidth }}
       >
         <div className="card-tags">
           <span className="tags-text">{tagText}</span>
