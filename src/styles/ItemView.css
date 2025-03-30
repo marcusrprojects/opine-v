@@ -2,15 +2,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  position: relative; /* Allows absolute positioning for child elements */
-  padding: 2rem;
-}
-
-.item-title {
-  font-size: var(--font-large);
-  text-align: center;
-  margin-bottom: var(--padding-large);
-  color: var(--secondary-color);
+  gap: var(--padding-small);
+  position: relative;
+  margin: 0 var(--padding-lx);
 }
 
 .rating-container {
@@ -42,7 +36,7 @@
 
 .item-field {
   display: flex;
-  flex-direction: column; /* Stack label and value vertically */
+  flex-direction: column;
   text-align: center;
   padding: var(--padding-small) 0;
   width: 100%;
@@ -51,7 +45,7 @@
 .field-content {
   display: flex;
   flex-direction: row;
-  gap: 1rem;
+  gap: var(--padding-medium);
 }
 
 .item-value {
@@ -132,7 +126,7 @@
 
 .item-label {
   text-align: left;
-  flex: 0 0 10rem;
+  flex: 0 0 var(--padding-xxlarge);
 }
 
 #back-button:hover {
