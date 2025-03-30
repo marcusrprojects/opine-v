@@ -71,12 +71,23 @@ const ItemDetailsStep = ({
 
   const primaryFieldName = fields[0].name;
   const primaryValue = itemData[primaryFieldName] || "";
+
+  // If a valid link exists, use it; otherwise, fallback to a Wikipedia search link.
   const approvedLink =
     itemData.link && isValidUrl(itemData.link.trim())
       ? itemData.link
       : `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
           primaryValue
         )}`;
+
+  // Determine which icon to display.
+  const validLink = itemData.link && isValidUrl(itemData.link.trim());
+  const IconComponent =
+    validLink && itemData.link.toLowerCase().includes("wikipedia.org")
+      ? FaWikipediaW
+      : validLink
+      ? FaGlobe
+      : FaWikipediaW;
 
   return (
     <div className="item-details-container">
@@ -90,11 +101,7 @@ const ItemDetailsStep = ({
             title="Reference Link"
             className="wiki-link"
           >
-            {itemData.link && isValidUrl(itemData.link.trim()) ? (
-              <FaGlobe className="link-icon" />
-            ) : (
-              <FaWikipediaW className="link-icon" />
-            )}
+            <IconComponent className="link-icon" />
           </a>
         )}
       </div>
