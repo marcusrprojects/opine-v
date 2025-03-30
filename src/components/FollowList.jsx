@@ -7,19 +7,21 @@ import {
   arrayRemove,
   arrayUnion,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { db } from "../firebaseConfig";
 import BackPanel from "./Navigation/BackPanel";
 import FollowCard from "./FollowCard";
 import FollowRequestCard from "./FollowRequestCard";
 import { FollowListMode } from "../enums/ModeEnums";
 import "../styles/FollowList.css";
+import UserCacheContext from "../context/UserCacheContext";
 
 const FollowList = ({ mode, className = "" }) => {
   const { uid } = useParams();
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { getUserInfo } = useContext(UserCacheContext);
 
   const title = {
     [FollowListMode.FOLLOWERS]: "Followers",
@@ -45,17 +47,14 @@ const FollowList = ({ mode, className = "" }) => {
 
         if (!ids || ids.length === 0) return setUsers([]);
 
+        // For each id, use the cache to get basic info.
         const promises = ids.map(async (id) => {
-          const snap = await getDoc(doc(db, "users", id));
-          if (snap.exists()) {
-            const d = snap.data();
-            return {
-              id,
-              name: d.name || "Anonymous",
-              username: d.username || "unknown",
-            };
-          }
-          return null;
+          const info = getUserInfo(id);
+          return {
+            id,
+            name: info ? info.name : "Anonymous",
+            username: info ? info.username : "unknown",
+          };
         });
 
         const results = (await Promise.all(promises)).filter(Boolean);
@@ -69,7 +68,7 @@ const FollowList = ({ mode, className = "" }) => {
     };
 
     fetchFollowData();
-  }, [uid, mode, title]);
+  }, [uid, mode, title, getUserInfo]);
 
   const handleApprove = async (requesterId) => {
     try {
