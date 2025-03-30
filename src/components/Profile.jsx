@@ -116,7 +116,10 @@ const Profile = () => {
             (@{profileData.username || "unknown"})
           </span>
           {profileData.creatorPrivacy === "private" && (
-            <FaLock className="profile-lock" title="Private Profile" />
+            <FaLock
+              className="profile-lock"
+              title="This profile is private. Only approved followers can view private content."
+            />
           )}
         </h2>
         {profileData.bio && <p className="profile-bio">{profileData.bio}</p>}

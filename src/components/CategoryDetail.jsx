@@ -223,7 +223,9 @@ const CategoryDetail = () => {
       <div className="category-header">
         <h2 className="category-name">
           {category.name}
-          {category.categoryPrivacy === CategoryPrivacy.ONLY_ME && <FaLock />}
+          {category.categoryPrivacy === CategoryPrivacy.ONLY_ME && (
+            <FaLock title="This category is private. Only you can view it." />
+          )}
         </h2>
         <p className="category-detail-info">
           {category.description || "No description available."}

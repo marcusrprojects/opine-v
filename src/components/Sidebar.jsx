@@ -42,7 +42,7 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
     <>
       {/* Sidebar Toggle Button */}
       <button className="sidebar-toggle" onClick={toggleSidebar}>
-        <FaBars />
+        <FaBars title="Sidebar Toggle." />
       </button>
 
       {/* Sidebar Navigation */}
