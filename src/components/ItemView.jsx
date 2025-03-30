@@ -17,6 +17,7 @@ import { useAuth } from "../context/useAuth";
 import BackDeletePanel from "./Navigation/BackDeletePanel";
 import { canUserViewCategory } from "../utils/privacyUtils";
 import { useUserData } from "../context/useUserData";
+import { FaGlobe } from "react-icons/fa";
 
 const ItemView = () => {
   const { user } = useAuth();
@@ -123,6 +124,12 @@ const ItemView = () => {
     return calculateCardColor(rating, tiers, itemData.rankCategory);
   }, [itemData.rating, tiers, itemData.rankCategory]);
 
+  const externalLink =
+    itemData.link?.trim() ||
+    `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
+      itemData[orderedFields[0]?.name]
+    )}`;
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -132,9 +139,17 @@ const ItemView = () => {
         onDelete={handleDelete}
         canDelete={canEdit}
       />
-      <h2 className="item-title">
-        {itemData[orderedFields[0]?.name] || "Unnamed Item"}
-      </h2>
+      <div className="item-title">
+        <h2>{itemData[orderedFields[0]?.name] || "Unnamed Item"}</h2>
+        <a
+          href={externalLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Open reference link"
+        >
+          <FaGlobe className="link-icon" />
+        </a>
+      </div>
       <div className="rating-container">
         <div
           id="rating-display"
@@ -190,6 +205,28 @@ const ItemView = () => {
               value={itemData.notes || "Click to edit"}
               readOnly
             />
+          )}
+        </div>
+      </div>
+      <div
+        className={`item-field ${canEdit ? "editable" : "non-editable"}`}
+        onClick={() => setEditingField("link")}
+      >
+        <div className="field-content">
+          <label className="item-label">Reference Link</label>
+          {editingField === "link" ? (
+            <input
+              type="text"
+              value={itemData.link || ""}
+              onChange={(e) => handleChange("link", e.target.value)}
+              onBlur={() => handleSaveField("link")}
+              autoFocus
+              className="item-input"
+            />
+          ) : (
+            <span className="item-value">
+              {itemData.link || "Click to add custom link"}
+            </span>
           )}
         </div>
       </div>
