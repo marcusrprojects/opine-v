@@ -1,4 +1,3 @@
-// constants/SortOptions.js
 const SortOptions = {
   UPDATED_DESC: "updated_desc",
   UPDATED_ASC: "updated_asc",
