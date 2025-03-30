@@ -14,7 +14,7 @@ import PrivacySelector from "./PrivacySelector";
 import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 import { canUserViewCategory } from "../utils/privacyUtils";
 import { useAuth } from "../context/useAuth";
-import { useFollow } from "../context/useFollow";
+import { useUserData } from "../context/useUserData";
 import TierSettings from "./TierSettings";
 
 const EditCategory = () => {
@@ -22,7 +22,7 @@ const EditCategory = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { following } = useFollow();
+  const { isFollowing } = useUserData();
 
   const category = location.state?.category ?? {};
 
@@ -41,14 +41,14 @@ const EditCategory = () => {
   const [loading, setLoading] = useState(Object.keys(category).length === 0);
 
   useEffect(() => {
-    if (!location.state) {
+    if (!location.state || !user) {
       const fetchCategoryData = async () => {
         try {
           const categoryDocRef = doc(db, "categories", categoryId);
           const categorySnapshot = await getDoc(categoryDocRef);
           if (categorySnapshot.exists()) {
             const data = categorySnapshot.data();
-            if (!canUserViewCategory(data, user, following)) {
+            if (!canUserViewCategory(data, user, isFollowing(data.createdBy))) {
               navigate("/categories");
               return;
             }
@@ -66,7 +66,7 @@ const EditCategory = () => {
       };
       fetchCategoryData();
     }
-  }, [categoryId, location.state, following, navigate, user]);
+  }, [categoryId, location.state, isFollowing, navigate, user]);
 
   const handleSave = async () => {
     if (!categoryName.trim()) {
