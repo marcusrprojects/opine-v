@@ -17,7 +17,7 @@ import { useAuth } from "../context/useAuth";
 import BackDeletePanel from "./Navigation/BackDeletePanel";
 import { canUserViewCategory } from "../utils/privacyUtils";
 import { useUserData } from "../context/useUserData";
-import { FaGlobe } from "react-icons/fa";
+import { FaGlobe, FaWikipediaW } from "react-icons/fa";
 import { isValidUrl } from "../utils/validationUtils";
 
 const ItemView = () => {
@@ -144,6 +144,12 @@ const ItemView = () => {
       itemData[orderedFields[0]?.name]
     )}`;
 
+  // Determine which icon to show based on whether the link is a Wikipedia URL.
+  const linkLower = externalLink.toLowerCase();
+  const IconComponent = linkLower.includes("wikipedia.org")
+    ? FaWikipediaW
+    : FaGlobe;
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -161,7 +167,7 @@ const ItemView = () => {
           rel="noopener noreferrer"
           title="Open reference link"
         >
-          <FaGlobe className="link-icon" />
+          <IconComponent className="link-icon" />
         </a>
       </div>
       <div className="rating-container">
