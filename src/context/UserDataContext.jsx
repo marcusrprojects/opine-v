@@ -23,13 +23,13 @@ const UserDataContext = createContext();
 export const UserDataProvider = ({ children }) => {
   const { user } = useAuth();
 
-  // Default object with empty Sets to avoid undefined issues.
+  // Default object with empty arrays for consistency with Firestore data.
   const defaultData = useMemo(
     () => ({
-      following: new Set(),
-      pendingFollowing: new Set(),
-      followRequests: new Set(),
-      likedCategories: new Set(),
+      following: [],
+      pendingFollowing: [],
+      followRequests: [],
+      likedCategories: [],
     }),
     []
   );
@@ -50,11 +50,10 @@ export const UserDataProvider = ({ children }) => {
           const data = snapshot.data();
           setUserData({
             ...data,
-            // Convert arrays to Sets so consuming components can use .size and .has
-            following: new Set(data.following || []),
-            pendingFollowing: new Set(data.pendingFollowing || []),
-            followRequests: new Set(data.followRequests || []),
-            likedCategories: new Set(data.likedCategories || []),
+            following: data.following || [],
+            pendingFollowing: data.pendingFollowing || [],
+            followRequests: data.followRequests || [],
+            likedCategories: data.likedCategories || [],
           });
         }
       },
@@ -64,21 +63,21 @@ export const UserDataProvider = ({ children }) => {
     return () => unsubscribe();
   }, [user, defaultData]);
 
-  // Helper functions for follow status.
+  // Helper functions using array methods.
   const isFollowing = useCallback(
-    (targetUserId) => userData.following.has(targetUserId),
+    (targetUserId) => userData.following.includes(targetUserId),
     [userData.following]
   );
   const isPending = useCallback(
-    (targetUserId) => userData.pendingFollowing.has(targetUserId),
+    (targetUserId) => userData.pendingFollowing.includes(targetUserId),
     [userData.pendingFollowing]
   );
   const hasRequestedFollow = useCallback(
-    (targetUserId) => userData.followRequests.has(targetUserId),
+    (targetUserId) => userData.followRequests.includes(targetUserId),
     [userData.followRequests]
   );
   const hasLikedCategory = useCallback(
-    (categoryId) => userData.likedCategories.has(categoryId),
+    (categoryId) => userData.likedCategories.includes(categoryId),
     [userData.likedCategories]
   );
 
