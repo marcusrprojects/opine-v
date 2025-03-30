@@ -10,7 +10,6 @@ import { useUserData } from "../context/useUserData";
 import { handleError } from "../utils/errorUtils";
 import { validateUserProfile } from "../utils/validationUtils";
 import "../styles/EditProfile.css";
-import PrivacySelector from "./PrivacySelector";
 import { UserPrivacy } from "../enums/PrivacyEnums";
 import { updateUserCategoriesPrivacy } from "../utils/privacyUtils";
 
@@ -21,7 +20,7 @@ const EditProfile = () => {
 
   // Local state for profile fields
   const [username, setUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [name, setName] = useState("");
   const [creatorPrivacy, setCreatorPrivacy] = useState(UserPrivacy.PUBLIC);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
@@ -32,21 +31,27 @@ const EditProfile = () => {
       navigate("/login");
       return;
     }
-    // When userData becomes available, initialize the form fields.
     if (userData) {
       setUsername(userData.username || "");
-      setDisplayName(userData.name || "");
+      setName(userData.name || "");
       setCreatorPrivacy(userData.creatorPrivacy || UserPrivacy.PUBLIC);
     }
     setEmail(user.email);
     setLoading(false);
   }, [user, userData, navigate]);
 
+  // Toggle privacy state.
+  const handleTogglePrivacy = () => {
+    setCreatorPrivacy((prev) =>
+      prev === UserPrivacy.PRIVATE ? UserPrivacy.PUBLIC : UserPrivacy.PRIVATE
+    );
+  };
+
   // Save changes to Firestore & Firebase Auth and update categories privacy.
   const handleSave = async () => {
     const validationError = await validateUserProfile(
       username,
-      displayName,
+      name,
       email,
       userData?.username
     );
@@ -57,21 +62,17 @@ const EditProfile = () => {
 
     try {
       const userDocRef = doc(db, "users", user.uid);
-
-      // Update extended profile data in Firestore.
       await updateDoc(userDocRef, {
         username: username.trim(),
-        name: displayName.trim(),
+        name: name.trim(),
         creatorPrivacy: creatorPrivacy,
       });
 
-      // Update Firebase Auth email if changed (for email/password accounts)
       if (email !== user.email) {
         await updateEmail(auth.currentUser, email.trim());
       }
 
       await updateUserCategoriesPrivacy(user.uid, creatorPrivacy);
-      // After successful update, navigate back to the user's profile.
       navigate(`/profile/${user.uid}`);
     } catch (error) {
       handleError(error, "Error saving profile.");
@@ -85,9 +86,9 @@ const EditProfile = () => {
       <ActionPanel
         onCancel={() => navigate(`/profile/${user.uid}`)}
         onConfirm={handleSave}
-        isConfirmDisabled={
-          !username.trim() || !displayName.trim() || !email.trim()
-        }
+        isConfirmDisabled={!username.trim() || !name.trim() || !email.trim()}
+        onTogglePrivacy={handleTogglePrivacy}
+        privacy={creatorPrivacy}
       />
 
       <h2 className="edit-profile-title">Edit Profile</h2>
@@ -99,11 +100,8 @@ const EditProfile = () => {
           onChange={(e) => setUsername(e.target.value)}
         />
 
-        <label className="edit-label">Display Name</label>
-        <TextInput
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-        />
+        <label className="edit-label">Name</label>
+        <TextInput value={name} onChange={(e) => setName(e.target.value)} />
 
         <label className="edit-label">Email</label>
         {user.authMethod === "google" ? (
@@ -111,13 +109,6 @@ const EditProfile = () => {
         ) : (
           <TextInput value={email} onChange={(e) => setEmail(e.target.value)} />
         )}
-
-        <label className="edit-label">Account Privacy</label>
-        <PrivacySelector
-          privacy={creatorPrivacy}
-          setPrivacy={setCreatorPrivacy}
-          type={"user"}
-        />
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
 import { CategoryPrivacy } from "../enums/PrivacyEnums";
 import FieldManager from "./FieldManager";
-import PrivacySelector from "./PrivacySelector";
 import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 import { canUserViewCategory } from "../utils/privacyUtils";
 import { useAuth } from "../context/useAuth";
@@ -68,6 +67,15 @@ const EditCategory = () => {
     }
   }, [categoryId, location.state, isFollowing, navigate, user]);
 
+  // Toggle category privacy: if "only-me" then unlock (set to default); otherwise lock (set to only-me)
+  const handleTogglePrivacy = () => {
+    setCategoryPrivacy((prev) =>
+      prev === CategoryPrivacy.ONLY_ME
+        ? CategoryPrivacy.DEFAULT
+        : CategoryPrivacy.ONLY_ME
+    );
+  };
+
   const handleSave = async () => {
     if (!categoryName.trim()) {
       alert("Category name is required.");
@@ -110,6 +118,8 @@ const EditCategory = () => {
         onCancel={() => navigate(`/categories/${categoryId}`)}
         onConfirm={handleSave}
         isConfirmDisabled={isConfirmDisabled}
+        onTogglePrivacy={handleTogglePrivacy}
+        privacy={categoryPrivacy}
       />
       <h2 className="edit-category-title">{categoryName || "Edit Category"}</h2>
       <div className="edit-section">
@@ -137,12 +147,6 @@ const EditCategory = () => {
       </div>
       <label className="edit-label">Tier Settings</label>
       <TierSettings tiers={tiers} setTiers={setTiers} />
-      <label className="edit-label">&quot;Only Me&quot;</label>
-      <PrivacySelector
-        privacy={categoryPrivacy}
-        setPrivacy={setCategoryPrivacy}
-        type="category"
-      />
     </div>
   );
 };
