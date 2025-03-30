@@ -9,7 +9,7 @@
 .sort-dropdown {
     display: flex;
     flex-direction: column;
-    max-width: 2rem;
+    max-width: 31px;
     min-height: 11rem;
     overflow-y: hidden !important;
 }
