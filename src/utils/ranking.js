@@ -50,6 +50,93 @@ const recalcRatings = (items, selectedTierId, allTiers) => {
 };
 
 /**
+ * Recalculate ratings for items in a given group using uniform spacing within the tier's boundaries.
+ * @param {Array} group - Array of items (each with an old rating).
+ * @param {number} lowerBound - Lower bound for the tier.
+ * @param {number} upperBound - Upper bound for the tier.
+ */
+const recalcRatingsForGroup = (group, lowerBound, upperBound) => {
+  const n = group.length;
+  if (n === 0) return;
+  if (n === 1) {
+    group[0].rating = upperBound;
+  } else {
+    const dynamicOffset = (upperBound - lowerBound) / n;
+    // Assume group is already sorted descending by old rating.
+    group.forEach((item, index) => {
+      // (index+1) so that the highest rated in the group gets rating near upperBound.
+      item.rating = lowerBound + (index + 1) * dynamicOffset;
+    });
+  }
+};
+
+/**
+ * Recalculates the ranking for all items in a category based on their old ratings.
+ * Items are assigned to tiers based on the new tier cutoffs.
+ * @param {string} categoryId - The category's document ID.
+ * @param {Array} newTiers - Array of new tier objects, each with an 'id' and a numeric 'cutoff'.
+ */
+export const recalcAllRankingsForCategoryByRating = async (
+  categoryId,
+  newTiers
+) => {
+  // 1. Fetch all items.
+  const itemsSnapshot = await getDocs(
+    collection(db, `categories/${categoryId}/items`)
+  );
+  const items = itemsSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  if (items.length === 0) return;
+
+  // 2. Sort new tiers ascending (lowest cutoff first).
+  const sortedTiers = [...newTiers].sort((a, b) => a.cutoff - b.cutoff);
+
+  // 3. Group items by assigning them based on their old rating.
+  // For each item, find the first tier where rating <= tier.cutoff. If none, assign to last tier.
+  const groups = {}; // key: tier.id, value: array of items
+  for (const item of items) {
+    const oldRating = item.rating ?? 0;
+    let assignedTier = sortedTiers[sortedTiers.length - 1]; // default to last tier.
+    for (const tier of sortedTiers) {
+      if (oldRating <= tier.cutoff) {
+        assignedTier = tier;
+        break;
+      }
+    }
+    if (!groups[assignedTier.id]) groups[assignedTier.id] = [];
+    groups[assignedTier.id].push(item);
+  }
+
+  // 4. For each group, recalc ratings uniformly within the tier's boundaries.
+  // The boundaries: lowerBound is the previous tier's cutoff (or 0 if first); upperBound is the current tier's cutoff.
+  const batch = writeBatch(db);
+  sortedTiers.forEach((tier, index) => {
+    const lowerBound = index === 0 ? 0 : sortedTiers[index - 1].cutoff;
+    const upperBound = tier.cutoff;
+    const group = groups[tier.id] || [];
+    if (group.length === 0) return;
+    // Sort group by old rating descending.
+    group.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    recalcRatingsForGroup(group, lowerBound, upperBound);
+    // Update each item with the new rating and assign new tier id.
+    group.forEach((item) => {
+      item.rankCategory = tier.id;
+      const itemRef = doc(db, `categories/${categoryId}/items`, item.id);
+      batch.set(itemRef, item, { merge: true });
+    });
+  });
+
+  // 5. Update the category's updatedAt timestamp.
+  const categoryRef = doc(db, "categories", categoryId);
+  batch.update(categoryRef, { updatedAt: Timestamp.now() });
+
+  // Commit the batch.
+  await batch.commit();
+};
+
+/**
  * Writes the given items (with recalculated ratings) to Firestore.
  * The items are assumed to belong to the selected tier.
  * The selectedTierId (a string) is used to determine the rating boundaries.
