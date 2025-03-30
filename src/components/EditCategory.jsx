@@ -15,6 +15,7 @@ import { canUserViewCategory } from "../utils/privacyUtils";
 import { useAuth } from "../context/useAuth";
 import { useUserData } from "../context/useUserData";
 import TierSettings from "./TierSettings";
+import { recalcAllRankingsForCategoryByRating } from "../utils/ranking";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -96,6 +97,9 @@ const EditCategory = () => {
         tiers,
         updatedAt: Timestamp.now(),
       });
+
+      // After updating the category, recalculate rankings for all items.
+      await recalcAllRankingsForCategoryByRating(categoryId, tiers);
       navigate(`/categories/${categoryId}`);
     } catch (error) {
       handleError(error, "Error saving category.");
