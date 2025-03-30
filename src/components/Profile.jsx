@@ -1,26 +1,26 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { useAuth } from "../context/useAuth";
 import EditLogoutPanel from "./Navigation/EditLogoutPanel";
 import FollowPanel from "./Navigation/FollowPanel";
 import "../styles/Profile.css";
 import CategoryCollection from "./CategoryCollection";
-import { useFollow } from "../context/useFollow";
+import FollowList from "./FollowList";
 import {
   CategoryCollectionMode,
   FollowStatus,
   FollowListMode,
 } from "../enums/ModeEnums";
-import FollowList from "./FollowList";
 import { UserPrivacy } from "../enums/PrivacyEnums";
+import { useUserData } from "../context/useUserData";
 
 const Profile = () => {
   const { user } = useAuth();
   const { uid } = useParams();
   const navigate = useNavigate();
-  const { following, followRequests, toggleFollow } = useFollow();
+  const { toggleFollow } = useUserData();
 
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,12 +28,15 @@ const Profile = () => {
 
   const isCurrentUser = user && uid === user.uid;
 
+  // Compute followStatus using the target user's document data:
   const followStatus = useMemo(() => {
     if (!user || !uid) return FollowStatus.NONE;
-    if (following.has(uid)) return FollowStatus.FOLLOWING;
-    if (followRequests.has(uid)) return FollowStatus.PENDING;
+    if (profileData?.followers?.includes(user.uid))
+      return FollowStatus.FOLLOWING;
+    if (profileData?.followRequests?.includes(user.uid))
+      return FollowStatus.PENDING;
     return FollowStatus.NONE;
-  }, [user, uid, following, followRequests]);
+  }, [user, uid, profileData]);
 
   const hasFollowRequests = useMemo(() => {
     return (
@@ -42,32 +45,31 @@ const Profile = () => {
       Array.isArray(profileData.followRequests) &&
       profileData.followRequests.length > 0
     );
-  }, [isCurrentUser, profileData?.followRequests, profileData?.creatorPrivacy]);
+  }, [isCurrentUser, profileData]);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!uid) {
-        navigate(user?.uid ? `/profile/${user.uid}` : "/login");
-        return;
-      }
+    if (!uid) {
+      navigate(user?.uid ? `/profile/${user.uid}` : "/login");
+      return;
+    }
 
-      try {
-        const userDocRef = doc(db, "users", uid);
-        const userSnapshot = await getDoc(userDocRef);
-
-        if (userSnapshot.exists()) {
-          setProfileData(userSnapshot.data());
+    const userDocRef = doc(db, "users", uid);
+    const unsubscribe = onSnapshot(
+      userDocRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          setProfileData(snapshot.data());
         } else {
           navigate("/");
         }
-      } catch (error) {
+        setLoading(false);
+      },
+      (error) => {
         console.error("Error fetching user profile:", error);
-      } finally {
         setLoading(false);
       }
-    };
-
-    fetchUserProfile();
+    );
+    return () => unsubscribe();
   }, [uid, user, navigate]);
 
   if (loading) return <p>Loading...</p>;
