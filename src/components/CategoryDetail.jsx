@@ -16,9 +16,8 @@ import ItemList from "./ItemList";
 import CategoryCreatorPanel from "./Navigation/CategoryCreatorPanel";
 import CategoryFilters from "./CategoryFilters";
 import { useAuth } from "../context/useAuth";
-import { useLikedCategories } from "../context/useLikedCategories";
 import { handleError } from "../utils/errorUtils";
-import { useFollow } from "../context/useFollow";
+import { useUserData } from "../context/useUserData";
 import "../styles/CategoryDetail.css";
 import CategoryViewerPanel from "./Navigation/CategoryViewerPanel";
 import { canUserViewCategory } from "../utils/privacyUtils";
@@ -27,8 +26,8 @@ const CategoryDetail = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { following } = useFollow();
-  const { likedCategories, toggleLikeCategory } = useLikedCategories();
+  const { isFollowing, userData, toggleLikeCategory } = useUserData();
+  const { likedCategories } = userData || {};
 
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
@@ -106,10 +105,10 @@ const CategoryDetail = () => {
 
   useEffect(() => {
     if (!category || !user) return;
-    if (!canUserViewCategory(category, user, following)) {
+    if (!canUserViewCategory(category, user, isFollowing(category.createdBy))) {
       navigate("/categories");
     }
-  }, [category, user, following, navigate]);
+  }, [category, user, isFollowing, navigate]);
 
   useEffect(() => {
     let timeoutId;
