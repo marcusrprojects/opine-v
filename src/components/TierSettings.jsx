@@ -9,17 +9,19 @@ import "../styles/TierSettings.css";
 import { generateUniqueTierId } from "../utils/tierUtils";
 
 const TierSettings = ({ tiers, setTiers }) => {
-  const [presetId, setPresetId] = useState("good-ok-bad");
-  const [customState, setCustomState] = useState({ tiers: [] });
+  // If tiers are provided (non-empty), default to "custom".
+  const initialPresetId = tiers && tiers.length > 0 ? "custom" : "good-ok-bad";
+  const [presetId, setPresetId] = useState(initialPresetId);
+  const [customState, setCustomState] = useState({ tiers: tiers || [] });
 
-  // Ensure each tier has a cutoff, spacing them evenly.
-  const attachCutoffsToTiers = (tierArray) => {
+  // Helper: space tiers evenly by assigning cutoffs.
+  const attachCutoffsToTiers = useCallback((tierArray) => {
     const spacing = 10 / tierArray.length;
     return tierArray.map((tier, i) => ({
       ...tier,
       cutoff: parseFloat(((i + 1) * spacing).toFixed(2)),
     }));
-  };
+  }, []);
 
   const handleTemplateSelect = useCallback(
     (preset) => {
@@ -29,7 +31,7 @@ const TierSettings = ({ tiers, setTiers }) => {
       setPresetId(preset.id);
       setTiers(tiersWithCutoffs);
     },
-    [setTiers]
+    [attachCutoffsToTiers, setTiers]
   );
 
   useEffect(() => {
@@ -44,11 +46,8 @@ const TierSettings = ({ tiers, setTiers }) => {
         setTiers(tiersWithCutoffs);
       }
     }
-  }, [presetId, customState, setTiers]);
-
-  // Update tiers, ensuring each tier gets a unique id if it doesn't have one.
+  }, [presetId, customState, setTiers, attachCutoffsToTiers]);
   const updateAndSwitchToCustom = (newTiers) => {
-    // Build a list of used ids from newTiers.
     const usedIds = newTiers.filter((t) => t.id).map((t) => t.id);
     const updated = newTiers.map((tier) => {
       if (!tier.id) {
