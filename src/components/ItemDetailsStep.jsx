@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import { useState, useEffect, useCallback } from "react";
 import "../styles/ItemDetailsStep.css";
 import TextInput from "./TextInput";
+import { FaWikipediaW } from "react-icons/fa";
+import { isValidUrl } from "../utils/validationUtils";
 
 const ItemDetailsStep = ({
   fields,
@@ -14,6 +16,13 @@ const ItemDetailsStep = ({
 
   const validateField = useCallback(
     (fieldName, value) => {
+      if (fieldName === "link") {
+        if (!value.trim()) return null; // optional field
+        if (!isValidUrl(value.trim())) {
+          return "Please enter a valid URL.";
+        }
+        return null;
+      }
       if (!value.trim()) {
         return "This field is required.";
       }
@@ -26,25 +35,31 @@ const ItemDetailsStep = ({
   );
 
   const handleInputChange = (fieldName, value) => {
+    if (fieldName === "link") {
+      updateItemData({ ...itemData, [fieldName]: value });
+      return;
+    }
     const errorMessage = validateField(fieldName, value);
-
-    // Update error state
     setError((prev) => ({
       ...prev,
       [fieldName]: errorMessage,
     }));
-
-    // Notify parent about validation status
     const allFieldsValid = fields.every(
       ({ name }) => !validateField(name, itemData[name] || "")
     );
     onValidationChange(allFieldsValid);
-
-    // Update item data
     updateItemData({ ...itemData, [fieldName]: value });
   };
 
   const handleBlur = (fieldName) => {
+    if (fieldName === "link") {
+      const currentValue = itemData[fieldName] || "";
+      if (currentValue.trim() && !isValidUrl(currentValue.trim())) {
+        alert("Invalid URL entered. Resetting the reference link.");
+        updateItemData({ ...itemData, [fieldName]: "" });
+      }
+      return;
+    }
     const errorMessage = validateField(fieldName, itemData[fieldName] || "");
     setError((prev) => ({ ...prev, [fieldName]: errorMessage }));
   };
@@ -56,9 +71,30 @@ const ItemDetailsStep = ({
     onValidationChange(allFieldsValid);
   }, [itemData, fields, onValidationChange, validateField]);
 
+  // Compute the reference link for the primary field (always using Wikipedia).
+  const primaryFieldName = fields[0].name;
+  const primaryValue = itemData[primaryFieldName] || "";
+  const referenceLink = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
+    primaryValue
+  )}`;
+
   return (
     <div className="item-details-container">
-      <h2>Item Details</h2>
+      <div className="item-details-header">
+        <h2>Item Details</h2>
+        {primaryValue && (
+          <a
+            href={referenceLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Reference Link"
+            className="wiki-link"
+          >
+            <FaWikipediaW className="link-icon" />
+          </a>
+        )}
+      </div>
+
       {fields.map(({ name }, index) => (
         <div key={index}>
           <TextInput
@@ -79,6 +115,15 @@ const ItemDetailsStep = ({
         rows={4}
         className="text-input notes-field"
       />
+
+      <div>
+        <TextInput
+          value={itemData.link || ""}
+          onChange={(e) => handleInputChange("link", e.target.value)}
+          placeholder="Reference Link (optional)"
+          onBlur={() => handleBlur("link")}
+        />
+      </div>
     </div>
   );
 };
