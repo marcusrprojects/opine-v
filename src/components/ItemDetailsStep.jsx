@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useState, useEffect, useCallback } from "react";
 import "../styles/ItemDetailsStep.css";
 import TextInput from "./TextInput";
-import { FaWikipediaW } from "react-icons/fa";
+import { FaWikipediaW, FaGlobe } from "react-icons/fa";
 import { isValidUrl } from "../utils/validationUtils";
 
 const ItemDetailsStep = ({
@@ -69,26 +69,32 @@ const ItemDetailsStep = ({
     onValidationChange(allFieldsValid);
   }, [itemData, fields, onValidationChange, validateField]);
 
-  // Compute the reference link for the primary field using Wikipedia.
   const primaryFieldName = fields[0].name;
   const primaryValue = itemData[primaryFieldName] || "";
-  const referenceLink = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
-    primaryValue
-  )}`;
+  const approvedLink =
+    itemData.link && isValidUrl(itemData.link.trim())
+      ? itemData.link
+      : `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
+          primaryValue
+        )}`;
 
   return (
     <div className="item-details-container">
       <div className="item-details-header">
         <h2>Item Details</h2>
-        {primaryValue && (
+        {(primaryValue || itemData.link) && (
           <a
-            href={referenceLink}
+            href={approvedLink}
             target="_blank"
             rel="noopener noreferrer"
             title="Reference Link"
             className="wiki-link"
           >
-            <FaWikipediaW className="link-icon" />
+            {itemData.link && isValidUrl(itemData.link.trim()) ? (
+              <FaGlobe className="link-icon" />
+            ) : (
+              <FaWikipediaW className="link-icon" />
+            )}
           </a>
         )}
       </div>
@@ -119,7 +125,7 @@ const ItemDetailsStep = ({
         <TextInput
           value={itemData.link || ""}
           onChange={(e) => handleInputChange("link", e.target.value)}
-          placeholder="Reference Link (optional)"
+          placeholder="Optional http(s) link"
           onBlur={() => handleBlur("link")}
         />
       </div>
