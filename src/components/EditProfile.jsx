@@ -21,6 +21,7 @@ const EditProfile = () => {
   // Local state for profile fields
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
   const [creatorPrivacy, setCreatorPrivacy] = useState(UserPrivacy.PUBLIC);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
@@ -34,6 +35,7 @@ const EditProfile = () => {
     if (userData) {
       setUsername(userData.username || "");
       setName(userData.name || "");
+      setBio(userData.bio || "");
       setCreatorPrivacy(userData.creatorPrivacy || UserPrivacy.PUBLIC);
     }
     setEmail(user.email);
@@ -65,6 +67,7 @@ const EditProfile = () => {
       await updateDoc(userDocRef, {
         username: username.trim(),
         name: name.trim(),
+        bio: bio.trim(),
         creatorPrivacy: creatorPrivacy,
       });
 
@@ -102,6 +105,15 @@ const EditProfile = () => {
 
         <label className="edit-label">Name</label>
         <TextInput value={name} onChange={(e) => setName(e.target.value)} />
+
+        <label className="edit-label">Bio</label>
+        <textarea
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          placeholder="Write a short bio..."
+          rows={3}
+          className="edit-bio"
+        />
 
         <label className="edit-label">Email</label>
         {user.authMethod === "google" ? (
