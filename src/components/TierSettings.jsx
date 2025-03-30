@@ -47,6 +47,7 @@ const TierSettings = ({ tiers, setTiers }) => {
       }
     }
   }, [presetId, customState, setTiers, attachCutoffsToTiers]);
+
   const updateAndSwitchToCustom = (newTiers) => {
     const usedIds = newTiers.filter((t) => t.id).map((t) => t.id);
     const updated = newTiers.map((tier) => {
@@ -81,12 +82,15 @@ const TierSettings = ({ tiers, setTiers }) => {
   };
 
   const handleAddTier = () => {
-    const updatedTiers = [...tiers, { name: `New Tier`, color: "#CCCCCC" }];
+    const updatedTiers = [
+      ...tiers,
+      { name: `New Tier`, color: "#CCCCCC", cutoff: 10 },
+    ];
     updateAndSwitchToCustom(updatedTiers);
   };
 
   const handleRemoveTier = (index) => {
-    if (tiers.length <= 2) return;
+    if (tiers.length <= 1) return;
     const updatedTiers = tiers.filter((_, i) => i !== index);
     updateAndSwitchToCustom(updatedTiers);
   };
@@ -111,7 +115,7 @@ const TierSettings = ({ tiers, setTiers }) => {
               placeholder="Tier Name"
             />
             <div className="tier-icons">
-              {tiers.length > 2 && (
+              {tiers.length > 1 && (
                 <FaMinus
                   className="remove-tier-icon"
                   onClick={() => handleRemoveTier(i)}
