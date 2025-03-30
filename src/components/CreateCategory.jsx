@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { db } from "../firebaseConfig";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
@@ -7,11 +7,12 @@ import "../styles/CreateCategory.css";
 import TagSelector from "./TagSelector";
 import ActionPanel from "./Navigation/ActionPanel";
 import TextInput from "./TextInput";
-import { CategoryPrivacy } from "../enums/PrivacyEnums";
+import { CategoryPrivacy, UserPrivacy } from "../enums/PrivacyEnums";
 import FieldManager from "./FieldManager";
 import PrivacySelector from "./PrivacySelector";
 import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 import TierSettings from "./TierSettings";
+import { useUserData } from "../context/useUserData";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -19,6 +20,7 @@ const CreateCategory = () => {
   const [fields, setFields] = useState([{ name: "Name" }]);
   const [tags, setTags] = useState([]);
   const { user } = useAuth();
+  const { userData } = useUserData();
   const navigate = useNavigate();
 
   const [categoryPrivacy, setCategoryPrivacy] = useState(
@@ -26,6 +28,12 @@ const CreateCategory = () => {
   );
 
   const [tiers, setTiers] = useState([]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   const isConfirmDisabled =
     !categoryName.trim() ||
@@ -47,7 +55,7 @@ const CreateCategory = () => {
         fields,
         tags,
         categoryPrivacy,
-        creatorPrivacy: user.creatorPrivacy,
+        creatorPrivacy: userData?.creatorPrivacy || UserPrivacy.PUBLIC,
         createdBy: user.uid,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
