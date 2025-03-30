@@ -16,11 +16,11 @@ import {
 import { useAuth } from "../context/useAuth";
 import BackDeletePanel from "./Navigation/BackDeletePanel";
 import { canUserViewCategory } from "../utils/privacyUtils";
-import { useFollow } from "../context/useFollow";
+import { useUserData } from "../context/useUserData";
 
 const ItemView = () => {
   const { user } = useAuth();
-  const { following } = useFollow();
+  const { isFollowing } = useUserData();
   const { categoryId, itemId } = useParams();
   const navigate = useNavigate();
   const [itemData, setItemData] = useState({});
@@ -43,7 +43,13 @@ const ItemView = () => {
         const categoryDoc = await getDoc(doc(db, "categories", categoryId));
         if (!categoryDoc.exists()) return navigate("/categories");
         const categoryData = categoryDoc.data();
-        if (!canUserViewCategory(categoryData, user, following)) {
+        if (
+          !canUserViewCategory(
+            categoryData,
+            user,
+            isFollowing(categoryData.createdBy)
+          )
+        ) {
           navigate("/categories");
           return;
         }
@@ -58,8 +64,9 @@ const ItemView = () => {
         console.warn("Error fetching item or category:", error);
       }
     };
+    if (!user) return;
     fetchItem();
-  }, [categoryId, itemId, following, navigate, user]);
+  }, [categoryId, itemId, isFollowing, navigate, user]);
 
   const canEdit = useMemo(
     () => user && user.uid === creatorId,
