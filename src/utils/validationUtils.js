@@ -62,3 +62,19 @@ export function validateCategoryDescription(description, maxLength = 500) {
   }
   return null; // No error
 }
+
+/**
+ * Checks if the given string is a valid URL.
+ * Returns true if valid, false otherwise.
+ *
+ * @param {string} url - The URL string to validate.
+ * @returns {boolean}
+ */
+export function isValidUrl(url) {
+  try {
+    const parsedUrl = new URL(url);
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
