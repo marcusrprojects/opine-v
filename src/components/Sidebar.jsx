@@ -47,19 +47,19 @@ const Sidebar = ({ sidebarOpen, toggleSidebar }) => {
 
       {/* Sidebar Navigation */}
       <nav className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        <Link to="/" title="Home" className="link-icon">
+        <Link to="/" title="Home" className="sidebar-icon">
           <FaHome />
         </Link>
 
-        <Link to="/categories" title="Categories" className="link-icon">
+        <Link to="/categories" title="Categories" className="sidebar-icon">
           <FaThList />
         </Link>
 
-        <Link to="/profile" title="Profile" className="link-icon">
+        <Link to="/profile" title="Profile" className="sidebar-icon">
           <FaUser />
         </Link>
 
-        <div className="link-icon" title="Theme">
+        <div className="sidebar-icon" title="Theme">
           <ThemeToggle />
         </div>
       </nav>

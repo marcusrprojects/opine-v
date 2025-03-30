@@ -19,7 +19,7 @@
     gap: var(--padding-small);
 }
 
-.link-icon {
+.sidebar-icon {
     width: 3rem;
     /* height: 2rem; */
     aspect-ratio: 1;
@@ -29,7 +29,7 @@
     color: var(--secondary-color);
 }
 
-.link-icon:hover, .sidebar ThemeToggle:hover, .sidebar-toggle:hover{
+.sidebar-icon:hover, .sidebar ThemeToggle:hover, .sidebar-toggle:hover{
     background-color: var(--tertiary-color);
     color: var(--secondary-color);
 }
