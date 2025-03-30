@@ -15,6 +15,7 @@ import {
 } from "../enums/ModeEnums";
 import { UserPrivacy } from "../enums/PrivacyEnums";
 import { useUserData } from "../context/useUserData";
+import { FaLock } from "react-icons/fa";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -109,8 +110,16 @@ const Profile = () => {
       )}
 
       <div className="profile-header">
-        <h2>{profileData.name || "Anonymous"}</h2>
-        <h3>@{profileData.username || "unknown"}</h3>
+        <h2 className="profile-header-name">
+          {profileData.name || "Anonymous"}{" "}
+          <span className="profile-username">
+            (@{profileData.username || "unknown"})
+          </span>
+          {profileData.creatorPrivacy === "private" && (
+            <FaLock className="profile-lock" title="Private Profile" />
+          )}
+        </h2>
+        {profileData.bio && <p className="profile-bio">{profileData.bio}</p>}
         <div className="follow-info">
           <span className="follow-link" onClick={handleViewFollowers}>
             {profileData.followers?.length || 0} Followers
