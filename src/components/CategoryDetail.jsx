@@ -21,6 +21,8 @@ import { useUserData } from "../context/useUserData";
 import "../styles/CategoryDetail.css";
 import CategoryViewerPanel from "./Navigation/CategoryViewerPanel";
 import { canUserViewCategory } from "../utils/privacyUtils";
+import { FaLock } from "react-icons/fa";
+import { CategoryPrivacy } from "../enums/PrivacyEnums";
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -219,7 +221,10 @@ const CategoryDetail = () => {
         />
       )}
       <div className="category-header">
-        <h2>{category.name}</h2>
+        <h2 className="category-name">
+          {category.name}
+          {category.categoryPrivacy === CategoryPrivacy.ONLY_ME && <FaLock />}
+        </h2>
         <p className="category-detail-info">
           {category.description || "No description available."}
         </p>
