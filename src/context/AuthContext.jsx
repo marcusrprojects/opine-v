@@ -1,60 +1,35 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { auth } from "../firebaseConfig";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebaseConfig";
-import { UserPrivacy } from "../enums/PrivacyEnums";
+import { onAuthStateChanged } from "firebase/auth";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-      if (authUser) {
-        const userDocRef = doc(db, "users", authUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
-          setUser({
-            uid: authUser.uid,
-            email: authUser.email,
-            name: userData.name,
-            username: userData.username,
-            authMethod: userData.authMethod,
-            creatorPrivacy: userData.creatorPrivacy || UserPrivacy.PUBLIC,
-            followers: userData.followers || [],
-            following: userData.following || [],
-            pendingFollowRequests: userData.pendingFollowRequests || [],
-          });
-        } else {
-          setUser(authUser);
-        }
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // Provide minimal data from auth
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+        });
       } else {
         setUser(null);
       }
+      setLoading(false);
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
-  // Logout function
-  const logout = async (navigate) => {
-    try {
-      await signOut(auth);
-      setUser(null);
-      if (navigate) navigate("/login");
-    } catch (error) {
-      console.error("Error logging out:", error);
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ user, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user }}>
+      {/* Optionally, only render children when not loading */}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
