@@ -18,6 +18,7 @@ import BackDeletePanel from "./Navigation/BackDeletePanel";
 import { canUserViewCategory } from "../utils/privacyUtils";
 import { useUserData } from "../context/useUserData";
 import { FaGlobe } from "react-icons/fa";
+import { isValidUrl } from "../utils/validationUtils";
 
 const ItemView = () => {
   const { user } = useAuth();
@@ -91,7 +92,20 @@ const ItemView = () => {
     await canEditAction(async () => {
       const itemRef = doc(db, `categories/${categoryId}/items`, itemId);
       const categoryRef = doc(db, "categories", categoryId);
-      const updatedValue = itemData[field]?.trim() || "";
+      let updatedValue = itemData[field]?.trim() || "";
+
+      // Validate the URL only for the "link" field.
+      if (
+        field === "link" &&
+        updatedValue !== "" &&
+        !isValidUrl(updatedValue)
+      ) {
+        alert("Please enter a valid URL.");
+        updatedValue = "";
+        // Update state immediately so the input field is cleared.
+        setItemData((prev) => ({ ...prev, link: updatedValue }));
+      }
+
       await updateDoc(itemRef, { [field]: updatedValue });
       await updateDoc(categoryRef, { updatedAt: Timestamp.now() });
       setEditingField(null);
