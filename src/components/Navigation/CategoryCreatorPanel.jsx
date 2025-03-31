@@ -7,6 +7,7 @@ import {
   FaRegHeart,
   FaEdit,
   FaTrash,
+  FaDice,
 } from "react-icons/fa";
 import Panel from "./Panel";
 import Button from "./Button";
@@ -22,15 +23,20 @@ const CategoryCreatorPanel = ({
   showSettings,
   onSettingsToggle,
   canEdit,
+  onRandomReference,
 }) => {
   return (
     <Panel>
-      {/* If the user is the creator, display full control panel */}
       <Button
         onClick={onAdd}
         title="Add Item"
         icon={FaPlus}
         disabled={isAddDisabled}
+      />
+      <Button
+        onClick={onRandomReference}
+        title="Random Reference"
+        icon={FaDice}
       />
       <Button onClick={onSettingsToggle} title="Settings" icon={FaCog} />
       {showSettings && (
@@ -66,6 +72,7 @@ CategoryCreatorPanel.propTypes = {
   showSettings: PropTypes.bool.isRequired,
   onSettingsToggle: PropTypes.func.isRequired,
   canEdit: PropTypes.bool.isRequired,
+  onRandomReference: PropTypes.func.isRequired,
 };
 
 export default CategoryCreatorPanel;
