@@ -23,6 +23,7 @@ import CategoryViewerPanel from "./Navigation/CategoryViewerPanel";
 import { canUserViewCategory } from "../utils/privacyUtils";
 import { FaLock } from "react-icons/fa";
 import { CategoryPrivacy } from "../enums/PrivacyEnums";
+import { isValidUrl } from "../utils/validationUtils";
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -49,6 +50,7 @@ const CategoryDetail = () => {
   const categoryUnsubscribeRef = useRef(null);
   const itemsUnsubscribeRef = useRef(null);
 
+  // Fetch creator username
   useEffect(() => {
     if (!creatorId) {
       setCreatorUsername(UNKNOWN_USER);
@@ -69,6 +71,7 @@ const CategoryDetail = () => {
     fetchCreatorData();
   }, [creatorId]);
 
+  // Subscribe to category data.
   useEffect(() => {
     if (!categoryId) return;
     if (categoryUnsubscribeRef.current) categoryUnsubscribeRef.current();
@@ -88,6 +91,7 @@ const CategoryDetail = () => {
     };
   }, [categoryId, navigate]);
 
+  // Subscribe to items.
   useEffect(() => {
     if (!categoryId) return;
     if (itemsUnsubscribeRef.current) itemsUnsubscribeRef.current();
@@ -105,6 +109,7 @@ const CategoryDetail = () => {
     };
   }, [categoryId]);
 
+  // Verify user access.
   useEffect(() => {
     if (!category || !user) return;
     if (!canUserViewCategory(category, user, isFollowing(category.createdBy))) {
@@ -131,6 +136,31 @@ const CategoryDetail = () => {
       )
     );
   }, [items, filters, filterFields]);
+
+  const finalOrderedFields = useMemo(() => {
+    if (!orderedFields.length) return [];
+
+    if (!filterFields.length) {
+      return orderedFields;
+    }
+
+    const primaryField = orderedFields[0];
+
+    if (filterFields[0] === primaryField) return filterFields;
+
+    const primaryExists = filterFields.some(
+      (field) => field.name === primaryField.name
+    );
+
+    if (!primaryExists) {
+      return [primaryField, ...filterFields];
+    }
+
+    return [
+      primaryField,
+      ...filterFields.filter((field) => field.name !== primaryField.name),
+    ];
+  }, [orderedFields, filterFields]);
 
   if (!category) return <p>Category not found.</p>;
 
@@ -184,6 +214,24 @@ const CategoryDetail = () => {
     }
   };
 
+  const handleRandomReference = () => {
+    if (items.length === 0) {
+      alert("No items available.");
+      return;
+    }
+    // Randomly choose an item.
+    const randomIndex = Math.floor(Math.random() * items.length);
+    const randomItem = items[randomIndex];
+    const primaryFieldName = orderedFields[0]?.name;
+    let link = randomItem.link?.trim();
+    if (!link || !isValidUrl(link)) {
+      link = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
+        randomItem[primaryFieldName] || ""
+      )}`;
+    }
+    window.open(link, "_blank", "noopener,noreferrer");
+  };
+
   const getRelativeTime = (timestamp) => {
     if (!timestamp) return "N/A";
     const now = new Date();
@@ -212,12 +260,14 @@ const CategoryDetail = () => {
           showSettings={showSettings}
           onSettingsToggle={handleSettingsToggle}
           canEdit={user && creatorId && user.uid === creatorId}
+          onRandomReference={handleRandomReference}
         />
       ) : (
         <CategoryViewerPanel
           onToggleFilter={toggleFilter}
           onLike={handleToggleLike}
           isLiked={likedCategories.includes(categoryId)}
+          onRandomReference={handleRandomReference}
         />
       )}
       <div className="category-header">
@@ -227,9 +277,9 @@ const CategoryDetail = () => {
             <FaLock title="This category is private. Only you can view it." />
           )}
         </h2>
-        <p className="category-detail-info">
-          {category.description || "No description available."}
-        </p>
+        {category.description && (
+          <p className="category-detail-info">{category.description}</p>
+        )}
         <span
           className="clickable-username"
           onClick={() => navigate(`/profile/${creatorId}`)}
@@ -251,7 +301,7 @@ const CategoryDetail = () => {
       )}
       <ItemList
         items={filteredItems}
-        orderedFields={orderedFields}
+        orderedFields={finalOrderedFields}
         tiers={tiers}
         onItemClick={handleItemClick}
       />
