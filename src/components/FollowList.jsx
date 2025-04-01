@@ -7,21 +7,21 @@ import {
   arrayRemove,
   arrayUnion,
 } from "firebase/firestore";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
 import BackPanel from "./Navigation/BackPanel";
 import FollowCard from "./FollowCard";
 import FollowRequestCard from "./FollowRequestCard";
 import { FollowListMode } from "../enums/ModeEnums";
 import "../styles/FollowList.css";
-import UserCacheContext from "../context/UserCacheContext";
+import { useUserCache } from "../context/useUserCache";
 
 const FollowList = ({ mode, className = "" }) => {
   const { uid } = useParams();
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { getUserInfo } = useContext(UserCacheContext);
+  const { getUserInfo } = useUserCache();
 
   const title = {
     [FollowListMode.FOLLOWERS]: "Followers",
