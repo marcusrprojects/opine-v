@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
 import {
   doc,
-  getDoc,
   deleteDoc,
   collection,
   getDocs,
@@ -24,6 +23,7 @@ import { canUserViewCategory } from "../utils/privacyUtils";
 import { FaLock } from "react-icons/fa";
 import { CategoryPrivacy } from "../enums/PrivacyEnums";
 import { isValidUrl } from "../utils/validationUtils";
+import { useUserCache } from "../context/useUserCache";
 
 const CategoryDetail = () => {
   const { categoryId } = useParams();
@@ -37,8 +37,6 @@ const CategoryDetail = () => {
   const [orderedFields, setOrderedFields] = useState([]);
   const [tiers, setTiers] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
-  const UNKNOWN_USER = "Unknown User";
-  const [creatorUsername, setCreatorUsername] = useState(UNKNOWN_USER);
   const [likeCount, setLikeCount] = useState(0);
   const [lastEdited, setLastEdited] = useState(null);
 
@@ -50,26 +48,11 @@ const CategoryDetail = () => {
   const categoryUnsubscribeRef = useRef(null);
   const itemsUnsubscribeRef = useRef(null);
 
-  // Fetch creator username
-  useEffect(() => {
-    if (!creatorId) {
-      setCreatorUsername(UNKNOWN_USER);
-      return;
-    }
-    const fetchCreatorData = async () => {
-      try {
-        const userDocRef = doc(db, "users", creatorId);
-        const userSnapshot = await getDoc(userDocRef);
-        if (userSnapshot.exists()) {
-          const data = userSnapshot.data();
-          setCreatorUsername(data.username || UNKNOWN_USER);
-        }
-      } catch (error) {
-        console.error("Error fetching creator info:", error);
-      }
-    };
-    fetchCreatorData();
-  }, [creatorId]);
+  // Instead of fetching creator data here, we use the user cache.
+  const UNKNOWN_USER = "Unknown User";
+  const { getUserInfo } = useUserCache();
+  const creatorInfo = getUserInfo(creatorId);
+  const creatorUsername = creatorInfo?.username || UNKNOWN_USER;
 
   // Subscribe to category data.
   useEffect(() => {
@@ -139,23 +122,15 @@ const CategoryDetail = () => {
 
   const finalOrderedFields = useMemo(() => {
     if (!orderedFields.length) return [];
-
-    if (!filterFields.length) {
-      return orderedFields;
-    }
-
+    if (!filterFields.length) return orderedFields;
     const primaryField = orderedFields[0];
-
     if (filterFields[0] === primaryField) return filterFields;
-
     const primaryExists = filterFields.some(
       (field) => field.name === primaryField.name
     );
-
     if (!primaryExists) {
       return [primaryField, ...filterFields];
     }
-
     return [
       primaryField,
       ...filterFields.filter((field) => field.name !== primaryField.name),
@@ -219,7 +194,6 @@ const CategoryDetail = () => {
       alert("No items available.");
       return;
     }
-    // Randomly choose an item.
     const randomIndex = Math.floor(Math.random() * items.length);
     const randomItem = items[randomIndex];
     const primaryFieldName = orderedFields[0]?.name;
