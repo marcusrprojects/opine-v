@@ -12,11 +12,15 @@ import FieldManager from "./FieldManager";
 import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 import TierSettings from "./TierSettings";
 import { useUserData } from "../context/useUserData";
+import { generateId } from "../utils/idUtils";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
-  const [fields, setFields] = useState([{ name: "Name" }]);
+  // Initial field now uses the new schema.
+  const [fields, setFields] = useState([
+    { id: generateId(), name: "Name", active: true },
+  ]);
   const [tags, setTags] = useState([]);
   const { user } = useAuth();
   const { userData } = useUserData();
@@ -25,7 +29,6 @@ const CreateCategory = () => {
   const [categoryPrivacy, setCategoryPrivacy] = useState(
     CategoryPrivacy.DEFAULT
   );
-
   const [tiers, setTiers] = useState([]);
 
   useEffect(() => {
@@ -34,7 +37,6 @@ const CreateCategory = () => {
     }
   }, [user, navigate]);
 
-  // Toggle category privacy: if "only-me" then unlock (set to default); otherwise lock (set to only-me)
   const handleTogglePrivacy = () => {
     setCategoryPrivacy((prev) =>
       prev === CategoryPrivacy.ONLY_ME
@@ -45,9 +47,9 @@ const CreateCategory = () => {
 
   const isConfirmDisabled =
     !categoryName.trim() ||
-    fields.length === 0 ||
+    fields.filter((field) => field.active).length === 0 ||
     tags.length === 0 ||
-    fields.some((field) => !field.name.trim());
+    fields.filter((field) => field.active).some((field) => !field.name.trim());
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,7 +57,6 @@ const CreateCategory = () => {
       alert("Please complete all fields before submitting.");
       return;
     }
-
     try {
       const newCategory = {
         name: categoryName.trim(),
@@ -86,9 +87,7 @@ const CreateCategory = () => {
         onTogglePrivacy={handleTogglePrivacy}
         privacy={categoryPrivacy}
       />
-
       <h2>Create a Category</h2>
-
       <form className="category-form">
         <div className="category-name-group">
           <label>Category Name</label>
@@ -99,7 +98,6 @@ const CreateCategory = () => {
             required
           />
         </div>
-
         <div className="category-description-group">
           <label>Category Description</label>
           <p className="mini-text">{categoryDescription.length}/500</p>
@@ -112,14 +110,11 @@ const CreateCategory = () => {
             maxLength={MAX_DESCRIPTION_LENGTH}
           />
         </div>
-
         <FieldManager fields={fields} setFields={setFields} />
-
         <div className="tags-group">
           <label>Tags</label>
           <TagSelector tags={tags} setTags={setTags} db={db} maxTags={5} />
         </div>
-
         <label className="edit-label">Tier Settings</label>
         <TierSettings tiers={tiers} setTiers={setTiers} />
       </form>

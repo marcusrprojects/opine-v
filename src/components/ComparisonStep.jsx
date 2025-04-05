@@ -1,9 +1,8 @@
 import PropTypes from "prop-types";
-import { useEffect, useState, useRef } from "react";
-import { db } from "../firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
 import ItemCard from "./ItemCard";
-import "../styles/ComparisonStep.css";
+import { useState, useEffect, useRef } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 const ComparisonStep = ({
   categoryId,
@@ -20,14 +19,14 @@ const ComparisonStep = ({
   const [hi, setHi] = useState(0);
   const [activeCard, setActiveCard] = useState(null);
   const hasSavedInitialItem = useRef(false);
-  const primaryField = fields[0]?.name;
+  const primaryField = fields[0];
+  const primaryFieldId = primaryField?.id;
 
   useEffect(() => {
     const fetchRankedItems = async () => {
       const itemsSnapshot = await getDocs(
         collection(db, `categories/${categoryId}/items`)
       );
-      // Filter items by matching the stored tier id with the selected tier id and exclude the new item.
       const itemsInTier = itemsSnapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter(
@@ -38,13 +37,11 @@ const ComparisonStep = ({
       setRankedItems(itemsInTier);
       setHi(itemsInTier.length - 1);
       if (itemsInTier.length === 0 && !hasSavedInitialItem.current) {
-        // If no items exist in the tier, save the new item directly.
         onSave([{ ...itemData, rankCategory }]);
         hasSavedInitialItem.current = true;
         setIsRankingComplete(true);
       }
     };
-
     fetchRankedItems();
   }, [categoryId, rankCategory, itemData, onSave, setIsRankingComplete]);
 
@@ -55,26 +52,21 @@ const ComparisonStep = ({
     }
   }, [lo, hi, rankedItems]);
 
-  // Handlers for flip activation via hover.
   const handleActivateCurrent = () => setActiveCard("current");
   const handleActivateComparison = () => setActiveCard("comparison");
   const handleDeactivate = () => setActiveCard(null);
 
-  // When a card is clicked, adjust the binary search range.
   const onComparisonChoice = (isCurrentPreferred) => {
     let currentLo = lo;
     let currentHi = hi;
     let middleIndex = Math.floor((currentLo + currentHi) / 2);
     if (isCurrentPreferred) {
-      // New item is preferred, so shift the lower bound upward.
       currentLo = middleIndex + 1;
     } else {
-      // Comparison item is preferred, so shift the upper bound downward.
       currentHi = middleIndex - 1;
     }
     setLo(currentLo);
     setHi(currentHi);
-
     if (currentLo > currentHi) {
       const updatedRankedItems = [...rankedItems];
       updatedRankedItems.splice(currentLo, 0, { ...itemData, rankCategory });
@@ -95,8 +87,8 @@ const ComparisonStep = ({
       <div className="comparison-cards">
         <div onClick={() => onComparisonChoice(true)}>
           <ItemCard
-            primaryValue={itemData[primaryField] || "Current Item"}
-            secondaryValues={fields.map((f) => itemData[f.name] || "")}
+            primaryValue={itemData[primaryFieldId] || "Current Item"}
+            secondaryValues={fields.map((f) => itemData[f.id] || "")}
             rating={itemData.rating || 0}
             tiers={tiers}
             notes={itemData.notes || ""}
@@ -111,8 +103,8 @@ const ComparisonStep = ({
         </div>
         <div onClick={() => onComparisonChoice(false)}>
           <ItemCard
-            primaryValue={comparisonItem[primaryField] || "Comparison Item"}
-            secondaryValues={fields.map((f) => comparisonItem[f.name] || "")}
+            primaryValue={comparisonItem[primaryFieldId] || "Comparison Item"}
+            secondaryValues={fields.map((f) => comparisonItem[f.id] || "")}
             rating={comparisonItem.rating || 0}
             tiers={tiers}
             notes={comparisonItem.notes || ""}
@@ -133,7 +125,11 @@ ComparisonStep.propTypes = {
   categoryId: PropTypes.string.isRequired,
   itemData: PropTypes.object.isRequired,
   fields: PropTypes.arrayOf(
-    PropTypes.shape({ name: PropTypes.string.isRequired })
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      active: PropTypes.bool,
+    })
   ).isRequired,
   rankCategory: PropTypes.string.isRequired,
   tiers: PropTypes.arrayOf(

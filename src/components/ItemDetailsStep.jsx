@@ -15,8 +15,8 @@ const ItemDetailsStep = ({
   const CHAR_LIMIT = 64;
 
   const validateField = useCallback(
-    (fieldName, value) => {
-      if (fieldName === "link") {
+    (fieldId, value) => {
+      if (fieldId === "link") {
         if (!value.trim()) return null;
         if (!isValidUrl(value.trim())) {
           return "Please enter a valid URL.";
@@ -34,28 +34,24 @@ const ItemDetailsStep = ({
     [CHAR_LIMIT]
   );
 
-  const handleInputChange = (fieldName, value) => {
-    if (fieldName !== "link") {
-      const errorMessage = validateField(fieldName, value);
-      setError((prev) => ({
-        ...prev,
-        [fieldName]: errorMessage,
-      }));
+  const handleInputChange = (fieldId, value) => {
+    if (fieldId !== "link") {
+      const errorMessage = validateField(fieldId, value);
+      setError((prev) => ({ ...prev, [fieldId]: errorMessage }));
     }
-    updateItemData({ ...itemData, [fieldName]: value });
-    // Recheck overall validity for required fields.
+    updateItemData({ ...itemData, [fieldId]: value });
     const allFieldsValid = fields.every(
-      ({ name }) => !validateField(name, itemData[name] || "")
+      (field) => !validateField(field.id, itemData[field.id] || "")
     );
     onValidationChange(allFieldsValid);
   };
 
-  const handleBlur = (fieldName) => {
-    if (fieldName === "link") {
-      const currentValue = itemData[fieldName] || "";
+  const handleBlur = (fieldId) => {
+    if (fieldId === "link") {
+      const currentValue = itemData[fieldId] || "";
       if (currentValue.trim() && !isValidUrl(currentValue.trim())) {
         alert("Invalid URL entered. Resetting the reference link.");
-        updateItemData({ ...itemData, [fieldName]: "" });
+        updateItemData({ ...itemData, [fieldId]: "" });
       }
       return;
     }
@@ -63,15 +59,15 @@ const ItemDetailsStep = ({
 
   useEffect(() => {
     const allFieldsValid = fields.every(
-      ({ name }) => !validateField(name, itemData[name] || "")
+      (field) => !validateField(field.id, itemData[field.id] || "")
     );
     onValidationChange(allFieldsValid);
   }, [itemData, fields, onValidationChange, validateField]);
 
-  const primaryFieldName = fields[0].name;
-  const primaryValue = itemData[primaryFieldName] || "";
+  const primaryField = fields[0];
+  const primaryFieldId = primaryField.id;
+  const primaryValue = itemData[primaryFieldId] || "";
 
-  // Determine approved link: if a valid link is provided, use it; otherwise, fallback to Wikipedia search.
   const approvedLink =
     itemData.link && isValidUrl(itemData.link.trim())
       ? itemData.link
@@ -86,20 +82,20 @@ const ItemDetailsStep = ({
         link={approvedLink}
         iconVisible={Boolean(primaryValue || itemData.link)}
       />
-
-      {fields.map(({ name }, index) => (
-        <div key={index}>
+      {fields.map((field) => (
+        <div key={field.id}>
           <TextInput
-            value={itemData[name] || ""}
-            onChange={(e) => handleInputChange(name, e.target.value)}
-            placeholder={name}
+            value={itemData[field.id] || ""}
+            onChange={(e) => handleInputChange(field.id, e.target.value)}
+            placeholder={field.name}
             required
-            onBlur={() => handleBlur(name)}
+            onBlur={() => handleBlur(field.id)}
           />
-          {error[name] && <p className="error-message">{error[name]}</p>}
+          {error[field.id] && (
+            <p className="error-message">{error[field.id]}</p>
+          )}
         </div>
       ))}
-
       <textarea
         placeholder="Notes"
         value={itemData.notes || ""}
@@ -107,8 +103,6 @@ const ItemDetailsStep = ({
         rows={4}
         className="text-input notes-field"
       />
-
-      {/* Optional Reference Link input */}
       <div>
         <TextInput
           value={itemData.link || ""}
@@ -124,7 +118,9 @@ const ItemDetailsStep = ({
 ItemDetailsStep.propTypes = {
   fields: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
+      active: PropTypes.bool,
     })
   ).isRequired,
   itemData: PropTypes.object.isRequired,

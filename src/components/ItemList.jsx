@@ -6,10 +6,12 @@ import { useState, useEffect } from "react";
 const ItemList = ({ items, orderedFields, tiers, onItemClick }) => {
   const [activeCardId, setActiveCardId] = useState(null);
   const [primaryFieldObj, ...secondaryFieldObjs] = orderedFields;
-  const primaryField = primaryFieldObj?.name;
-  const secondaryFields = secondaryFieldObjs.map((f) => f.name);
+  const primaryFieldId = primaryFieldObj?.id;
+  const secondaryFields = secondaryFieldObjs.map((f) => ({
+    id: f.id,
+    name: f.name,
+  }));
 
-  // Clear active card when mouse leaves document.
   useEffect(() => {
     const handleMouseOut = (event) => {
       if (!event.relatedTarget && !event.toElement) {
@@ -26,8 +28,10 @@ const ItemList = ({ items, orderedFields, tiers, onItemClick }) => {
       renderCard={(item) => (
         <ItemCard
           key={item.id}
-          primaryValue={item[primaryField] || "Unnamed Item"}
-          secondaryValues={secondaryFields.map((field) => item[field] || "N/A")}
+          primaryValue={item[primaryFieldId] || "Unnamed Item"}
+          secondaryValues={secondaryFields.map(
+            (field) => item[field.id] || "N/A"
+          )}
           rating={item.rating || 0}
           notes={item.notes ?? ""}
           tiers={tiers}
@@ -45,11 +49,15 @@ const ItemList = ({ items, orderedFields, tiers, onItemClick }) => {
 ItemList.propTypes = {
   items: PropTypes.array.isRequired,
   orderedFields: PropTypes.arrayOf(
-    PropTypes.shape({ name: PropTypes.string.isRequired })
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      active: PropTypes.bool,
+    })
   ).isRequired,
   tiers: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.string, // if needed
+      id: PropTypes.string,
       name: PropTypes.string.isRequired,
       color: PropTypes.string.isRequired,
       cutoff: PropTypes.number.isRequired,

@@ -15,11 +15,9 @@ const CategoryCard = ({ category, onClick, onLike, liked }) => {
   const creatorInfo = getUserInfo(category.createdBy);
   const creatorUsername = creatorInfo ? creatorInfo.username : "Unknown";
 
-  // Prepare tag text.
   const tagText =
     category.tags?.length > 0 ? category.tags.join(", ") : "No tags";
 
-  // Measure header width and ensure a minimum width of 180px.
   useEffect(() => {
     if (headerRef.current) {
       const measuredWidth = Math.max(headerRef.current.offsetWidth, 180);
@@ -65,7 +63,9 @@ CategoryCard.propTypes = {
     createdBy: PropTypes.string.isRequired,
     fields: PropTypes.arrayOf(
       PropTypes.shape({
+        id: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
+        active: PropTypes.bool,
       })
     ),
     tags: PropTypes.arrayOf(PropTypes.string),

@@ -12,15 +12,15 @@ const CategoryFilters = ({
   return (
     <div className="filter-container open">
       <div className="filter-checkboxes">
-        {fields.map((fieldObj, index) => (
-          <div key={index} className="filter-checkbox-container">
+        {fields.map((fieldObj) => (
+          <div key={fieldObj.id} className="filter-checkbox-container">
             <label className="filter-field">
               <input
                 type="checkbox"
-                checked={filterFieldsSelected.some(
-                  (f) => f.name === fieldObj.name
-                )}
-                onChange={() => onFilterFieldChange(fieldObj)}
+                checked={filterFieldsSelected.some((f) => f.id === fieldObj.id)}
+                onChange={() =>
+                  onFilterFieldChange({ id: fieldObj.id, name: fieldObj.name })
+                }
               />
               {fieldObj.name}
             </label>
@@ -28,12 +28,12 @@ const CategoryFilters = ({
         ))}
       </div>
       <div className="filter-inputs">
-        {filterFieldsSelected.map(({ name }) => (
-          <div key={name} className="filter-input-container">
+        {filterFieldsSelected.map(({ id, name }) => (
+          <div key={id} className="filter-input-container">
             <TextInput
               placeholder={`Filter by ${name}`}
-              value={filters[name] || ""}
-              onChange={(e) => onFilterChange(name, e.target.value)}
+              value={filters[id] || ""}
+              onChange={(e) => onFilterChange(id, e.target.value)}
             />
           </div>
         ))}
@@ -45,11 +45,14 @@ const CategoryFilters = ({
 CategoryFilters.propTypes = {
   fields: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
+      active: PropTypes.bool,
     })
   ).isRequired,
   filterFieldsSelected: PropTypes.arrayOf(
     PropTypes.shape({
+      id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
     })
   ).isRequired,
