@@ -12,7 +12,7 @@ import FieldManager from "./FieldManager";
 import { MAX_DESCRIPTION_LENGTH } from "../constants/CategoryConstants";
 import TierSettings from "./TierSettings";
 import { useUserData } from "../context/useUserData";
-import { generateId } from "../utils/idUtils";
+import { generateId } from "../utils/fieldsUtils";
 
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");

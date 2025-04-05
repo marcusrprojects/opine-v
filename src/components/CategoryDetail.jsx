@@ -34,6 +34,7 @@ const CategoryDetail = () => {
 
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
+  // orderedFields is now an array of field objects: { id, name, active }
   const [orderedFields, setOrderedFields] = useState([]);
   const [tiers, setTiers] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
@@ -42,13 +43,15 @@ const CategoryDetail = () => {
 
   const [showSettings, setShowSettings] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  // filters keyed by field id
   const [filters, setFilters] = useState({});
+  // filterFields now an array of objects: { id, name }
   const [filterFields, setFilterFields] = useState([]);
 
   const categoryUnsubscribeRef = useRef(null);
   const itemsUnsubscribeRef = useRef(null);
 
-  // Instead of fetching creator data here, we use the user cache.
+  // Use user cache for creator's username.
   const UNKNOWN_USER = "Unknown User";
   const { getUserInfo } = useUserCache();
   const creatorInfo = getUserInfo(creatorId);
@@ -63,6 +66,7 @@ const CategoryDetail = () => {
       if (!snapshot.exists()) return navigate("/categories");
       const data = snapshot.data();
       setCategory(data);
+      // Expect data.fields to follow the new schema.
       setOrderedFields(Array.isArray(data.fields) ? data.fields : []);
       setTiers(data.tiers ?? []);
       setCreatorId(data.createdBy ?? "");
@@ -108,32 +112,34 @@ const CategoryDetail = () => {
     return () => clearTimeout(timeoutId);
   }, [showSettings, filterOpen]);
 
+  // Filtering: each filter uses field.id for lookup.
   const filteredItems = useMemo(() => {
     if (filterFields.length === 0) return items;
     return items.filter((item) =>
-      filterFields.every(({ name }) =>
-        (item[name] || "")
+      filterFields.every(({ id }) =>
+        (item[id] || "")
           .toString()
           .toLowerCase()
-          .includes((filters[name] || "").toLowerCase())
+          .includes((filters[id] || "").toLowerCase())
       )
     );
   }, [items, filters, filterFields]);
 
+  // Final ordered fields: compare using field.id.
   const finalOrderedFields = useMemo(() => {
     if (!orderedFields.length) return [];
     if (!filterFields.length) return orderedFields;
     const primaryField = orderedFields[0];
-    if (filterFields[0] === primaryField) return filterFields;
+    if (filterFields[0].id === primaryField.id) return filterFields;
     const primaryExists = filterFields.some(
-      (field) => field.name === primaryField.name
+      (field) => field.id === primaryField.id
     );
     if (!primaryExists) {
       return [primaryField, ...filterFields];
     }
     return [
       primaryField,
-      ...filterFields.filter((field) => field.name !== primaryField.name),
+      ...filterFields.filter((field) => field.id !== primaryField.id),
     ];
   }, [orderedFields, filterFields]);
 
@@ -171,13 +177,13 @@ const CategoryDetail = () => {
   };
 
   const toggleFilter = () => setFilterOpen((prev) => !prev);
-  const handleFilterChange = (field, value) =>
-    setFilters((prev) => ({ ...prev, [field]: value }));
-  const handleFilterFieldChange = ({ name }) => {
+  const handleFilterChange = (fieldId, value) =>
+    setFilters((prev) => ({ ...prev, [fieldId]: value }));
+  const handleFilterFieldChange = ({ id, name }) => {
     setFilterFields((prev) =>
-      prev.some((f) => f.name === name)
-        ? prev.filter((f) => f.name !== name)
-        : [...prev, { name }]
+      prev.some((f) => f.id === id)
+        ? prev.filter((f) => f.id !== id)
+        : [...prev, { id, name }]
     );
   };
 
@@ -189,6 +195,7 @@ const CategoryDetail = () => {
     }
   };
 
+  // Random reference: use primary field id for lookup.
   const handleRandomReference = () => {
     if (items.length === 0) {
       alert("No items available.");
@@ -196,11 +203,11 @@ const CategoryDetail = () => {
     }
     const randomIndex = Math.floor(Math.random() * items.length);
     const randomItem = items[randomIndex];
-    const primaryFieldName = orderedFields[0]?.name;
+    const primaryField = orderedFields[0];
     let link = randomItem.link?.trim();
     if (!link || !isValidUrl(link)) {
       link = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
-        randomItem[primaryFieldName] || ""
+        randomItem[primaryField.id] || ""
       )}`;
     }
     window.open(link, "_blank", "noopener,noreferrer");

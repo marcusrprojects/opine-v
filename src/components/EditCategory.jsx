@@ -16,6 +16,7 @@ import { useAuth } from "../context/useAuth";
 import { useUserData } from "../context/useUserData";
 import TierSettings from "./TierSettings";
 import { recalcAllRankingsForCategoryByRating } from "../utils/ranking";
+import { generateId } from "../utils/fieldsUtils";
 
 const EditCategory = () => {
   const { categoryId } = useParams();
@@ -28,9 +29,23 @@ const EditCategory = () => {
 
   const [categoryName, setCategoryName] = useState(category.name ?? "");
   const [description, setDescription] = useState(category.description ?? "");
-  const [fields, setFields] = useState(
-    Array.isArray(category.fields) ? category.fields : []
-  );
+  // Transform fetched fields if necessary: if a field is a simple string or missing id/active, wrap it.
+  const initialFields = Array.isArray(category.fields)
+    ? category.fields.map((field) =>
+        typeof field === "object" && field.name !== undefined
+          ? {
+              id: field.id || generateId(),
+              name: field.name,
+              active: field.active !== undefined ? field.active : true,
+            }
+          : {
+              id: generateId(),
+              name: field,
+              active: true,
+            }
+      )
+    : [];
+  const [fields, setFields] = useState(initialFields);
   const [tags, setTags] = useState(category.tags ?? []);
   const [categoryPrivacy, setCategoryPrivacy] = useState(
     category.categoryPrivacy ?? CategoryPrivacy.DEFAULT
@@ -54,7 +69,23 @@ const EditCategory = () => {
             }
             setCategoryName(data.name || "");
             setDescription(data.description || "");
-            setFields(Array.isArray(data.fields) ? data.fields : []);
+            const fetchedFields = Array.isArray(data.fields)
+              ? data.fields.map((field) =>
+                  typeof field === "object" && field.name !== undefined
+                    ? {
+                        id: field.id || generateId(),
+                        name: field.name,
+                        active:
+                          field.active !== undefined ? field.active : true,
+                      }
+                    : {
+                        id: generateId(),
+                        name: field,
+                        active: true,
+                      }
+                )
+              : [];
+            setFields(fetchedFields);
             setTags(data.tags ?? []);
             setCategoryPrivacy(data.categoryPrivacy || CategoryPrivacy.DEFAULT);
             setTiers(data.tiers ?? []);
@@ -68,7 +99,7 @@ const EditCategory = () => {
     }
   }, [categoryId, location.state, isFollowing, navigate, user]);
 
-  // Toggle category privacy: if "only-me" then unlock (set to default); otherwise lock (set to only-me)
+  // Toggle category privacy.
   const handleTogglePrivacy = () => {
     setCategoryPrivacy((prev) =>
       prev === CategoryPrivacy.ONLY_ME
@@ -77,13 +108,21 @@ const EditCategory = () => {
     );
   };
 
+  // Validate using only active fields.
+  const activeFields = fields.filter((field) => field.active);
+  const isConfirmDisabled =
+    !categoryName.trim() ||
+    activeFields.length === 0 ||
+    tags.length === 0 ||
+    activeFields.some((field) => !field.name.trim());
+
   const handleSave = async () => {
     if (!categoryName.trim()) {
       alert("Category name is required.");
       return;
     }
-    if (fields.length === 0) {
-      alert("At least one field is required.");
+    if (activeFields.length === 0) {
+      alert("At least one active field is required.");
       return;
     }
     try {
@@ -97,20 +136,12 @@ const EditCategory = () => {
         tiers,
         updatedAt: Timestamp.now(),
       });
-
-      // After updating the category, recalculate rankings for all items.
       await recalcAllRankingsForCategoryByRating(categoryId, tiers);
       navigate(`/categories/${categoryId}`);
     } catch (error) {
       handleError(error, "Error saving category.");
     }
   };
-
-  const isConfirmDisabled =
-    !categoryName.trim() ||
-    fields.length === 0 ||
-    tags.length === 0 ||
-    fields.some((field) => !field.name.trim());
 
   if (loading) {
     return <p>Loading...</p>;
@@ -160,7 +191,11 @@ EditCategory.propTypes = {
     name: PropTypes.string,
     description: PropTypes.string,
     fields: PropTypes.arrayOf(
-      PropTypes.shape({ name: PropTypes.string.isRequired })
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        id: PropTypes.string,
+        active: PropTypes.bool,
+      })
     ),
     tags: PropTypes.arrayOf(PropTypes.string),
     categoryPrivacy: PropTypes.string,
