@@ -49,10 +49,9 @@ const recalcRatingsForGroup = (group, lowerBound, upperBound) => {
     group[0].rating = upperBound;
   } else {
     const dynamicOffset = (upperBound - lowerBound) / n;
-    // Update each item in the group.
     group.forEach((item, index) => {
-      // (index+1) ensures the lowest item gets a value above lowerBound
-      // and the highest equals upperBound.
+      // Now, with the group sorted ascending, the lowest item gets just above lowerBound
+      // and the highest gets upperBound.
       item.rating = lowerBound + (index + 1) * dynamicOffset;
     });
   }
@@ -105,10 +104,10 @@ export const recalcAllRankingsForCategoryByRating = async (
     const upperBound = tier.cutoff;
     const group = groups[tier.id] || [];
     if (group.length === 0) return;
-    // Sort group by old rating descending.
-    group.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    // Sort group in ascending order so that the lowest rated item comes first.
+    group.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
     recalcRatingsForGroup(group, lowerBound, upperBound);
-    // Update each item with the new rating and assign new tier id.
+    // Update each item with the new rating and assign tier id.
     group.forEach((item) => {
       item.rankCategory = tier.id;
       const itemRef = doc(db, `categories/${categoryId}/items`, item.id);
