@@ -34,7 +34,7 @@ const CategoryDetail = () => {
 
   const [category, setCategory] = useState(null);
   const [items, setItems] = useState([]);
-  // orderedFields is now an array of field objects: { id, name, active }
+  // fields are now objects with id, name, active
   const [orderedFields, setOrderedFields] = useState([]);
   const [tiers, setTiers] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
@@ -45,13 +45,12 @@ const CategoryDetail = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   // filters keyed by field id
   const [filters, setFilters] = useState({});
-  // filterFields now an array of objects: { id, name }
   const [filterFields, setFilterFields] = useState([]);
 
   const categoryUnsubscribeRef = useRef(null);
   const itemsUnsubscribeRef = useRef(null);
 
-  // Use user cache for creator's username.
+  // Use user cache for creator info (only username is needed).
   const UNKNOWN_USER = "Unknown User";
   const { getUserInfo } = useUserCache();
   const creatorInfo = getUserInfo(creatorId);
@@ -66,7 +65,7 @@ const CategoryDetail = () => {
       if (!snapshot.exists()) return navigate("/categories");
       const data = snapshot.data();
       setCategory(data);
-      // Expect data.fields to follow the new schema.
+      // Expect data.fields to use the new schema.
       setOrderedFields(Array.isArray(data.fields) ? data.fields : []);
       setTiers(data.tiers ?? []);
       setCreatorId(data.createdBy ?? "");
@@ -112,37 +111,38 @@ const CategoryDetail = () => {
     return () => clearTimeout(timeoutId);
   }, [showSettings, filterOpen]);
 
-  // Filtering: each filter uses field.id for lookup.
+  // For filtering, we use only active fields.
+  const activeFilterFields = filterFields; // (filterFields should only be set with active fields)
   const filteredItems = useMemo(() => {
-    if (filterFields.length === 0) return items;
+    if (activeFilterFields.length === 0) return items;
     return items.filter((item) =>
-      filterFields.every(({ id }) =>
+      activeFilterFields.every(({ id }) =>
         (item[id] || "")
           .toString()
           .toLowerCase()
           .includes((filters[id] || "").toLowerCase())
       )
     );
-  }, [items, filters, filterFields]);
+  }, [items, filters, activeFilterFields]);
 
-  // Final ordered fields: compare using field.id.
+  // Final ordered fields for filtering—again, only active fields.
+  const activeOrderedFields = orderedFields.filter((field) => field.active);
   const finalOrderedFields = useMemo(() => {
-    if (!orderedFields.length) return [];
-    if (!filterFields.length) return orderedFields;
-    const primaryField = orderedFields[0];
-    if (filterFields[0].id === primaryField.id) return filterFields;
-    const primaryExists = filterFields.some(
+    if (!activeOrderedFields.length) return [];
+    if (!activeFilterFields.length) return activeOrderedFields;
+    const primaryField = activeOrderedFields[0];
+    if (activeFilterFields[0].id === primaryField.id) return activeFilterFields;
+    const primaryExists = activeFilterFields.some(
       (field) => field.id === primaryField.id
     );
     if (!primaryExists) {
-      return [primaryField, ...filterFields];
+      return [primaryField, ...activeFilterFields];
     }
     return [
       primaryField,
-      ...filterFields.filter((field) => field.id !== primaryField.id),
+      ...activeFilterFields.filter((field) => field.id !== primaryField.id),
     ];
-  }, [orderedFields, filterFields]);
-
+  }, [activeOrderedFields, activeFilterFields]);
   if (!category) return <p>Category not found.</p>;
 
   const handleItemClick = (itemId) => navigate(`./items/${itemId}`);
@@ -179,11 +179,11 @@ const CategoryDetail = () => {
   const toggleFilter = () => setFilterOpen((prev) => !prev);
   const handleFilterChange = (fieldId, value) =>
     setFilters((prev) => ({ ...prev, [fieldId]: value }));
-  const handleFilterFieldChange = ({ id, name }) => {
+  const handleFilterFieldChange = ({ id, name, active }) => {
     setFilterFields((prev) =>
       prev.some((f) => f.id === id)
         ? prev.filter((f) => f.id !== id)
-        : [...prev, { id, name }]
+        : [...prev, { id, name, active }]
     );
   };
 
@@ -195,7 +195,7 @@ const CategoryDetail = () => {
     }
   };
 
-  // Random reference: use primary field id for lookup.
+  // Random reference uses the primary field of activeOrderedFields.
   const handleRandomReference = () => {
     if (items.length === 0) {
       alert("No items available.");
@@ -203,7 +203,7 @@ const CategoryDetail = () => {
     }
     const randomIndex = Math.floor(Math.random() * items.length);
     const randomItem = items[randomIndex];
-    const primaryField = orderedFields[0];
+    const primaryField = activeOrderedFields[0];
     let link = randomItem.link?.trim();
     if (!link || !isValidUrl(link)) {
       link = `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(
@@ -273,7 +273,7 @@ const CategoryDetail = () => {
       </div>
       {filterOpen && (
         <CategoryFilters
-          fields={orderedFields}
+          fields={activeOrderedFields}
           filterFieldsSelected={filterFields}
           filters={filters}
           onFilterChange={handleFilterChange}
