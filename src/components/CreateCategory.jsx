@@ -17,7 +17,7 @@ import { generateId } from "../utils/fieldsUtils";
 const CreateCategory = () => {
   const [categoryName, setCategoryName] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
-  // Initial field now uses the new schema.
+  // Use the new schema: each field has id, name, and active.
   const [fields, setFields] = useState([
     { id: generateId(), name: "Name", active: true },
   ]);

@@ -115,7 +115,7 @@ const ReRankFlow = () => {
           <ComparisonStep
             categoryId={categoryId}
             itemData={existingItem}
-            fields={fields}
+            fields={fields.filter((f) => f.active)}
             rankCategory={rankCategory}
             onSave={handleSave}
             setIsRankingComplete={setIsRankingComplete}

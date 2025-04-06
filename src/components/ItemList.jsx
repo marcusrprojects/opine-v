@@ -5,7 +5,9 @@ import { useState, useEffect } from "react";
 
 const ItemList = ({ items, orderedFields, tiers, onItemClick }) => {
   const [activeCardId, setActiveCardId] = useState(null);
-  const [primaryFieldObj, ...secondaryFieldObjs] = orderedFields;
+  // Only include active fields for display.
+  const activeOrderedFields = orderedFields.filter((field) => field.active);
+  const [primaryFieldObj, ...secondaryFieldObjs] = activeOrderedFields;
   const primaryFieldId = primaryFieldObj?.id;
   const secondaryFields = secondaryFieldObjs.map((f) => ({
     id: f.id,

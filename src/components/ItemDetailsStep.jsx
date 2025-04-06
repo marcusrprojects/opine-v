@@ -14,6 +14,9 @@ const ItemDetailsStep = ({
   const [error, setError] = useState({});
   const CHAR_LIMIT = 64;
 
+  // Only include active fields.
+  const activeFields = fields.filter((field) => field.active);
+
   const validateField = useCallback(
     (fieldId, value) => {
       if (fieldId === "link") {
@@ -40,7 +43,7 @@ const ItemDetailsStep = ({
       setError((prev) => ({ ...prev, [fieldId]: errorMessage }));
     }
     updateItemData({ ...itemData, [fieldId]: value });
-    const allFieldsValid = fields.every(
+    const allFieldsValid = activeFields.every(
       (field) => !validateField(field.id, itemData[field.id] || "")
     );
     onValidationChange(allFieldsValid);
@@ -58,15 +61,15 @@ const ItemDetailsStep = ({
   };
 
   useEffect(() => {
-    const allFieldsValid = fields.every(
+    const allFieldsValid = activeFields.every(
       (field) => !validateField(field.id, itemData[field.id] || "")
     );
     onValidationChange(allFieldsValid);
-  }, [itemData, fields, onValidationChange, validateField]);
+  }, [itemData, activeFields, onValidationChange, validateField]);
 
-  const primaryField = fields[0];
-  const primaryFieldId = primaryField.id;
-  const primaryValue = itemData[primaryFieldId] || "";
+  const primaryField = activeFields[0];
+  const primaryFieldId = primaryField?.id;
+  const primaryValue = primaryField ? itemData[primaryFieldId] || "" : "";
 
   const approvedLink =
     itemData.link && isValidUrl(itemData.link.trim())
@@ -82,7 +85,7 @@ const ItemDetailsStep = ({
         link={approvedLink}
         iconVisible={Boolean(primaryValue || itemData.link)}
       />
-      {fields.map((field) => (
+      {activeFields.map((field) => (
         <div key={field.id}>
           <TextInput
             value={itemData[field.id] || ""}

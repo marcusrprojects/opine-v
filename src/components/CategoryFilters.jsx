@@ -9,6 +9,7 @@ const CategoryFilters = ({
   onFilterChange,
   onFilterFieldChange,
 }) => {
+  // fields passed in here should be active fields only.
   return (
     <div className="filter-container open">
       <div className="filter-checkboxes">
@@ -19,7 +20,11 @@ const CategoryFilters = ({
                 type="checkbox"
                 checked={filterFieldsSelected.some((f) => f.id === fieldObj.id)}
                 onChange={() =>
-                  onFilterFieldChange({ id: fieldObj.id, name: fieldObj.name })
+                  onFilterFieldChange({
+                    id: fieldObj.id,
+                    name: fieldObj.name,
+                    active: fieldObj.active,
+                  })
                 }
               />
               {fieldObj.name}

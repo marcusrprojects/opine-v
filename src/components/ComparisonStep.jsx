@@ -19,7 +19,8 @@ const ComparisonStep = ({
   const [hi, setHi] = useState(0);
   const [activeCard, setActiveCard] = useState(null);
   const hasSavedInitialItem = useRef(false);
-  const primaryField = fields[0];
+  const activeFields = fields.filter((field) => field.active);
+  const primaryField = activeFields[0];
   const primaryFieldId = primaryField?.id;
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const ComparisonStep = ({
         setIsRankingComplete(true);
       }
     };
+
     fetchRankedItems();
   }, [categoryId, rankCategory, itemData, onSave, setIsRankingComplete]);
 
@@ -88,7 +90,7 @@ const ComparisonStep = ({
         <div onClick={() => onComparisonChoice(true)}>
           <ItemCard
             primaryValue={itemData[primaryFieldId] || "Current Item"}
-            secondaryValues={fields.map((f) => itemData[f.id] || "")}
+            secondaryValues={activeFields.map((f) => itemData[f.id] || "")}
             rating={itemData.rating || 0}
             tiers={tiers}
             notes={itemData.notes || ""}
@@ -104,7 +106,9 @@ const ComparisonStep = ({
         <div onClick={() => onComparisonChoice(false)}>
           <ItemCard
             primaryValue={comparisonItem[primaryFieldId] || "Comparison Item"}
-            secondaryValues={fields.map((f) => comparisonItem[f.id] || "")}
+            secondaryValues={activeFields.map(
+              (f) => comparisonItem[f.id] || ""
+            )}
             rating={comparisonItem.rating || 0}
             tiers={tiers}
             notes={comparisonItem.notes || ""}

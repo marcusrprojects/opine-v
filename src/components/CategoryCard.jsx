@@ -10,7 +10,7 @@ const CategoryCard = ({ category, onClick, onLike, liked }) => {
   const [maxWidth, setMaxWidth] = useState(0);
   const headerRef = useRef(null);
 
-  // Get the cached user info for the category's creator.
+  // Use user cache for creator info.
   const { getUserInfo } = useUserCache();
   const creatorInfo = getUserInfo(category.createdBy);
   const creatorUsername = creatorInfo ? creatorInfo.username : "Unknown";
