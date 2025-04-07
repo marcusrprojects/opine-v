@@ -1,15 +1,3 @@
-/**
- * Comprehensive Cloud Functions for [Your Project Name]
- *
- * This file serves multiple purposes:
- *  - An Express app that handles SSR and API endpoints.
- *  - Firestore triggers for notifications (new follower, board likes)
- *    and feed updates on new item creation.
- *  - Ranking recalculation and timestamp updates are included.
- *
- * This setup is designed to be maintainable, modular, and scalable.
- */
-
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const express = require("express");
@@ -18,33 +6,35 @@ const cors = require("cors");
 admin.initializeApp();
 const db = admin.firestore();
 
-/**
- * --------------------------
- * Express Application for SSR and API Endpoints
- * --------------------------
- */
 const app = express();
 app.use(cors({ origin: true }));
+app.use(express.json()); // Parse JSON bodies
 
-// Example SSR endpoint: Render a category page.
+// SSR endpoint: Render a category page for server-side rendering
 app.get("/category/:categoryId", async (req, res) => {
   try {
-    const categoryId = req.params.categoryId;
+    const { categoryId } = req.params;
     const categorySnap = await db.doc(`categories/${categoryId}`).get();
     if (!categorySnap.exists) {
       return res.status(404).send("Category not found");
     }
     const category = categorySnap.data();
-    // Render a basic HTML page. In production, consider using a templating engine.
-    res.send(`
-      <!DOCTYPE html>
+    res.send(renderCategoryPage(category));
+  } catch (error) {
+    console.error("Error rendering category:", error);
+    res.status(500).send("Internal server error");
+  }
+});
+
+function renderCategoryPage(category) {
+  return `
+    <!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
         <title>${category.name}</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 2rem; }
-          header { margin-bottom: 2rem; }
         </style>
       </head>
       <body>
@@ -56,35 +46,25 @@ app.get("/category/:categoryId", async (req, res) => {
           <p>Additional dynamic content can be rendered here.</p>
         </section>
       </body>
-      </html>
-    `);
-  } catch (error) {
-    console.error("Error rendering category page:", error);
-    res.status(500).send("Internal server error");
-  }
-});
+      </html>`;
+}
 
-// Example API endpoint for reranking items (stub implementation).
+// API endpoint for re-ranking items (stub implementation)
 app.post("/category/:categoryId/rerank", async (req, res) => {
   try {
-    const categoryId = req.params.categoryId;
-    // TODO: Extract and validate request data.
-    // Implement your reranking logic here, updating items as needed.
-    res.json({ message: "Rerank executed (stub)." });
+    const { categoryId } = req.params;
+    const { items, tier } = req.body;
+    // TODO: validate input and call your ranking recalculation function,
+    // such as recalcAllRankingsForCategoryByRating.
+    // For now, we return a stub response.
+    res.json({ message: "Re-ranking triggered (stub implementation)" });
   } catch (error) {
-    console.error("Error in rerank endpoint:", error);
+    console.error("Error in re-rank endpoint:", error);
     res.status(500).json({ error: "Rerank failed" });
   }
 });
 
-/**
- * --------------------------
- * Firestore Triggers for Notifications and Feed Updates
- * --------------------------
- */
-
-// 1. Notification on New Follower:
-// Trigger when a user's document is updated. Compares the "followers" array before and after.
+// Firestore trigger: Send notification on new follower
 exports.onUserUpdate = functions.firestore
   .document("users/{userId}")
   .onUpdate(async (change, context) => {
@@ -97,7 +77,7 @@ exports.onUserUpdate = functions.firestore
 
       if (afterFollowers.length > beforeFollowers.length) {
         const newFollowers = afterFollowers.filter(
-          (followerId) => !beforeFollowers.includes(followerId)
+          (f) => !beforeFollowers.includes(f)
         );
         for (const followerId of newFollowers) {
           const notification = {
@@ -119,8 +99,7 @@ exports.onUserUpdate = functions.firestore
     return null;
   });
 
-// 2. Notification on Board (Category) Like:
-// Trigger when a category document is updated and the likeCount increases.
+// Firestore trigger: Handle like updates on a category (send or remove notification)
 exports.onCategoryUpdate = functions.firestore
   .document("categories/{categoryId}")
   .onUpdate(async (change, context) => {
@@ -130,12 +109,11 @@ exports.onCategoryUpdate = functions.firestore
       const categoryId = context.params.categoryId;
       const previousLikeCount = before.likeCount || 0;
       const currentLikeCount = after.likeCount || 0;
-
+      const ownerId = after.createdBy;
       if (currentLikeCount > previousLikeCount) {
-        const ownerId = after.createdBy;
         const notification = {
           type: "board_liked",
-          categoryId: categoryId,
+          categoryId,
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
           message: "Your board was liked.",
         };
@@ -145,8 +123,7 @@ exports.onCategoryUpdate = functions.firestore
           .collection("userNotifications")
           .add(notification);
       } else if (currentLikeCount < previousLikeCount) {
-        // If a like is rescinded, remove the corresponding notifications.
-        const ownerId = after.createdBy;
+        // Remove the like notification if a like is rescinded.
         const notificationsSnapshot = await db
           .collection("notifications")
           .doc(ownerId)
@@ -155,9 +132,7 @@ exports.onCategoryUpdate = functions.firestore
           .where("categoryId", "==", categoryId)
           .get();
         const batch = db.batch();
-        notificationsSnapshot.docs.forEach((doc) => {
-          batch.delete(doc.ref);
-        });
+        notificationsSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
         await batch.commit();
       }
     } catch (error) {
@@ -166,8 +141,7 @@ exports.onCategoryUpdate = functions.firestore
     return null;
   });
 
-// 3. Feed Update on New Item Creation:
-// When a new item is added to a board, add a feed entry for each follower of the board owner.
+// Firestore trigger: Update feeds when a new item is created
 exports.onNewItem = functions.firestore
   .document("categories/{categoryId}/items/{itemId}")
   .onCreate(async (snap, context) => {
@@ -176,21 +150,18 @@ exports.onNewItem = functions.firestore
       const { categoryId, itemId } = context.params;
       const categorySnap = await db.doc(`categories/${categoryId}`).get();
       if (!categorySnap.exists) return null;
-
       const categoryData = categorySnap.data();
       const ownerId = categoryData.createdBy;
       const feedItem = {
         type: "new_item",
-        categoryId: categoryId,
-        itemId: itemId,
+        categoryId,
+        itemId,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
       };
-
       const ownerSnap = await db.doc(`users/${ownerId}`).get();
       if (!ownerSnap.exists) return null;
       const ownerData = ownerSnap.data();
       const followers = ownerData.followers || [];
-
       const batch = db.batch();
       followers.forEach((followerId) => {
         const feedRef = db
@@ -200,7 +171,6 @@ exports.onNewItem = functions.firestore
           .doc();
         batch.set(feedRef, feedItem);
       });
-
       // Optionally add to a public feed if the owner's profile is public.
       if (ownerData.creatorPrivacy === "public") {
         const publicFeedRef = db
@@ -210,7 +180,6 @@ exports.onNewItem = functions.firestore
           .doc();
         batch.set(publicFeedRef, feedItem);
       }
-
       await batch.commit();
     } catch (error) {
       console.error("Error in onNewItem:", error);
@@ -218,11 +187,5 @@ exports.onNewItem = functions.firestore
     return null;
   });
 
-/**
- * --------------------------
- * Export Cloud Functions
- * --------------------------
- */
-
-// Export the Express app as an HTTPS function for SSR and API endpoints.
+// Export the Express app as an HTTPS Cloud Function
 exports.ssrApp = functions.https.onRequest(app);
