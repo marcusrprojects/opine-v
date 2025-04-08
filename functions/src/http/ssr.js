@@ -8,7 +8,6 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 
-// SSR endpoint: Render a category page using data from Firestore
 app.get("/category/:categoryId", async (req, res) => {
   try {
     const { categoryId } = req.params;
