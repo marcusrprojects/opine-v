@@ -1,15 +1,23 @@
 {
   "hosting": {
     "public": "dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/api/ssr/**",
+        "function": "ssrApp"
+      },
+      {
+        "source": "/api/categories/**",
+        "function": "categories"
+      },
+      {
+        "source": "/api/items/**",
+        "function": "items"
+      },
+      {
+        "source": "/api/follows/**",
+        "function": "follows"
       }
     ]
   },
@@ -24,9 +32,7 @@
         "firebase-debug.*.log",
         "*.local"
       ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint"
-      ]
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run lint"]
     }
   ]
 }
