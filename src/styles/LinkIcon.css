@@ -1,0 +1,12 @@
+.link-icon {
+  font-size: var(--font-ml);
+  color: var(--middle-color);
+  transition: color 0.2s;
+  display: flex;
+  align-self: center;
+}
+
+.link-icon:hover {
+  color: var(--secondary-color);
+  background-color: transparent;
+}

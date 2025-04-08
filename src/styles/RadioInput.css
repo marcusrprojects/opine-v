@@ -1,0 +1,14 @@
+.radio-input {
+  /* Use the browser’s native appearance but customize accent */
+  accent-color: var(--secondary-color);
+  cursor: pointer;
+  /* Optional sizing; these can be adjusted or removed if you want the default size */
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.radio-input:hover {
+  transform: scale(1.1);
+}

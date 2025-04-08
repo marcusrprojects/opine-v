@@ -1,0 +1,8 @@
+.comparison-cards {
+    display: flex;
+    gap: var(--padding-xlarge);
+}
+
+.comparison-item-card {
+    scale: 1.25;
+}

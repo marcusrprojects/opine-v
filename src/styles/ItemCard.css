@@ -1,0 +1,85 @@
+/* Container: fixed dimensions as set inline */
+.itemcard-container {
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+}
+
+/* Front view: using relative positioning */
+.itemcard-front {
+  position: relative;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.itemcard-back {
+  position: absolute;
+  transition: opacity 0.2s ease-in-out;
+  word-break: break-word; /* allow wrapping */
+  overflow-wrap: break-word; /* fallback for older browsers */
+  hyphens: auto;
+  -webkit-hyphens: auto; /* Safari */
+  -ms-hyphens: auto; /* IE */
+}
+
+/* Fade classes */
+.fade-in {
+  opacity: 1;
+  z-index: 3;
+}
+.fade-out {
+  opacity: 0;
+  z-index: 1;
+}
+
+/* Header styling */
+.item-card-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--padding-sm);
+}
+
+
+
+.itemcard-back.fade-in {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.rating {
+  font-size: var(--font-sm);
+  font-weight: var(--fw-medium);
+  color: var(--secondary-color);
+  display: flex;
+  align-items: center;
+}
+
+/* Fields container (front view) */
+.card-fields-container {
+  font-size: var(--font-small);
+  font-weight: var(--fw-sx);
+  margin-top: var(--padding-xxsmall);
+}
+
+.field-pair {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Back view: notes */
+.notes-text {
+  margin: 0;
+  font-size: var(--font-xsmall);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  /* Clamp to a fixed number of lines; adjust as needed */
+  -webkit-line-clamp: 4;
+}
+

@@ -1,0 +1,29 @@
+/* Main App root */
+#root {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+ul {
+  list-style-type: none;
+}
+
+/* Layout for the entire App */
+.App-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  min-width: 100vw;
+  overflow: hidden;
+}
+
+/* Main content wrapper */
+.main-content {
+  flex: 1;
+  padding: var(--padding-large);
+  background-color: var(--primary-color);
+  min-height: 100vh;
+  transition: margin-left 200ms ease, width 200ms ease;
+}

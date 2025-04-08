@@ -1,0 +1,130 @@
+.edit-category-container {  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  gap: 2rem;
+  margin: auto;
+  position: relative;
+  font-family: inherit;
+}
+
+.edit-section, .field-section {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.edit-section {
+  /* width: 100%; */
+  gap: var(--padding-medium);
+}
+
+.edit-category-title {
+  /* font-size: 2rem; */
+  font-weight: var(--fw-medium);
+  text-align: center;
+  color: var(--secondary-color);
+}
+
+.edit-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--padding-ml);
+  padding: var(--padding-sm) 0;
+}
+
+.edit-list-item:hover {
+  border-bottom: 0.1px solid var(--quinary-color);
+}
+
+.edit-description {
+  padding: var(--padding-medium);
+  border: 0.5px solid var(--quinary-color);
+  border-radius: var(--border-radius-medium);
+  background-color: transparent;
+  outline: none;
+  font-family: inherit;
+  color: inherit;
+}
+
+.edit-description {
+  height: var(--padding-xxlarge);
+  resize: vertical;
+  width: 50vw;
+}
+
+.edit-label {
+  color: var(--secondary-color);
+  font-weight: var(--fw-sm);
+}
+
+.edit-add-field {
+  display: flex;
+  align-items: center;
+  position: relative;
+  justify-content: center;
+  gap: var(--padding-small);
+}
+
+.property-pair {
+  display: flex;
+  gap: var(--padding-small);
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.field-radio{
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.property-pair::before {
+  content: '';
+  display: inline-block;
+  width: var(--padding-sm);
+  height: var(--padding-sm);
+  border: 2px solid var(--secondary-color); /* Outer circle color */
+  border-radius: 50%;
+  transition: background-color 0.3s, border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.field-radio:checked + .property-pair::before {
+  background-color: var(--secondary-color); /* Filled circle color */
+  border-color: var(--secondary-color);
+}
+
+.edit-add-button {
+  padding: var(--padding-sm) var(--padding-ml);
+  margin: 0;
+  margin-right: 0.5rem;
+  border: none;
+  background-color: var(--tertiary-color);
+  color: var(--secondary-color);
+  border-radius: var(--border-radius-medium);
+  cursor: pointer;
+}
+
+.edit-add-button:hover {
+  background-color: var(--quinary-color);
+}
+
+.icon {
+  cursor: pointer;
+}
+
+.delete-icon:hover {
+  filter: brightness(85%);
+}
+
+.mini-text {
+  margin: 0;
+  font-weight: var(--fw-sx);
+  font-size: var(--font-small);
+}

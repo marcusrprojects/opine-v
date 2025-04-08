@@ -1,0 +1,80 @@
+.field-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-medium);
+}
+
+.active-fields, .inactive-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-sm);
+}
+
+.field-container {
+  display: flex;
+  align-items: center;
+  gap: var(--padding-sm);
+  width: 100%;
+  position: relative;
+}
+
+.primary-input {
+  outline: 0.075rem dotted var(--middle-color);
+}
+
+.field-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  right: -4rem;
+  width: 3rem;
+}
+
+.delete-icon, .add-field-icon, .toggle-icon {
+  color: var(--middle-color);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.disabled {
+  cursor: not-allowed;
+  color: var(--quaternary-color);
+}
+
+.toggle-icon {
+  width: var(--font-large);
+  height: var(--font-large);
+}
+
+.toggle-icon .icon-normal,
+.toggle-icon .icon-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Initially, the normal icon is visible, and the hover icon is hidden */
+.toggle-icon .icon-normal {
+  opacity: 1;
+}
+
+.toggle-icon .icon-hover {
+  opacity: 0;
+}
+
+/* On hover, fade out the normal icon and fade in the hover icon */
+.toggle-icon:hover .icon-normal {
+  opacity: 0;
+}
+
+.toggle-icon:hover .icon-hover {
+  opacity: 1;
+}
+
+/* Disabled state for the entire toggle */
+.toggle-icon.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}

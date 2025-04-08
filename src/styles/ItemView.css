@@ -1,0 +1,144 @@
+.item-view-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--padding-small);
+  position: relative;
+  margin: 0 var(--padding-lx);
+}
+
+.rating-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--padding-large);
+}
+
+#rating-display {
+  cursor: pointer;
+  outline: .1rem solid var(--quaternary-color);
+  padding: var(--padding-small);
+  transition: transform 0.3s ease;
+  background-color: transparent;
+  color: var(--secondary-color);
+  border-radius: var(--padding-sm);
+  font-weight: var(--fw-large);
+  /* font-size: var(--font-sm); */
+}
+
+#rating-display.editable:hover {
+  transform: scale(1.2);
+}
+
+#rating-display.disabled {
+  cursor: default;
+  transform: none;
+}
+
+.item-field {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: var(--padding-small) 0;
+  width: 100%;
+}
+
+.field-content {
+  display: flex;
+  flex-direction: row;
+  gap: var(--padding-medium);
+}
+
+.item-value {
+  width: 100%;
+  text-align: left;
+}
+
+.item-value,.notes-textarea {
+  border: none;
+  border-bottom: .01rem solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.item-value:hover, .notes-textarea:hover {
+  /* color: purple !important; */
+  /* filter: brightness(10%); */
+  display: absolute;
+  border-bottom: .01rem solid var(--quinary-color);
+}
+
+.item-label {
+  font-weight: var(--fw-medium);
+  color: var(--secondary-color);
+}
+
+.notes-textarea {
+  width: 100%;
+  height: var(--padding-xxlarge);
+  resize: vertical;
+  background-color: transparent;
+  color:var(--secondary-color);
+}
+
+.item-input, .notes-textarea {
+  font-size: var(--font-sm);
+  font-family: inherit;
+}
+
+.item-input {
+  flex-grow: 1;
+}
+
+.item-input {
+  background-color: transparent; 
+  color: var(--secondary-color);
+}
+
+.notes-textarea, .item-input {
+  outline: none; /* Disable the default outline */
+  border: none; /* Ensure no border is set by default */
+}
+
+
+.notes-textarea:focus, .item-input:focus {
+  border: none;
+  outline: .05rem solid var(--quaternary-color);
+  border-radius: var(--border-radius-small);
+}
+
+.trash-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: color 0.2s;
+}
+
+.trash-icon:hover {
+  filter: brightness(75%);
+}
+
+#back-button {
+  margin-top: var(--padding-medium);
+  border: none;
+  outline: none;
+}
+
+.item-label {
+  text-align: left;
+  flex: 0 0 var(--padding-xxlarge);
+}
+
+#back-button:hover {
+  color: var(--secondary-color);
+}
+
+.non-editable {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.editable {
+  pointer-events:all;
+  cursor: pointer;
+}

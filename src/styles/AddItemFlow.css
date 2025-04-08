@@ -1,0 +1,56 @@
+.add-item-container{
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-medium);
+    justify-content: center;
+    align-items: center;
+}
+
+.rank-container, .comparison-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--padding-xxlarge);
+}
+
+/* Button styling */
+.add-item-container button {
+    padding: var(--padding-medium);
+    border: 0.07rem solid var(--quinary-color);
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    width: 12rem;
+    background-color: transparent;
+    outline: none;
+    color: var(--secondary-color);
+    white-space: normal;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.add-item-container button:hover {
+    transform: scale(1.1);
+    border-color: var(--quinary-color);
+}
+
+.add-item-container button:focus {
+    outline: none;
+}
+
+.rating-buttons button {
+    border-radius: var(--border-radius-medium);
+    width: 8rem;
+}
+
+/* Flex layout for both rating and comparison buttons */
+.rating-buttons, .comparison-buttons {
+    display: flex;
+}
+
+.rating-buttons {
+    gap: var(--padding-xlarge);
+}
+
+.comparison-buttons {
+    gap: var(--padding-xlarge);
+}

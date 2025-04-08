@@ -1,0 +1,17 @@
+.email-text {
+    margin: 0;
+    font-style: italic;
+}
+
+.edit-bio {
+  padding: var(--padding-medium);
+  border: 0.5px solid var(--quinary-color);
+  border-radius: var(--border-radius-medium);
+  background-color: transparent;
+  outline: none;
+  font-family: inherit;
+  color: inherit;
+  height: var(--padding-xlarge);
+  resize: vertical;
+  width: 50vw;
+}

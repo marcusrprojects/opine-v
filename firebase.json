@@ -1,0 +1,63 @@
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "function": "ssrApp"
+      },
+      {
+        "source": "/api/rerankCategory",
+        "function": "rerankCategory"
+      },
+      {
+        "source": "/api/updateCategory",
+        "function": "updateCategory"
+      },
+      {
+        "source": "/api/updateItemField",
+        "function": "updateItemField"
+      },
+      {
+        "source": "/api/deleteItem",
+        "function": "deleteItem"
+      },
+      {
+        "source": "/api/toggleLikeCategory",
+        "function": "toggleLikeCategory"
+      },
+      {
+        "source": "/api/createItem",
+        "function": "createItem"
+      },
+      {
+        "source": "/api/getCategoryFields",
+        "function": "getCategoryFields"
+      },
+      {
+        "source": "/api/approveFollow",
+        "function": "approveFollow"
+      },
+      {
+        "source": "/api/rejectFollow",
+        "function": "rejectFollow"
+      },
+      { "source": "**", "destination": "/index.html" }
+    ]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run lint"]
+    }
+  ]
+}
