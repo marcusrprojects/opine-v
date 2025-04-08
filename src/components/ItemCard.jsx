@@ -23,7 +23,7 @@ const ItemCard = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const frontRef = useRef(null);
 
-  // Measure the front view, which determines container dimensions.
+  // Measure the front view.
   useEffect(() => {
     if (frontRef.current) {
       const { offsetWidth, offsetHeight } = frontRef.current;
@@ -34,7 +34,6 @@ const ItemCard = ({
     }
   }, [primaryValue, secondaryValues]);
 
-  // Compute number of lines for notes clamping (if used).
   const numLines =
     dimensions.height > 0 ? Math.floor(dimensions.height / 14.4) : 1;
 
@@ -60,7 +59,6 @@ const ItemCard = ({
           height: `${dimensions.height}px`,
         }}
       >
-        {/* Front view is always rendered */}
         <div
           className={`itemcard-front ${active ? "fade-out" : "fade-in"}`}
           ref={frontRef}
@@ -75,7 +73,6 @@ const ItemCard = ({
                 />
               )}
             </span>
-
             <h4 className="card-title">{primaryValue}</h4>
           </div>
           <div className="card-fields-container">
@@ -119,6 +116,8 @@ ItemCard.propTypes = {
   onActivate: PropTypes.func.isRequired,
   onDeactivate: PropTypes.func.isRequired,
   rankCategory: PropTypes.string.isRequired,
+  className: PropTypes.string,
+  hideRating: PropTypes.bool,
 };
 
 export default ItemCard;
