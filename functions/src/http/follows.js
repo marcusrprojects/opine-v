@@ -1,6 +1,6 @@
-const express = require("express");
-const admin = require("firebase-admin");
-const { validateFirebaseIdToken } = require("../utils/authMiddleware");
+import express from "express";
+import admin from "firebase-admin";
+import { validateFirebaseIdToken } from "../utils/authMiddleware.js";
 
 const app = express();
 app.use(express.json());
@@ -8,7 +8,7 @@ app.use(validateFirebaseIdToken);
 
 /**
  * POST /follows/approve
- * Expects: { uid, requesterId }
+ * Expects: { uid, requesterId }.
  * Approves a follow request.
  */
 app.post("/follows/approve", async (req, res) => {
@@ -17,7 +17,6 @@ app.post("/follows/approve", async (req, res) => {
     if (!uid || !requesterId) {
       return res.status(400).json({ error: "Missing uid or requesterId" });
     }
-    // Verify that the caller's UID matches uid.
     if (req.user.uid !== uid) {
       return res
         .status(403)
@@ -41,7 +40,7 @@ app.post("/follows/approve", async (req, res) => {
 
 /**
  * POST /follows/reject
- * Expects: { uid, requesterId }
+ * Expects: { uid, requesterId }.
  * Rejects a follow request.
  */
 app.post("/follows/reject", async (req, res) => {
@@ -66,4 +65,4 @@ app.post("/follows/reject", async (req, res) => {
   }
 });
 
-module.exports = app;
+export default app;

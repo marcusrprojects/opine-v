@@ -1,8 +1,9 @@
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
+import functions from "firebase-functions";
+import admin from "firebase-admin";
+
 const db = admin.firestore();
 
-module.exports = functions.firestore
+export const onUserUpdate = functions.firestore
   .document("users/{userId}")
   .onUpdate(async (change, context) => {
     try {

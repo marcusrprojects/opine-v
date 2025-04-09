@@ -1,6 +1,6 @@
-const express = require("express");
-const cors = require("cors");
-const admin = require("firebase-admin");
+import express from "express";
+import cors from "cors";
+import admin from "firebase-admin";
 
 const db = admin.firestore();
 const app = express();
@@ -46,4 +46,4 @@ function renderCategoryPage(category) {
     </html>`;
 }
 
-module.exports = { app };
+export { app };

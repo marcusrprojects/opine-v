@@ -1,12 +1,18 @@
-const { writeBatch, collection, Timestamp, doc, getDocs } =
-  require("firebase-admin").firestore;
+import admin from "firebase-admin";
+import {
+  writeBatch,
+  collection,
+  Timestamp,
+  doc,
+  getDocs,
+} from "firebase-admin/firestore";
 
 /**
  * Uniformly recalculates ratings for a group of items.
  * If there's one item, it sets its rating to the upperBound.
  * Otherwise, it distributes ratings evenly between lowerBound and upperBound.
  */
-const recalcRatingsForGroup = (group, lowerBound, upperBound) => {
+export const recalcRatingsForGroup = (group, lowerBound, upperBound) => {
   const n = group.length;
   if (n === 0) return;
   if (n === 1) {
@@ -21,10 +27,12 @@ const recalcRatingsForGroup = (group, lowerBound, upperBound) => {
 
 /**
  * Recalculates the ranking for all items in a category based on new tier cutoffs.
- * newTiers should be an array of tier objects with at least {id, cutoff} fields.
+ * newTiers should be an array of tier objects with at least { id, cutoff } fields.
  */
-const recalcAllRankingsForCategoryByRating = async (categoryId, newTiers) => {
-  const admin = require("firebase-admin");
+export const recalcAllRankingsForCategoryByRating = async (
+  categoryId,
+  newTiers
+) => {
   const db = admin.firestore();
   const itemsSnapshot = await getDocs(
     collection(db, `categories/${categoryId}/items`)
@@ -35,10 +43,8 @@ const recalcAllRankingsForCategoryByRating = async (categoryId, newTiers) => {
   }));
   if (items.length === 0) return;
 
-  // Sort tiers ascending by cutoff.
   const sortedTiers = [...newTiers].sort((a, b) => a.cutoff - b.cutoff);
   const groups = {};
-  // Group items by the first tier where the item's current rating is less than or equal to the tier's cutoff.
   for (const item of items) {
     const oldRating = item.rating || 0;
     let assignedTier = sortedTiers[sortedTiers.length - 1];
@@ -70,5 +76,3 @@ const recalcAllRankingsForCategoryByRating = async (categoryId, newTiers) => {
   batch.update(categoryRef, { updatedAt: Timestamp.now() });
   await batch.commit();
 };
-
-module.exports = { recalcAllRankingsForCategoryByRating };

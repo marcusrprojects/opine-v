@@ -5,29 +5,28 @@
  * and Firestore triggers.
  */
 
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
+import functions from "firebase-functions";
+import admin from "firebase-admin";
 admin.initializeApp();
 
 // Import RESTful endpoints (grouped by resource)
-const ssrApp = require("./src/http/ssr").app;
-const categoriesApp = require("./src/http/categories");
-const itemsApp = require("./src/http/items");
-const followsApp = require("./src/http/follows");
+import { app as ssrApp } from "./src/http/ssr.js";
+import categoriesApp from "./src/http/categories.js";
+import itemsApp from "./src/http/items.js";
+import followsApp from "./src/http/follows.js";
 
 // Import Firestore triggers
-const onUserUpdate = require("./src/triggers/onUserUpdate");
-const onCategoryUpdate = require("./src/triggers/onCategoryUpdate");
-const onNewItem = require("./src/triggers/onNewItem");
+import onUserUpdate from "./src/triggers/onUserUpdate.js";
+import onCategoryUpdate from "./src/triggers/onCategoryUpdate.js";
+import onNewItem from "./src/triggers/onNewItem.js";
 
 // Expose HTTPS endpoints.
-// These endpoints will be accessible based on your Hosting rewrites.
-exports.ssrApp = functions.https.onRequest(ssrApp);
-exports.categories = functions.https.onRequest(categoriesApp);
-exports.items = functions.https.onRequest(itemsApp);
-exports.follows = functions.https.onRequest(followsApp);
+export const ssrAppFunction = functions.https.onRequest(ssrApp);
+export const categories = functions.https.onRequest(categoriesApp);
+export const items = functions.https.onRequest(itemsApp);
+export const follows = functions.https.onRequest(followsApp);
 
 // Expose Firestore triggers.
-exports.onUserUpdate = onUserUpdate;
-exports.onCategoryUpdate = onCategoryUpdate;
-exports.onNewItem = onNewItem;
+export const onUserUpdateTrigger = onUserUpdate;
+export const onCategoryUpdateTrigger = onCategoryUpdate;
+export const onNewItemTrigger = onNewItem;

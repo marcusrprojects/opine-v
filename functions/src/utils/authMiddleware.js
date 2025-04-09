@@ -1,10 +1,10 @@
-const admin = require("firebase-admin");
+import admin from "firebase-admin";
 
 /**
  * Middleware to validate Firebase ID token from an Authorization header
  * (or from cookies, if needed). Expects header: "Authorization: Bearer <ID_TOKEN>".
  */
-const validateFirebaseIdToken = async (req, res, next) => {
+export const validateFirebaseIdToken = async (req, res, next) => {
   if (
     (!req.headers.authorization ||
       !req.headers.authorization.startsWith("Bearer ")) &&
@@ -33,5 +33,3 @@ const validateFirebaseIdToken = async (req, res, next) => {
     res.status(403).send("Unauthorized");
   }
 };
-
-module.exports = { validateFirebaseIdToken };

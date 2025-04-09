@@ -1,8 +1,9 @@
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
+import functions from "firebase-functions";
+import admin from "firebase-admin";
+
 const db = admin.firestore();
 
-module.exports = functions.firestore
+export const onCategoryUpdate = functions.firestore
   .document("categories/{categoryId}")
   .onUpdate(async (change, context) => {
     try {
@@ -12,6 +13,7 @@ module.exports = functions.firestore
       const previousLikeCount = before.likeCount || 0;
       const currentLikeCount = after.likeCount || 0;
       const ownerId = after.createdBy;
+
       if (currentLikeCount > previousLikeCount) {
         const notification = {
           type: "board_liked",
@@ -25,7 +27,6 @@ module.exports = functions.firestore
           .collection("userNotifications")
           .add(notification);
       } else if (currentLikeCount < previousLikeCount) {
-        // Remove like notification if a like is rescinded.
         const notificationsSnapshot = await db
           .collection("notifications")
           .doc(ownerId)
