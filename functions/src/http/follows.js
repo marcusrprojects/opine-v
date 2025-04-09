@@ -1,5 +1,5 @@
 import express from "express";
-import admin from "firebase-admin";
+import admin from "../firebase.js";
 import { validateFirebaseIdToken } from "../utils/authMiddleware.js";
 
 const app = express();

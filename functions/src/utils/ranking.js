@@ -1,11 +1,4 @@
-import admin from "firebase-admin";
-import {
-  writeBatch,
-  collection,
-  Timestamp,
-  doc,
-  getDocs,
-} from "firebase-admin/firestore";
+import admin from "../firebase.js";
 
 /**
  * Uniformly recalculates ratings for a group of items.
@@ -34,17 +27,19 @@ export const recalcAllRankingsForCategoryByRating = async (
   newTiers
 ) => {
   const db = admin.firestore();
-  const itemsSnapshot = await getDocs(
-    collection(db, `categories/${categoryId}/items`)
-  );
+  const itemsSnapshot = await db
+    .collection(`categories/${categoryId}/items`)
+    .get();
   const items = itemsSnapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
   if (items.length === 0) return;
 
+  // Sort tiers ascending by cutoff.
   const sortedTiers = [...newTiers].sort((a, b) => a.cutoff - b.cutoff);
   const groups = {};
+
   for (const item of items) {
     const oldRating = item.rating || 0;
     let assignedTier = sortedTiers[sortedTiers.length - 1];
@@ -58,7 +53,7 @@ export const recalcAllRankingsForCategoryByRating = async (
     groups[assignedTier.id].push(item);
   }
 
-  const batch = writeBatch(db);
+  const batch = db.batch();
   sortedTiers.forEach((tier, index) => {
     const lowerBound = index === 0 ? 0 : sortedTiers[index - 1].cutoff;
     const group = groups[tier.id] || [];
@@ -67,12 +62,14 @@ export const recalcAllRankingsForCategoryByRating = async (
     recalcRatingsForGroup(group, lowerBound, tier.cutoff);
     group.forEach((item) => {
       item.rankCategory = tier.id;
-      const itemRef = doc(db, `categories/${categoryId}/items`, item.id);
+      const itemRef = db.doc(`categories/${categoryId}/items/${item.id}`);
       batch.set(itemRef, item, { merge: true });
     });
   });
 
-  const categoryRef = doc(db, "categories", categoryId);
-  batch.update(categoryRef, { updatedAt: Timestamp.now() });
+  const categoryRef = db.doc(`categories/${categoryId}`);
+  batch.update(categoryRef, {
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
   await batch.commit();
 };

@@ -5,9 +5,7 @@
  * and Firestore triggers.
  */
 
-import functions from "firebase-functions";
-import admin from "firebase-admin";
-admin.initializeApp();
+import * as functions from "firebase-functions";
 
 // Import RESTful endpoints (grouped by resource)
 import { app as ssrApp } from "./src/http/ssr.js";
@@ -16,9 +14,9 @@ import itemsApp from "./src/http/items.js";
 import followsApp from "./src/http/follows.js";
 
 // Import Firestore triggers
-import onUserUpdate from "./src/triggers/onUserUpdate.js";
-import onCategoryUpdate from "./src/triggers/onCategoryUpdate.js";
-import onNewItem from "./src/triggers/onNewItem.js";
+import { onUserUpdate } from "./src/triggers/onUserUpdate.js";
+import { onCategoryUpdate } from "./src/triggers/onCategoryUpdate.js";
+import { onNewItem } from "./src/triggers/onNewItem.js";
 
 // Expose HTTPS endpoints.
 export const ssrAppFunction = functions.https.onRequest(ssrApp);
@@ -27,6 +25,5 @@ export const items = functions.https.onRequest(itemsApp);
 export const follows = functions.https.onRequest(followsApp);
 
 // Expose Firestore triggers.
-export const onUserUpdateTrigger = onUserUpdate;
-export const onCategoryUpdateTrigger = onCategoryUpdate;
-export const onNewItemTrigger = onNewItem;
+// Functions v2 triggers are directly exported
+export { onUserUpdate, onCategoryUpdate, onNewItem };

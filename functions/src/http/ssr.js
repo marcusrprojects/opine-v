@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import admin from "firebase-admin";
+import admin from "../firebase.js";
 
 const db = admin.firestore();
 const app = express();
