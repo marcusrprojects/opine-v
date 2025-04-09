@@ -1,19 +1,24 @@
-import functions from "firebase-functions";
-import admin from "firebase-admin";
+import { onDocumentUpdated } from "firebase-functions/v2/firestore";
+import admin from "../firebase.js";
 
 const db = admin.firestore();
 
-export const onCategoryUpdate = functions.firestore
-  .document("categories/{categoryId}")
-  .onUpdate(async (change, context) => {
+export const onCategoryUpdate = onDocumentUpdated(
+  "categories/{categoryId}",
+  async (event) => {
     try {
-      const before = change.before.data();
-      const after = change.after.data();
-      const categoryId = context.params.categoryId;
+      const beforeSnap = event.data?.before;
+      const afterSnap = event.data?.after;
+      if (!beforeSnap || !afterSnap) {
+        console.error("Missing document snapshots.");
+        return;
+      }
+      const before = beforeSnap.data();
+      const after = afterSnap.data();
+      const categoryId = event.params.categoryId;
       const previousLikeCount = before.likeCount || 0;
       const currentLikeCount = after.likeCount || 0;
       const ownerId = after.createdBy;
-
       if (currentLikeCount > previousLikeCount) {
         const notification = {
           type: "board_liked",
@@ -27,6 +32,7 @@ export const onCategoryUpdate = functions.firestore
           .collection("userNotifications")
           .add(notification);
       } else if (currentLikeCount < previousLikeCount) {
+        // Remove like notification if a like is rescinded.
         const notificationsSnapshot = await db
           .collection("notifications")
           .doc(ownerId)
@@ -35,11 +41,13 @@ export const onCategoryUpdate = functions.firestore
           .where("categoryId", "==", categoryId)
           .get();
         const batch = db.batch();
-        notificationsSnapshot.docs.forEach((doc) => batch.delete(doc.ref));
+        notificationsSnapshot.docs.forEach((docSnap) => {
+          batch.delete(docSnap.ref);
+        });
         await batch.commit();
       }
     } catch (error) {
       console.error("Error in onCategoryUpdate trigger:", error);
     }
-    return null;
-  });
+  }
+);
