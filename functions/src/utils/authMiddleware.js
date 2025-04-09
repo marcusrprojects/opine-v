@@ -1,4 +1,4 @@
-import admin from "firebase-admin";
+import admin from "../firebase.js";
 
 /**
  * Middleware to validate Firebase ID token from an Authorization header
