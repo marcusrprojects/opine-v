@@ -65,4 +65,48 @@ app.post("/follows/reject", async (req, res) => {
   }
 });
 
+/**
+ * POST /follows/followData
+ * Expects: { uid, mode }.
+ * Returns follow data based on mode (followers, following, or followRequests).
+ */
+app.post("/follows/followData", async (req, res) => {
+  try {
+    const { uid, mode } = req.body;
+    if (!uid || !mode) {
+      return res.status(400).json({ error: "Missing uid or mode" });
+    }
+    const userRef = admin.firestore().doc(`users/${uid}`);
+    const userSnap = await userRef.get();
+    if (!userSnap.exists)
+      return res.status(404).json({ error: "User not found" });
+    const userData = userSnap.data();
+    let userIds = [];
+    switch (mode) {
+      case "FOLLOWERS":
+        userIds = userData.followers || [];
+        break;
+      case "FOLLOWING":
+        userIds = userData.following || [];
+        break;
+      case "FOLLOW_REQUESTS":
+        userIds = userData.followRequests || [];
+        break;
+      default:
+        return res.status(400).json({ error: "Invalid mode" });
+    }
+    const usersData = await Promise.all(
+      userIds.map(async (userId) => {
+        const snap = await admin.firestore().doc(`users/${userId}`).get();
+        return snap.exists ? { id: userId, ...snap.data() } : null;
+      })
+    );
+    const users = usersData.filter((u) => u !== null);
+    res.json({ users });
+  } catch (error) {
+    console.error("Error fetching follow data:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default app;
