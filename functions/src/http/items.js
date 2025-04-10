@@ -10,7 +10,7 @@ app.use(validateFirebaseIdToken);
 /**
  * POST /categories/:categoryId/items
  * Expects: { itemData, rankCategory }.
- * Creates a new item in the specified category.
+ * Creates a new item within the specified category.
  */
 app.post("/categories/:categoryId/items", async (req, res) => {
   try {
@@ -27,6 +27,7 @@ app.post("/categories/:categoryId/items", async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       rankCategory,
     });
+    // Also update the parent category's updatedAt timestamp.
     const categoryRef = admin.firestore().doc(`categories/${categoryId}`);
     await categoryRef.update({
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -41,8 +42,7 @@ app.post("/categories/:categoryId/items", async (req, res) => {
 /**
  * PUT /categories/:categoryId/items/:itemId
  * Expects: { updatedData }.
- * Updates an existing item.
- * Only the category creator is allowed.
+ * Updates an existing item. Only the category creator is allowed.
  */
 app.put("/categories/:categoryId/items/:itemId", async (req, res) => {
   try {
@@ -53,8 +53,9 @@ app.put("/categories/:categoryId/items/:itemId", async (req, res) => {
     }
     const categoryRef = admin.firestore().doc(`categories/${categoryId}`);
     const categorySnap = await categoryRef.get();
-    if (!categorySnap.exists)
+    if (!categorySnap.exists) {
       return res.status(404).json({ error: "Category not found" });
+    }
     const categoryData = categorySnap.data();
     if (req.user.uid !== categoryData.createdBy) {
       return res
@@ -90,8 +91,9 @@ app.delete("/categories/:categoryId/items/:itemId", async (req, res) => {
     }
     const categoryRef = admin.firestore().doc(`categories/${categoryId}`);
     const categorySnap = await categoryRef.get();
-    if (!categorySnap.exists)
+    if (!categorySnap.exists) {
       return res.status(404).json({ error: "Category not found" });
+    }
     const categoryData = categorySnap.data();
     if (req.user.uid !== categoryData.createdBy) {
       return res
@@ -115,7 +117,8 @@ app.delete("/categories/:categoryId/items/:itemId", async (req, res) => {
 /**
  * POST /categories/:categoryId/rerank
  * Expects: { newTiers, updatedItems, rankCategory }.
- * Recalculates rankings for items in a category. Only the category creator is allowed.
+ * Recalculates rankings for items within a category.
+ * Only the category creator is allowed.
  */
 app.post("/categories/:categoryId/rerank", async (req, res) => {
   try {
@@ -128,8 +131,9 @@ app.post("/categories/:categoryId/rerank", async (req, res) => {
     }
     const categoryRef = admin.firestore().doc(`categories/${categoryId}`);
     const categorySnap = await categoryRef.get();
-    if (!categorySnap.exists)
+    if (!categorySnap.exists) {
       return res.status(404).json({ error: "Category not found" });
+    }
     const categoryData = categorySnap.data();
     if (req.user.uid !== categoryData.createdBy) {
       return res.status(403).json({ error: "Not authorized to rerank items" });
