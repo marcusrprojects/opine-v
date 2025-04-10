@@ -4,7 +4,6 @@
  * Entry point for Cloud Functions. Exports our HTTPS endpoints (the secure REST API)
  * and Firestore triggers.
  */
-
 import * as functions from "firebase-functions";
 
 // Import RESTful endpoints (grouped by resource)
@@ -25,5 +24,4 @@ export const items = functions.https.onRequest(itemsApp);
 export const follows = functions.https.onRequest(followsApp);
 
 // Expose Firestore triggers.
-// Functions v2 triggers are directly exported
 export { onUserUpdate, onCategoryUpdate, onNewItem };
